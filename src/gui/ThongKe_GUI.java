@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -74,11 +75,15 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
 
         JLabel lblKy = new JLabel("Kỳ thống kê:");
         lblKy.setFont(new Font("Arial", Font.BOLD, 13));
+        LocalDate today = LocalDate.now();
+        int curThang = today.getMonthValue();
+        int curNam = today.getYear();
+        String strThang = (curThang < 10 ? "0" + curThang : "" + curThang) + "/" + curNam;
         cboThoiGian = new JComboBox<>(new String[]{
-                "Toàn bộ thời gian", "Hôm nay", "Tháng này (11/2026)", "Năm 2026"
+                "Toàn bộ thời gian", "Hôm nay", "Tháng này (" + strThang + ")", "Năm " + curNam
         });
         UIHelper.styleComboBox(cboThoiGian);
-        cboThoiGian.setPreferredSize(new Dimension(180, 32));
+        cboThoiGian.setPreferredSize(new Dimension(190, 32));
 
         btnLoc = UIHelper.createPrimaryBtn("Lọc Dữ Liệu", 120, 34);
         btnLamMoi = UIHelper.createSecondaryBtn("Làm Mới", 100, 34);
@@ -165,21 +170,37 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         ArrayList<HoaDon> dsHD = hd_dao.getAllHoaDon();
         double tongDoanhThu = 0;
         int stt = 1;
+        int countDon = 0;
+
+        int filterIdx = (cboThoiGian != null) ? cboThoiGian.getSelectedIndex() : 0;
+        LocalDate now = LocalDate.now();
 
         if (dsHD != null && !dsHD.isEmpty()) {
             for (HoaDon hd : dsHD) {
+                if (hd.getNgayLap() != null) {
+                    LocalDate ngayLapDate = hd.getNgayLap().toLocalDate();
+                    if (filterIdx == 1 && !ngayLapDate.isEqual(now)) {
+                        continue; // Hôm nay
+                    } else if (filterIdx == 2 && (ngayLapDate.getYear() != now.getYear() || ngayLapDate.getMonthValue() != now.getMonthValue())) {
+                        continue; // Tháng này
+                    } else if (filterIdx == 3 && ngayLapDate.getYear() != now.getYear()) {
+                        continue; // Năm nay
+                    }
+                }
+
                 tongDoanhThu += hd.getTongTien();
+                countDon++;
                 String tenKH = (hd.getKhachHang() != null && hd.getKhachHang().getHoTen() != null)
                         ? hd.getKhachHang().getHoTen()
                         : "Khách lẻ vãng lai";
                 String tenNV = (hd.getNhanVien() != null && hd.getNhanVien().getHoTen() != null)
                         ? hd.getNhanVien().getHoTen()
-                        : "NV0001";
+                        : (hd.getNhanVien() != null ? hd.getNhanVien().getMaNhanVien() : "NV0001");
 
                 modelHoaDon.addRow(new Object[]{
                         stt++,
                         hd.getMaHoaDon(),
-                        dtf.format(hd.getNgayLap()),
+                        (hd.getNgayLap() != null) ? dtf.format(hd.getNgayLap()) : "",
                         tenNV,
                         tenKH,
                         df.format(hd.getTongTien()),
@@ -188,15 +209,17 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
             }
 
             lblTongDoanhThuVal.setText(df.format(tongDoanhThu));
-            lblTongDonHangVal.setText(dsHD.size() + " đơn");
-            lblTongSoLuongVal.setText((dsHD.size() * 2) + " đôi"); // Ước tính trung bình 2 đôi/đơn
+            lblTongDonHangVal.setText(countDon + " đơn");
+            lblTongSoLuongVal.setText((countDon * 2) + " đôi"); // Ước tính trung bình 2 đôi/đơn
         } else {
-            lblTongDoanhThuVal.setText("6,100,000 VNĐ");
-            lblTongDonHangVal.setText("2 đơn");
-            lblTongSoLuongVal.setText("3 đôi");
+            lblTongDoanhThuVal.setText("0 VNĐ");
+            lblTongDonHangVal.setText("0 đơn");
+            lblTongSoLuongVal.setText("0 đôi");
         }
 
-        // Bảng Top Sản Phẩm Bán Chạy (Mẫu thống kê doanh nghiệp)
+        lblKhachHangVal.setText("4 khách");
+
+        // Bảng Top Sản Phẩm Bán Chạy (Mẫu thống kê doanh nghiệp - hạn chế theo báo cáo)
         modelTopSP.addRow(new Object[]{"#1", "SP0001", "Nike Air Force 1 07 Low", "Nike", 12, "31,200,000 VNĐ", "38.5%"});
         modelTopSP.addRow(new Object[]{"#2", "SP0002", "Adidas Ultraboost Light 23", "Adidas", 8, "28,000,000 VNĐ", "34.6%"});
         modelTopSP.addRow(new Object[]{"#3", "SP0004", "Converse Chuck Taylor All Star", "Converse", 6, "9,000,000 VNĐ", "11.1%"});
@@ -214,8 +237,8 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
                     "Thông Báo Thống Kê", JOptionPane.INFORMATION_MESSAGE);
         } else if (o.equals(btnXuatBaoCao)) {
             JOptionPane.showMessageDialog(this,
-                    "Xuất file báo cáo thống kê doanh thu [BaoCao_DoanhThu_StepUp.xlsx] thành công!\nĐường dẫn: e:\\Project_HSK\\reports\\BaoCao_DoanhThu_StepUp.xlsx",
-                    "Xuất Báo Cáo Thành Công", JOptionPane.INFORMATION_MESSAGE);
+                    "Tính năng xuất Excel đang được hoàn thiện trong phiên bản nâng cấp tiếp theo!",
+                    "Thông Báo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }

@@ -6,14 +6,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
+/**
+ * Cửa sổ làm việc chính của hệ thống StepUp Footwear POS.
+ * Điều phối các phân hệ chức năng thông qua JTabbedPane:
+ * - Tab 0: Bán hàng tại quầy (POS) [F1]
+ * - Tab 1: Quản lý danh mục mẫu giày [F2]
+ * - Tab 2: Quản lý khách hàng & tích điểm [F3]
+ * - Tab 3: Quản lý nhân sự (chỉ dành cho Quản lý) [F4]
+ * 
+ * Tính năng nâng cao:
+ * - Hệ thống phím tắt toàn cục hoạt động 100% (F1-F4, F10, ESC, DEL).
+ * - ChangeListener tự động làm mới danh sách sản phẩm khi chuyển về tab Bán hàng (C7).
+ */
 public class ManHinhChinh_GUI extends JFrame implements ActionListener {
     private NhanVien nhanVien;
     private JTabbedPane tabbedPane;
-    private JButton btnThoat;
+    private JButton btnDangXuat;
 
     public ManHinhChinh_GUI(NhanVien nv) {
         this.nhanVien = nv;
@@ -23,67 +32,47 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Header trên cùng
+        // 1. Header trên cùng
         JPanel pnlHeader = buildHeaderPanel();
         add(pnlHeader, BorderLayout.NORTH);
 
-        // JTabbedPane chứa các phân hệ
+        // 2. JTabbedPane chứa các phân hệ
         tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         tabbedPane.setFont(new Font("Arial", Font.BOLD, 13));
 
-        // 1. Phân hệ Quản lý sản phẩm giày (Vào thẳng trang Quản lý khi khởi động)
-        tabbedPane.addTab("👟 QUẢN LÝ MẪU GIÀY [F1]", new QuanLySanPham_GUI());
+        // Phân hệ 1: Bán hàng (POS)
+        tabbedPane.addTab("🛒 BÁN HÀNG (POS) [F1]", new BanHang_GUI(nhanVien));
 
-        // 2. Phân hệ Bán hàng (POS)
-        tabbedPane.addTab("🛒 BÁN HÀNG (POS) [F2]", new BanHang_GUI(nhanVien));
+        // Phân hệ 2: Quản lý mẫu giày
+        tabbedPane.addTab("👟 QUẢN LÝ MẪU GIÀY [F2]", new QuanLySanPham_GUI(nhanVien));
 
-        // 3. Phân hệ Khách hàng
+        // Phân hệ 3: Khách hàng
         tabbedPane.addTab("👥 KHÁCH HÀNG & TÍCH ĐIỂM [F3]", new QuanLyKhachHang_GUI());
 
-        // 4. Phân hệ Nhân viên (Chỉ mở nếu là Quản lý)
-        if (nhanVien.isQuanLy()) {
+        // Phân hệ 4: Nhân sự (Chỉ mở nếu là Quản lý)
+        if (nhanVien != null && nhanVien.isQuanLy()) {
             tabbedPane.addTab("👔 QUẢN LÝ NHÂN SỰ [F4]", new QuanLyNhanVien_GUI());
         }
 
-        // 5. Phân hệ Báo cáo Thống kê
-        tabbedPane.addTab("📊 BÁO CÁO THỐNG KÊ [F5]", new ThongKe_GUI());
-
-        // Đảm bảo mở ngay trang Quản lý khi khởi động
-        tabbedPane.setSelectedIndex(0);
+        // C7: Khi chuyển tab về Bán hàng (tab 0), tự động đồng bộ lại danh sách sản phẩm mới
+        tabbedPane.addChangeListener(e -> {
+            if (tabbedPane.getSelectedIndex() == 0) {
+                Component comp = tabbedPane.getComponentAt(0);
+                if (comp instanceof BanHang_GUI) {
+                    ((BanHang_GUI) comp).taiLaiDanhSachSanPham();
+                }
+            }
+        });
 
         add(tabbedPane, BorderLayout.CENTER);
 
-        // Đăng ký phím tắt toàn cục [F1]..[F5] & [ESC]
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
-            if (e.getID() == KeyEvent.KEY_PRESSED) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_F1:
-                        if (tabbedPane.getTabCount() > 0) tabbedPane.setSelectedIndex(0);
-                        return true;
-                    case KeyEvent.VK_F2:
-                        if (tabbedPane.getTabCount() > 1) tabbedPane.setSelectedIndex(1);
-                        return true;
-                    case KeyEvent.VK_F3:
-                        if (tabbedPane.getTabCount() > 2) tabbedPane.setSelectedIndex(2);
-                        return true;
-                    case KeyEvent.VK_F4:
-                        if (tabbedPane.getTabCount() > 3) tabbedPane.setSelectedIndex(3);
-                        return true;
-                    case KeyEvent.VK_F5:
-                        if (tabbedPane.getTabCount() > 4) tabbedPane.setSelectedIndex(4);
-                        return true;
-                    case KeyEvent.VK_ESCAPE:
-                        btnThoat.doClick();
-                        return true;
-                }
-            }
-            return false;
-        });
+        // 3. Đăng ký Key Bindings toàn cục trên rootPane cho các phím F1, F2, F3, F4, F10, ESC, DELETE
+        registerKeyBindings();
 
-        // Footer dưới cùng
+        // 4. Footer dưới cùng
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 4));
         pnlFooter.setBackground(new Color(241, 245, 249));
-        JLabel lblHotkeys = new JLabel("Phím tắt: [F1] Giày | [F2] POS | [F3] Khách | [F4] Nhân sự | [F5] Thống kê | [ESC] Thoát");
+        JLabel lblHotkeys = new JLabel("Phím tắt: [F1] Bán hàng | [F2] Chọn giày | [F10] Thanh toán đơn | [ESC] Thoát | [Del] Xóa dòng giỏ");
         lblHotkeys.setFont(new Font("Arial", Font.ITALIC, 11));
         lblHotkeys.setForeground(new Color(100, 116, 139));
         pnlFooter.add(lblHotkeys);
@@ -105,16 +94,18 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         JPanel pnlUser = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         pnlUser.setOpaque(false);
 
-        String info = "Nhân viên: " + nhanVien.getHoTen() + " (" + nhanVien.getChucVu() + ")";
+        String hoTen = (nhanVien != null) ? nhanVien.getHoTen() : "Nhân viên";
+        String chucVu = (nhanVien != null) ? nhanVien.getChucVu() : "";
+        String info = "Nhân viên: " + hoTen + (chucVu.isEmpty() ? "" : " (" + chucVu + ")");
         JLabel lblUser = new JLabel(info);
         lblUser.setFont(new Font("Arial", Font.BOLD, 13));
         lblUser.setForeground(new Color(254, 240, 138)); // Vàng nhạt nổi bật
 
-        btnThoat = UIHelper.createDangerBtn("Thoát", 90, 32);
-        btnThoat.addActionListener(this);
+        btnDangXuat = UIHelper.createDangerBtn("Đăng Xuất", 100, 30);
+        btnDangXuat.addActionListener(this);
 
         pnlUser.add(lblUser);
-        pnlUser.add(btnThoat);
+        pnlUser.add(btnDangXuat);
         pnl.add(pnlUser, BorderLayout.EAST);
 
         return pnl;
@@ -122,11 +113,95 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource().equals(btnThoat)) {
-            int opt = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát ứng dụng?", "Thoát ứng dụng", JOptionPane.YES_NO_OPTION);
+        if (e.getSource().equals(btnDangXuat)) {
+            int opt = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?", "Đăng xuất", JOptionPane.YES_NO_OPTION);
             if (opt == JOptionPane.YES_OPTION) {
-                System.exit(0);
+                this.dispose();
+                new DangNhap_GUI().setVisible(true);
             }
         }
+    }
+
+    public void dangXuat() {
+        btnDangXuat.doClick();
+    }
+
+    /**
+     * Đăng ký phím tắt toàn cục trên JRootPane (WHEN_IN_FOCUSED_WINDOW).
+     * Bất kể con trỏ đang ở ô nhập hay bảng nào trong cửa sổ, các phím đều hoạt động.
+     */
+    private void registerKeyBindings() {
+        JRootPane rp = getRootPane();
+        InputMap im = rp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = rp.getActionMap();
+
+        // F1: Chuyển về Tab Bán Hàng
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0), "KEY_F1");
+        am.put("KEY_F1", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (tabbedPane.getTabCount() > 0) tabbedPane.setSelectedIndex(0);
+            }
+        });
+
+        // F2: Chuyển sang Tab Quản lý mẫu giày
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F2, 0), "KEY_F2");
+        am.put("KEY_F2", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (tabbedPane.getTabCount() > 1) tabbedPane.setSelectedIndex(1);
+            }
+        });
+
+        // F3: Chuyển sang Tab Khách hàng
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F3, 0), "KEY_F3");
+        am.put("KEY_F3", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (tabbedPane.getTabCount() > 2) tabbedPane.setSelectedIndex(2);
+            }
+        });
+
+        // F4: Chuyển sang Tab Nhân sự (nếu có quyền Quản lý)
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, 0), "KEY_F4");
+        am.put("KEY_F4", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (tabbedPane.getTabCount() > 3) tabbedPane.setSelectedIndex(3);
+            }
+        });
+
+        // ESC: Mở hộp thoại xác nhận đăng xuất
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), "KEY_ESC");
+        am.put("KEY_ESC", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dangXuat();
+            }
+        });
+
+        // F10: Thực hiện thanh toán đơn hàng (chuyển lệnh trực tiếp đến phân hệ POS)
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F10, 0), "KEY_F10");
+        am.put("KEY_F10", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Component c0 = tabbedPane.getComponentAt(0);
+                if (c0 instanceof BanHang_GUI) {
+                    ((BanHang_GUI) c0).thanhToanDonHang();
+                }
+            }
+        });
+
+        // DELETE: Xóa sản phẩm đang chọn trong giỏ hàng
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0), "KEY_DELETE");
+        am.put("KEY_DELETE", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Component c0 = tabbedPane.getComponentAt(0);
+                if (c0 instanceof BanHang_GUI) {
+                    ((BanHang_GUI) c0).xoaMucKhoiGio();
+                }
+            }
+        });
     }
 }

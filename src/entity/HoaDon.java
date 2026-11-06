@@ -5,15 +5,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Lớp Entity biểu diễn Hóa đơn bán hàng tại quầy (StepUp Footwear POS).
+ * Khớp chuẩn 100% với bảng HoaDon trong CSDL SQL Server QuanLyBanGiay:
+ * - maHoaDon, ngayLap, maNhanVien, maKhachHang
+ * - tongTienHang (tổng tiền gốc trước giảm giá)
+ * - chietKhau (tiền giảm giá theo hạng thẻ thành viên)
+ * - diemSuDung (số điểm tích lũy dùng để thanh toán)
+ * - tienGiamDiem (số tiền tương ứng với điểm: 1 điểm = 1.000 VNĐ)
+ * - tongTien (tổng tiền thực tế khách cần thanh toán sau khi trừ mọi chiết khấu)
+ * - phuongThucTT, tienKhachDua, tienThua, diemCong
+ */
 public class HoaDon {
     private String maHoaDon;
     private LocalDateTime ngayLap;
     private NhanVien nhanVien;
-    private KhachHang khachHang; // Có thể null nếu khách vãng lai
-    private double tongTien;
-    private String phuongThucTT; // 'Tiền mặt', 'Chuyển khoản'
-    private double tienKhachDua;
-    private double tienThua;
+    private KhachHang khachHang; // null nếu là khách vãng lai
+    private double tongTienHang; // Tổng tiền các sản phẩm trong giỏ (chưa giảm)
+    private double chietKhau;    // Số tiền giảm theo hạng thành viên (5%, 10%, 15%)
+    private int diemSuDung;      // Số điểm khách dùng
+    private double tienGiamDiem; // Số tiền giảm từ điểm dùng
+    private double tongTien;     // Tiền khách thực tế phải trả (= tongTienHang - chietKhau - tienGiamDiem)
+    private String phuongThucTT; // "Tiền mặt", "Chuyển khoản QR"
+    private double tienKhachDua; // Tiền khách đưa
+    private double tienThua;     // Tiền thối lại cho khách
+    private int diemCong;        // Số điểm tích lũy được cộng mới (mỗi 100.000đ = 1 điểm)
     private List<ChiTietHoaDon> danhSachChiTiet;
 
     public HoaDon() {
@@ -24,14 +40,13 @@ public class HoaDon {
     }
 
     public HoaDon(String maHoaDon) {
+        this();
         this.maHoaDon = maHoaDon;
-        this.ngayLap = LocalDateTime.now();
-        this.phuongThucTT = "Tiền mặt";
-        this.danhSachChiTiet = new ArrayList<>();
     }
 
     public HoaDon(String maHoaDon, LocalDateTime ngayLap, NhanVien nhanVien, KhachHang khachHang,
                   double tongTien, String phuongThucTT, double tienKhachDua, double tienThua) {
+        this();
         this.maHoaDon = maHoaDon;
         this.ngayLap = (ngayLap != null) ? ngayLap : LocalDateTime.now();
         this.nhanVien = nhanVien;
@@ -40,7 +55,7 @@ public class HoaDon {
         this.phuongThucTT = phuongThucTT;
         this.tienKhachDua = tienKhachDua;
         this.tienThua = tienThua;
-        this.danhSachChiTiet = new ArrayList<>();
+        this.tongTienHang = tongTien;
     }
 
     public String getMaHoaDon() {
@@ -73,6 +88,38 @@ public class HoaDon {
 
     public void setKhachHang(KhachHang khachHang) {
         this.khachHang = khachHang;
+    }
+
+    public double getTongTienHang() {
+        return tongTienHang;
+    }
+
+    public void setTongTienHang(double tongTienHang) {
+        this.tongTienHang = tongTienHang;
+    }
+
+    public double getChietKhau() {
+        return chietKhau;
+    }
+
+    public void setChietKhau(double chietKhau) {
+        this.chietKhau = chietKhau;
+    }
+
+    public int getDiemSuDung() {
+        return diemSuDung;
+    }
+
+    public void setDiemSuDung(int diemSuDung) {
+        this.diemSuDung = diemSuDung;
+    }
+
+    public double getTienGiamDiem() {
+        return tienGiamDiem;
+    }
+
+    public void setTienGiamDiem(double tienGiamDiem) {
+        this.tienGiamDiem = tienGiamDiem;
     }
 
     public double getTongTien() {
@@ -108,6 +155,14 @@ public class HoaDon {
         this.tienThua = tienThua;
     }
 
+    public int getDiemCong() {
+        return diemCong;
+    }
+
+    public void setDiemCong(int diemCong) {
+        this.diemCong = diemCong;
+    }
+
     public List<ChiTietHoaDon> getDanhSachChiTiet() {
         return danhSachChiTiet;
     }
@@ -116,10 +171,16 @@ public class HoaDon {
         this.danhSachChiTiet = danhSachChiTiet;
     }
 
+    /**
+     * Thêm một dòng chi tiết sản phẩm vào hóa đơn.
+     * Bảo toàn tongTien đã tính toán chiết khấu (không để bị ghi đè số thô).
+     */
     public void themChiTiet(ChiTietHoaDon cthd) {
         if (cthd != null) {
             this.danhSachChiTiet.add(cthd);
-            tinhTongTien();
+            if (this.tongTienHang <= 0) {
+                this.tongTienHang = tinhTongTien();
+            }
         }
     }
 
@@ -128,7 +189,9 @@ public class HoaDon {
         for (ChiTietHoaDon ct : danhSachChiTiet) {
             tong += ct.getThanhTien();
         }
-        this.tongTien = tong;
+        if (this.tongTien <= 0) {
+            this.tongTien = tong;
+        }
         tinhTienThua();
         return tong;
     }
@@ -153,6 +216,6 @@ public class HoaDon {
 
     @Override
     public String toString() {
-        return "HD: " + maHoaDon + " - Tổng: " + String.format("%,.0f VNĐ", tongTien);
+        return "HD: " + maHoaDon + " - Tổng phải trả: " + String.format("%,.0f VNĐ", tongTien);
     }
 }
