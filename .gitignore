@@ -1,0 +1,48 @@
+# ==============================================================================
+# .gitignore cho Đồ Án Hướng Sự Kiện Java - StepUp Footwear POS (IUH)
+# ==============================================================================
+
+# Compiled Java class files & build directories
+bin/
+build/
+target/
+*.class
+
+# Eclipse IDE workspace metadata
+.metadata/
+.settings/
+.project
+.classpath
+
+# IntelliJ IDEA & VS Code
+.idea/
+*.iml
+.vscode/
+
+# Reference files from previous project template
+RapChieuPhim_HSK.docx
+extracted_rapchieuphim.txt
+extracted_imgs/
+template_fig1_class.png
+1_ConnectDB.PNG
+2_KhoiTaoKetNoi Trong Lop UI.PNG
+3_Entity_PhongBan.PNG
+4_Entity_NhanVien.PNG
+5_dao_PhongBan_getAll.PNG
+6_dao_NhanVien_getAll.PNG
+7_UI_DocDuLieuvao JTable.PNG
+7_UI_KhaiBao_DAO.PNG
+7_UI_KhoiTao_DAO.PNG
+8_Do du lieu vao Combobox.PNG
+9_PhuongThuc DocDuLieuVaoJTable.PNG
+1793803620464_210995546364644005_443748525111921504_af9ed56628f6082feed68526d0d806ab.jpg
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS specific files
+Thumbs.db
+Desktop.ini
+.DS_Store
