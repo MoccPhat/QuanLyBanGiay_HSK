@@ -18,14 +18,20 @@ public class UIHelper {
     public static final Color DANGER_RED   = new Color(220, 38, 38);   // Đỏ xóa / hủy
     public static final Color WARN_AMBER   = new Color(217, 119, 6);   // Vàng cam cảnh báo
     public static final Color BG_GRAY      = new Color(248, 250, 252); // Xám nền nhẹ
+    public static final Color BG_MAIN      = BG_GRAY;
+    public static final Color INFO_BLUE    = ACCENT_BLUE;
     public static final Color BORDER_GRAY  = new Color(203, 213, 225); // Xám viền
 
     public static final Color TEXT_DARK    = new Color(15, 23, 42);    // Chữ màu tối chuẩn sắc nét
     public static final Color BTN_LIGHT_BG = new Color(241, 245, 249); // Nền nút xám sáng
 
+    public static JButton createButton(String text, Color bgColor, Color fgColor) {
+        return createButton(text, bgColor, fgColor, 100, 32);
+    }
+
     /**
      * Tạo nút bấm tùy biến đảm bảo 100% hiển thị màu nền và chữ sắc nét trên mọi hệ điều hành.
-     * Vẽ trực tiếp chữ bằng Graphics2D để ngăn Look & Feel của Windows làm mờ hoặc đổi màu chữ.
+     * Tự vẽ nền và chữ bằng Graphics2D để ngăn Look & Feel của Windows làm mờ hoặc đổi màu chữ.
      */
     public static JButton createButton(String text, Color bgColor, Color fgColor, int minW, int minH) {
         JButton btn = new JButton(text) {
@@ -35,18 +41,42 @@ public class UIHelper {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
+                // 0. Xử lý khi nút bị vô hiệu hóa (Disabled)
+                if (!isEnabled()) {
+                    g2.setColor(new Color(226, 232, 240));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                    g2.setColor(new Color(203, 213, 225));
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                    g2.setFont(getFont());
+                    g2.setColor(new Color(148, 163, 184));
+                    FontMetrics fm = g2.getFontMetrics();
+                    int textX = (getWidth() - fm.stringWidth(getText())) / 2;
+                    int textY = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+                    g2.drawString(getText(), textX, textY);
+                    g2.dispose();
+                    return;
+                }
+
                 // 1. Vẽ nền nút bo góc
                 if (getModel().isPressed()) {
                     g2.setColor(bgColor.darker());
                 } else if (getModel().isRollover()) {
-                    g2.setColor(bgColor.brighter());
+                    g2.setColor(new Color(
+                        Math.min(255, bgColor.getRed() + 20),
+                        Math.min(255, bgColor.getGreen() + 20),
+                        Math.min(255, bgColor.getBlue() + 20)
+                    ));
                 } else {
                     g2.setColor(bgColor);
                 }
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
 
                 // 2. Viền phân tách thanh lịch
-                g2.setColor(new Color(0, 0, 0, 25));
+                if (fgColor.equals(TEXT_DARK) || bgColor.equals(BTN_LIGHT_BG)) {
+                    g2.setColor(BORDER_GRAY); // Viền xám cho nút sáng
+                } else {
+                    g2.setColor(new Color(0, 0, 0, 35));
+                }
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
 
                 // 3. Vẽ chữ sắc nét, căn giữa hoàn hảo
@@ -74,20 +104,40 @@ public class UIHelper {
         return btn;
     }
 
+    public static JButton createPrimaryBtn(String text) {
+        return createPrimaryBtn(text, 110, 34);
+    }
+
     public static JButton createPrimaryBtn(String text, int minW, int minH) {
         return createButton(text, ACCENT_BLUE, Color.WHITE, minW, minH);
+    }
+
+    public static JButton createSuccessBtn(String text) {
+        return createSuccessBtn(text, 110, 34);
     }
 
     public static JButton createSuccessBtn(String text, int minW, int minH) {
         return createButton(text, SUCCESS_GREEN, Color.WHITE, minW, minH);
     }
 
+    public static JButton createDangerBtn(String text) {
+        return createDangerBtn(text, 110, 34);
+    }
+
     public static JButton createDangerBtn(String text, int minW, int minH) {
         return createButton(text, DANGER_RED, Color.WHITE, minW, minH);
     }
 
+    public static JButton createDarkBtn(String text) {
+        return createDarkBtn(text, 65, 30);
+    }
+
     public static JButton createDarkBtn(String text, int minW, int minH) {
         return createButton(text, PRIMARY_BLUE, Color.WHITE, minW, minH);
+    }
+
+    public static JButton createSecondaryBtn(String text) {
+        return createSecondaryBtn(text, 120, 34);
     }
 
     public static JButton createSecondaryBtn(String text, int minW, int minH) {

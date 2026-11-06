@@ -19,13 +19,13 @@ public class ConnectDB {
             // Driver loaded via classpath
         }
 
-        // Danh sách các cổng và cấu hình kết nối tự động
+        // Danh sách các cổng và cấu hình kết nối tự động (ưu tiên TCP 1433 và timeout nhanh)
         String[] urls = {
-            "jdbc:sqlserver://localhost:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true",
-            "jdbc:sqlserver://localhost;instanceName=SQLEXPRESS;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true",
-            "jdbc:sqlserver://127.0.0.1:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true"
+            "jdbc:sqlserver://localhost:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;loginTimeout=3;",
+            "jdbc:sqlserver://127.0.0.1:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;loginTimeout=3;",
+            "jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;loginTimeout=3;"
         };
-        String[] passwords = {"sapassword", "123456", "sa", "123", ""};
+        String[] passwords = {"123456789", "sapassword", "123456"};
 
         SQLException lastEx = null;
         for (String url : urls) {
@@ -58,6 +58,13 @@ public class ConnectDB {
     }
 
     public static Connection getConnection() {
+        try {
+            if (con == null || con.isClosed()) {
+                instance.connect();
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi tự động kết nối CSDL: " + e.getMessage());
+        }
         return con;
     }
 }

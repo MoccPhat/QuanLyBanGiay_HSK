@@ -51,13 +51,14 @@
    - Danh sách chi tiết các hóa đơn phát sinh theo bộ lọc thời gian.
    - Bảng xếp hạng Top 5 mẫu giày bán chạy nhất và tỷ lệ đóng góp doanh thu.
 
-6. **Phím Tắt Toàn Cục (`KeyboardFocusManager`):**
-   - `[F1]`: Chuyển nhanh đến Quản lý giày
-   - `[F2]`: Chuyển nhanh đến Bán hàng POS
-   - `[F3]`: Chuyển nhanh đến Khách hàng & Tích điểm
-   - `[F4]`: Chuyển nhanh đến Quản lý nhân sự
-   - `[F5]`: Chuyển nhanh đến Báo cáo thống kê
-   - `[ESC]`: Xác nhận thoát ứng dụng
+6. **Phím Tắt Toàn Cục (`JRootPane KeyBindings` - Hỗ trợ thao tác nhanh không phụ thuộc con trỏ):**
+   - `[F1]`: Chuyển nhanh đến Tab Bán hàng POS
+   - `[F2]`: Chuyển nhanh đến Tab Quản lý mẫu giày
+   - `[F3]`: Chuyển nhanh đến Tab Khách hàng & Tích điểm
+   - `[F4]`: Chuyển nhanh đến Tab Quản lý nhân sự (yêu cầu quyền Quản lý)
+   - `[F10]`: Thực hiện thanh toán đơn hàng tại quầy POS
+   - `[Delete]`: Xóa dòng sản phẩm đang chọn trong giỏ hàng
+   - `[ESC]`: Mở hộp thoại xác nhận đăng xuất tài khoản
 
 ---
 
@@ -123,11 +124,11 @@ e:\Project_HSK\
 - **Cách 1 (Nhanh nhất):** Nhấp đúp chuột vào file `run.bat` ở thư mục gốc.
 - **Cách 2 (Bằng Terminal / Command Prompt):**
 ```bash
-# 1. Biên dịch toàn bộ mã nguồn
-javac -encoding UTF-8 -d bin -sourcepath src -cp "lib/*" src/Main.java src/gui/*.java src/dao/*.java src/entity/*.java src/connectDB/*.java
+# 1. Biên dịch toàn bộ mã nguồn (yêu cầu JDK 17, gắn cờ --release 17 để tương thích 100% với Eclipse và runtime):
+javac --release 17 -encoding UTF-8 -d bin -cp "lib/*;src" src/Main.java src/connectDB/*.java src/entity/*.java src/dao/*.java src/gui/*.java
 
-# 2. Khởi chạy ứng dụng
-java -cp "bin;lib/*" Main
+# 2. Khởi chạy ứng dụng:
+java -Dfile.encoding=UTF-8 -cp "bin;lib/*" Main
 ```
 
 ---
