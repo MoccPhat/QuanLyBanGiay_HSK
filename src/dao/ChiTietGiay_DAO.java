@@ -117,11 +117,36 @@ public class ChiTietGiay_DAO {
             pstmt.setInt(3, ctg.getKichThuoc());
             pstmt.setString(4, ctg.getMauSac());
             pstmt.setInt(5, ctg.getSoLuongTon());
-            pstmt.setString(6, ctg.getHinhAnh());
+            String hinh = ctg.getHinhAnh();
+            if (hinh == null || hinh.trim().isEmpty()) {
+                hinh = "default_shoe.png";
+            }
+            pstmt.setString(6, hinh);
             n = pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return n > 0;
+    }
+
+    public String sinhMaChiTietGiayMoi() {
+        try {
+            ConnectDB.getInstance();
+            Connection con = ConnectDB.getConnection();
+            String sql = "SELECT ISNULL(MAX(CAST(SUBSTRING(maChiTietGiay, 4, 10) AS INT)), 0) + 1 AS nextId FROM ChiTietGiay WHERE maChiTietGiay LIKE 'CTG%'";
+            try (Statement st = con.createStatement();
+                 ResultSet rs = st.executeQuery(sql)) {
+                if (rs.next()) {
+                    return String.format("CTG%04d", rs.getInt("nextId"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return String.format("CTG%04d", Math.abs(System.currentTimeMillis() % 10000));
+    }
+
+    public ArrayList<ChiTietGiay> layTatCaChiTietGiay() {
+        return getAllChiTietGiay();
     }
 }

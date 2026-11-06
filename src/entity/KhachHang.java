@@ -20,10 +20,15 @@ public class KhachHang extends Nguoi {
 
     public KhachHang(String maKhachHang, String hoTen, String soDienThoai, LocalDate ngaySinh, boolean gioiTinh,
                      String diaChi, String email, int diemTichLuy, String hangThanhVien) {
-        super(hoTen, soDienThoai, ngaySinh, gioiTinh, diaChi, email);
+        super(hoTen, soDienThoai, ngaySinh, gioiTinh, diaChi, (email != null && email.trim().isEmpty()) ? null : email);
         this.maKhachHang = maKhachHang;
         this.diemTichLuy = diemTichLuy;
         this.hangThanhVien = hangThanhVien;
+    }
+
+    @Override
+    public void setEmail(String email) {
+        super.setEmail((email != null && email.trim().isEmpty()) ? null : email);
     }
 
     public String getMaKhachHang() {
