@@ -4,7 +4,6 @@ import dao.NhanVien_DAO;
 import entity.NhanVien;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -15,11 +14,24 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Phân hệ Quản lý nhân sự cửa hàng (StepUp POS).
+ * - Dành riêng cho Quản lý.
+ * - Kiểm tra dữ liệu đầu vào: Lương > 0, SĐT 10 chữ số đúng định dạng (C6).
+ * - Sử dụng ListSelectionListener hỗ trợ chọn nhân viên bằng bàn phím (C8).
+ * - Khóa ô Mã nhân viên khi cập nhật thông tin.
+ */
 public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseListener {
-    private JTextField txtMaNV, txtHoTen, txtSDT, txtDiaChi, txtLuong, txtCaLam;
+    private JTextField txtMaNV;
+    private JTextField txtHoTen;
+    private JTextField txtSDT;
+    private JTextField txtDiaChi;
+    private JTextField txtLuong;
+    private JComboBox<String> cboCaLam;
     private JComboBox<String> cboChucVu;
     private JRadioButton radNam, radNu;
     private JButton btnThem, btnXoa, btnSua, btnXoaTrang;
+
     private JTable tableNV;
     private DefaultTableModel modelNV;
     private NhanVien_DAO nv_dao;
@@ -29,94 +41,72 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         nv_dao = new NhanVien_DAO();
 
         setLayout(new BorderLayout(10, 10));
-        setBackground(new Color(245, 247, 250));
+        setBackground(UIHelper.BG_MAIN);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // TIÊU ĐỀ
-        JLabel lblHeader = new JLabel("QUẢN LÝ DANH SÁCH NHÂN SỰ CỬA HÀNG", JLabel.CENTER);
+        JLabel lblHeader = new JLabel("QUẢN LÝ DANH SÁCH NHÂN SỰ & PHÂN QUYỀN HỆ THỐNG", JLabel.CENTER);
         lblHeader.setFont(new Font("Arial", Font.BOLD, 18));
-        lblHeader.setForeground(new Color(30, 58, 138));
+        lblHeader.setForeground(UIHelper.PRIMARY_BLUE);
         add(lblHeader, BorderLayout.NORTH);
 
         // FORM NHẬP LIỆU
-        JPanel pnlForm = UIHelper.createTitledPanel("Thông Tin Chi Tiết Nhân Viên", UIHelper.PRIMARY_BLUE);
-        pnlForm.setLayout(new GridBagLayout());
+        JPanel pnlForm = new JPanel(new GridBagLayout());
+        pnlForm.setBackground(Color.WHITE);
+        pnlForm.setBorder(UIHelper.createTitledPanel("Thông Tin Chi Tiết Nhân Viên", UIHelper.PRIMARY_BLUE).getBorder());
 
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(6, 12, 6, 12);
         g.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel lblMa = new JLabel("Mã nhân viên:");
-        lblMa.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 0; g.gridy = 0; pnlForm.add(lblMa, g);
+        // Cột 1
+        g.gridx = 0; g.gridy = 0; pnlForm.add(new JLabel("Mã nhân viên:"), g);
         txtMaNV = new JTextField(15);
-        UIHelper.styleTextField(txtMaNV);
         g.gridx = 1; g.gridy = 0; pnlForm.add(txtMaNV, g);
 
-        JLabel lblTen = new JLabel("Họ và tên:");
-        lblTen.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 0; g.gridy = 1; pnlForm.add(lblTen, g);
+        g.gridx = 0; g.gridy = 1; pnlForm.add(new JLabel("Họ và tên:"), g);
         txtHoTen = new JTextField(15);
-        UIHelper.styleTextField(txtHoTen);
         g.gridx = 1; g.gridy = 1; pnlForm.add(txtHoTen, g);
 
-        JLabel lblSDT = new JLabel("Số điện thoại:");
-        lblSDT.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 0; g.gridy = 2; pnlForm.add(lblSDT, g);
+        g.gridx = 0; g.gridy = 2; pnlForm.add(new JLabel("Số điện thoại:"), g);
         txtSDT = new JTextField(15);
-        UIHelper.styleTextField(txtSDT);
         g.gridx = 1; g.gridy = 2; pnlForm.add(txtSDT, g);
 
-        JLabel lblGT = new JLabel("Giới tính:");
-        lblGT.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 0; g.gridy = 3; pnlForm.add(lblGT, g);
-        JPanel pnlGioiTinh = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        pnlGioiTinh.setOpaque(false);
+        g.gridx = 0; g.gridy = 3; pnlForm.add(new JLabel("Giới tính:"), g);
+        JPanel pnlGender = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        pnlGender.setOpaque(false);
         radNam = new JRadioButton("Nam", true);
         radNu = new JRadioButton("Nữ");
-        radNam.setFont(new Font("Arial", Font.PLAIN, 12));
-        radNu.setFont(new Font("Arial", Font.PLAIN, 12));
-        radNam.setOpaque(false); radNu.setOpaque(false);
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(radNam); bg.add(radNu);
-        pnlGioiTinh.add(radNam); pnlGioiTinh.add(radNu);
-        g.gridx = 1; g.gridy = 3; pnlForm.add(pnlGioiTinh, g);
+        ButtonGroup bgGender = new ButtonGroup();
+        bgGender.add(radNam); bgGender.add(radNu);
+        pnlGender.add(radNam); pnlGender.add(radNu);
+        g.gridx = 1; g.gridy = 3; pnlForm.add(pnlGender, g);
 
-        JLabel lblCV = new JLabel("Chức vụ:");
-        lblCV.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 2; g.gridy = 0; pnlForm.add(lblCV, g);
+        // Cột 2
+        g.gridx = 2; g.gridy = 0; pnlForm.add(new JLabel("Chức vụ:"), g);
         cboChucVu = new JComboBox<>(new String[]{"Nhân viên bán hàng", "Quản lý"});
-        UIHelper.styleComboBox(cboChucVu);
         g.gridx = 3; g.gridy = 0; pnlForm.add(cboChucVu, g);
 
-        JLabel lblL = new JLabel("Lương cơ bản (VNĐ):");
-        lblL.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 2; g.gridy = 1; pnlForm.add(lblL, g);
-        txtLuong = new JTextField("6500000", 15);
-        UIHelper.styleTextField(txtLuong);
+        g.gridx = 2; g.gridy = 1; pnlForm.add(new JLabel("Lương cơ bản (VNĐ):"), g);
+        txtLuong = new JTextField(15);
         g.gridx = 3; g.gridy = 1; pnlForm.add(txtLuong, g);
 
-        JLabel lblCa = new JLabel("Ca làm việc:");
-        lblCa.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 2; g.gridy = 2; pnlForm.add(lblCa, g);
-        txtCaLam = new JTextField("Ca sáng", 15);
-        UIHelper.styleTextField(txtCaLam);
-        g.gridx = 3; g.gridy = 2; pnlForm.add(txtCaLam, g);
+        g.gridx = 2; g.gridy = 2; pnlForm.add(new JLabel("Ca làm việc:"), g);
+        cboCaLam = new JComboBox<>(new String[]{"Toàn thời gian", "Ca sáng", "Ca chiều", "Ca tối"});
+        g.gridx = 3; g.gridy = 2; pnlForm.add(cboCaLam, g);
 
-        JLabel lblDC = new JLabel("Địa chỉ:");
-        lblDC.setFont(new Font("Arial", Font.BOLD, 12));
-        g.gridx = 2; g.gridy = 3; pnlForm.add(lblDC, g);
-        txtDiaChi = new JTextField("Gò Vấp, TP.HCM", 15);
-        UIHelper.styleTextField(txtDiaChi);
+        g.gridx = 2; g.gridy = 3; pnlForm.add(new JLabel("Địa chỉ:"), g);
+        txtDiaChi = new JTextField(15);
         g.gridx = 3; g.gridy = 3; pnlForm.add(txtDiaChi, g);
 
-        // Nút chức năng
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        // NÚT CHỨC NĂNG
+        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         pnlButtons.setBackground(Color.WHITE);
-        btnThem = UIHelper.createSuccessBtn("Thêm Mới", 130, 36);
-        btnXoa = UIHelper.createDangerBtn("Nghỉ Việc / Xóa", 150, 36);
-        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 130, 36);
-        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 130, 36);
+
+        btnThem = UIHelper.createSuccessBtn("Thêm Nhân Viên", 150, 34);
+        btnXoa = UIHelper.createDangerBtn("Thôi Việc (Xóa)", 130, 34);
+        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 110, 34);
+        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 110, 34);
 
         pnlButtons.add(btnThem);
         pnlButtons.add(btnXoa);
@@ -129,7 +119,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         add(pnlTop, BorderLayout.NORTH);
 
         // BẢNG NHÂN VIÊN
-        String[] headers = {"STT", "Mã NV", "Họ Tên", "Giới Tính", "Số Điện Thoại", "Chức Vụ", "Lương Cơ Bản", "Ca Làm Việc"};
+        String[] headers = {"STT", "Mã NV", "Họ Tên", "Giới Tính", "Số Điện Thoại", "Chức Vụ", "Lương Cơ Bản", "Ca Làm Việc", "Địa Chỉ"};
         modelNV = new DefaultTableModel(headers, 0) {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
@@ -147,6 +137,16 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         btnXoaTrang.addActionListener(this);
         tableNV.addMouseListener(this);
 
+        // C8: ListSelectionListener để điều hướng bàn phím mũi tên cũng nạp dữ liệu lên form
+        tableNV.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int row = tableNV.getSelectedRow();
+                if (row >= 0) {
+                    hienThiThongTinLenForm(row);
+                }
+            }
+        });
+
         docDuLieuVaoTable();
     }
 
@@ -157,9 +157,26 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         for (NhanVien nv : list) {
             modelNV.addRow(new Object[]{
                     stt++, nv.getMaNhanVien(), nv.getHoTen(), nv.isGioiTinh() ? "Nam" : "Nữ",
-                    nv.getSoDienThoai(), nv.getChucVu(), df.format(nv.getLuongCoBan()), nv.getCaLamViec()
+                    nv.getSoDienThoai(), nv.getChucVu(), df.format(nv.getLuongCoBan()), nv.getCaLamViec(), nv.getDiaChi()
             });
         }
+    }
+
+    private void hienThiThongTinLenForm(int row) {
+        if (row < 0 || row >= modelNV.getRowCount()) return;
+        txtMaNV.setText((String) modelNV.getValueAt(row, 1));
+        txtMaNV.setEditable(false); // Khóa mã nhân viên khi sửa
+        txtHoTen.setText((String) modelNV.getValueAt(row, 2));
+        String gt = (String) modelNV.getValueAt(row, 3);
+        if ("Nam".equalsIgnoreCase(gt)) radNam.setSelected(true);
+        else radNu.setSelected(true);
+        txtSDT.setText((String) modelNV.getValueAt(row, 4));
+        cboChucVu.setSelectedItem((String) modelNV.getValueAt(row, 5));
+        txtLuong.setText(String.valueOf(modelNV.getValueAt(row, 6)).replace(" VNĐ", "").replace(",", "").replace(".", "").trim());
+        String ca = (String) modelNV.getValueAt(row, 7);
+        if (ca != null) cboCaLam.setSelectedItem(ca);
+        Object dc = modelNV.getValueAt(row, 8);
+        txtDiaChi.setText(dc != null ? dc.toString() : "");
     }
 
     @Override
@@ -170,25 +187,45 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             String ten = txtHoTen.getText().trim();
             String sdt = txtSDT.getText().trim();
             String chucVu = (String) cboChucVu.getSelectedItem();
-            String ca = txtCaLam.getText().trim();
+            String ca = (String) cboCaLam.getSelectedItem();
             String dc = txtDiaChi.getText().trim();
 
             if (ma.isEmpty() || ten.isEmpty() || sdt.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin nhân viên!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ Mã, Họ tên và Số điện thoại!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (!ma.matches("^NV\\d{4}$")) {
+                JOptionPane.showMessageDialog(this, "Mã nhân viên phải theo định dạng NVxxxx (ví dụ: NV0005)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtMaNV.requestFocus();
+                return;
+            }
+
+            // Kiểm tra định dạng số điện thoại chuẩn khớp ràng buộc CK_NhanVien_sdt
+            if (!sdt.matches("^0[35789]\\d{8}$")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ (phải gồm 10 chữ số bắt đầu bằng 03, 05, 07, 08, 09)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtSDT.requestFocus();
                 return;
             }
 
             try {
                 double luong = Double.parseDouble(txtLuong.getText().replace(",", "").replace(".", "").trim());
-                NhanVien nv = new NhanVien(ma, ten, sdt, LocalDate.of(2000, 1, 1), radNam.isSelected(), dc, "", chucVu, luong, ca, "123456", true);
+                if (luong <= 0) {
+                    JOptionPane.showMessageDialog(this, "Lương cơ bản phải lớn hơn 0!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                NhanVien nv = new NhanVien(ma, ten, sdt, LocalDate.of(2000, 1, 1), radNam.isSelected(), dc.isEmpty() ? null : dc, null, chucVu, luong, ca, "123456", true);
                 if (nv_dao.themNhanVien(nv)) {
                     JOptionPane.showMessageDialog(this, "Thêm nhân viên mới thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                     docDuLieuVaoTable();
+                    xoaTrang();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Thêm thất bại (Trùng mã nhân viên)!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    String err = nv_dao.getLastError();
+                    JOptionPane.showMessageDialog(this, "Thêm thất bại: " + (err.isEmpty() ? "Vui lòng kiểm tra lại thông tin!" : err), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             }
         } else if (o.equals(btnXoa)) {
             int row = tableNV.getSelectedRow();
@@ -208,7 +245,8 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
                     docDuLieuVaoTable();
                     xoaTrang();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Thao tác thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    String err = nv_dao.getLastError();
+                    JOptionPane.showMessageDialog(this, "Thao tác thất bại: " + (err.isEmpty() ? "Lỗi cơ sở dữ liệu!" : err), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         } else if (o.equals(btnSua)) {
@@ -216,22 +254,35 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             String ten = txtHoTen.getText().trim();
             String sdt = txtSDT.getText().trim();
             String chucVu = (String) cboChucVu.getSelectedItem();
-            String ca = txtCaLam.getText().trim();
+            String ca = (String) cboCaLam.getSelectedItem();
             String dc = txtDiaChi.getText().trim();
 
-            if (ma.isEmpty() || ten.isEmpty() || sdt.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên và nhập đầy đủ thông tin!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            if (ma.isEmpty() || ten.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập Mã và Họ tên nhân viên!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (!sdt.matches("^0[35789]\\d{8}$")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ (phải gồm 10 chữ số bắt đầu bằng 03, 05, 07, 08, 09)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtSDT.requestFocus();
                 return;
             }
 
             try {
                 double luong = Double.parseDouble(txtLuong.getText().replace(",", "").replace(".", "").trim());
-                NhanVien nv = new NhanVien(ma, ten, sdt, LocalDate.of(2000, 1, 1), radNam.isSelected(), dc, "", chucVu, luong, ca, "123456", true);
+                if (luong <= 0) {
+                    JOptionPane.showMessageDialog(this, "Lương cơ bản phải lớn hơn 0!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                NhanVien nv = new NhanVien(ma, ten, sdt, LocalDate.of(2000, 1, 1), radNam.isSelected(), dc.isEmpty() ? null : dc, null, chucVu, luong, ca, "123456", true);
                 if (nv_dao.capNhatNhanVien(nv)) {
                     JOptionPane.showMessageDialog(this, "Cập nhật thông tin nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                     docDuLieuVaoTable();
+                    xoaTrang();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật nhân viên thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    String err = nv_dao.getLastError();
+                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại: " + (err.isEmpty() ? "Lỗi cập nhật CSDL!" : err), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
@@ -243,29 +294,23 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
 
     private void xoaTrang() {
         txtMaNV.setText("");
+        txtMaNV.setEditable(true);
         txtHoTen.setText("");
         txtSDT.setText("");
-        txtLuong.setText("6500000");
-        txtCaLam.setText("Ca sáng");
         txtDiaChi.setText("");
+        txtLuong.setText("");
+        cboCaLam.setSelectedIndex(0);
         radNam.setSelected(true);
         cboChucVu.setSelectedIndex(0);
         tableNV.clearSelection();
+        txtMaNV.requestFocus();
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        int r = tableNV.getSelectedRow();
-        if (r >= 0) {
-            txtMaNV.setText(modelNV.getValueAt(r, 1).toString());
-            txtHoTen.setText(modelNV.getValueAt(r, 2).toString());
-            boolean isNam = modelNV.getValueAt(r, 3).toString().equalsIgnoreCase("Nam");
-            radNam.setSelected(isNam);
-            radNu.setSelected(!isNam);
-            txtSDT.setText(modelNV.getValueAt(r, 4).toString());
-            cboChucVu.setSelectedItem(modelNV.getValueAt(r, 5).toString());
-            txtLuong.setText(modelNV.getValueAt(r, 6).toString().replace(" VNĐ", "").replace(",", "").replace(".", "").trim());
-            txtCaLam.setText(modelNV.getValueAt(r, 7).toString());
+        int row = tableNV.getSelectedRow();
+        if (row >= 0) {
+            hienThiThongTinLenForm(row);
         }
     }
 
