@@ -72,7 +72,7 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         // 4. Footer dưới cùng
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 4));
         pnlFooter.setBackground(new Color(241, 245, 249));
-        JLabel lblHotkeys = new JLabel("Phím tắt: [F1] Bán hàng | [F2] Chọn giày | [F10] Thanh toán đơn | [ESC] Thoát | [Del] Xóa dòng giỏ");
+        JLabel lblHotkeys = new JLabel("Phím tắt: [F1] Bán hàng | [F2] Mẫu giày | [F10] Thanh toán đơn | [ESC] Thoát | [Del] Xóa dòng giỏ");
         lblHotkeys.setFont(new Font("Arial", Font.ITALIC, 11));
         lblHotkeys.setForeground(new Color(100, 116, 139));
         pnlFooter.add(lblHotkeys);
@@ -180,28 +180,36 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
             }
         });
 
-        // F10: Thực hiện thanh toán đơn hàng (chuyển lệnh trực tiếp đến phân hệ POS)
+        // F10: Thực hiện thanh toán đơn hàng (chỉ khi đang ở tab POS - tab 0)
         im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F10, 0), "KEY_F10");
         am.put("KEY_F10", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Component c0 = tabbedPane.getComponentAt(0);
-                if (c0 instanceof BanHang_GUI) {
-                    ((BanHang_GUI) c0).thanhToanDonHang();
+                if (tabbedPane.getSelectedIndex() == 0) {
+                    Component c0 = tabbedPane.getComponentAt(0);
+                    if (c0 instanceof BanHang_GUI) {
+                        ((BanHang_GUI) c0).thanhToanDonHang();
+                    }
                 }
             }
         });
 
-        // DELETE: Xóa sản phẩm đang chọn trong giỏ hàng
+        // DELETE: Xóa sản phẩm đang chọn trong giỏ hàng (chỉ khi đang ở tab POS - tab 0)
         im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0), "KEY_DELETE");
         am.put("KEY_DELETE", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Component c0 = tabbedPane.getComponentAt(0);
-                if (c0 instanceof BanHang_GUI) {
-                    ((BanHang_GUI) c0).xoaMucKhoiGio();
+                if (tabbedPane.getSelectedIndex() == 0) {
+                    Component c0 = tabbedPane.getComponentAt(0);
+                    if (c0 instanceof BanHang_GUI) {
+                        ((BanHang_GUI) c0).xoaMucKhoiGio();
+                    }
                 }
             }
         });
+    }
+
+    public JTabbedPane getTabbedPane() {
+        return tabbedPane;
     }
 }

@@ -75,6 +75,7 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
 
         g.gridx = 2; g.gridy = 1; pnlForm.add(new JLabel("Hạng thành viên:"), g);
         cboHang = new JComboBox<>(new String[]{"Đồng", "Bạc", "Vàng", "Kim Cương"});
+        cboHang.setEnabled(false); // Khóa hạng thẻ, hệ thống tự động tính theo điểm tích lũy (chống gian lận VIP)
         g.gridx = 3; g.gridy = 1; pnlForm.add(cboHang, g);
 
         g.gridx = 2; g.gridy = 2; pnlForm.add(new JLabel("Điểm tích lũy:"), g);
@@ -165,6 +166,7 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         txtDiaChi.setText((String) modelKH.getValueAt(row, 4));
         txtDiem.setText(String.valueOf(modelKH.getValueAt(row, 5)));
         cboHang.setSelectedItem((String) modelKH.getValueAt(row, 6));
+        cboHang.setEnabled(false);
     }
 
     @Override
@@ -272,10 +274,12 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
                 diem = 0;
             }
 
-            KhachHang kh = new KhachHang(ma, ten, sdt, null, true, dc.isEmpty() ? null : dc, null, diem, (String) cboHang.getSelectedItem());
+            KhachHang kh = new KhachHang(ma, ten, sdt, null, true, dc.isEmpty() ? null : dc, null, diem, "Đồng");
+            kh.capNhatHang(); // Tự động đồng bộ hạng thẻ theo điểm tích lũy, không cho phép can thiệp thủ công
+            cboHang.setSelectedItem(kh.getHangThanhVien());
+            cboHang.setEnabled(false);
             if (kh_dao.capNhatKhachHang(kh)) {
                 JOptionPane.showMessageDialog(this, "Cập nhật thông tin khách hàng thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                docDuLieuVaoTable();
                 xoaTrang();
             } else {
                 String errMsg = kh_dao.getLastError();
@@ -313,6 +317,7 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         txtDiaChi.setText("");
         txtDiem.setText("0");
         cboHang.setSelectedIndex(0);
+        cboHang.setEnabled(false);
         txtTimSDT.setText("");
         tableKH.clearSelection();
         docDuLieuVaoTable();

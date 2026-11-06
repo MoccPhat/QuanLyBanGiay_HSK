@@ -844,10 +844,14 @@ public class BanHang_GUI extends JPanel implements ActionListener {
                         .append(" = ").append(df.format(modelGioHang.getValueAt(i, 8))).append("\n");
             }
             bill.append("---------------------------------------------\n");
-            bill.append("TỔNG TIỀN:    ").append(lblKhachCanTraVal.getText()).append("\n");
-            bill.append("Khách đưa:    ").append(df.format(tienDua)).append("\n");
-            bill.append("Tiền thừa:    ").append(df.format(tienThua)).append("\n");
-            bill.append("Hình thức:    ").append(cboPhuongThuc.getSelectedItem()).append("\n");
+            bill.append(String.format("%-24s %18s\n", "Tổng tiền hàng:", df.format(hd.getTongTienHang())));
+            bill.append(String.format("%-24s %18s\n", "Chiết khấu hạng thẻ:", (hd.getChietKhau() > 0 ? "-" : "") + df.format(hd.getChietKhau())));
+            bill.append(String.format("%-24s %18s\n", "Tiền giảm từ điểm:", (hd.getTienGiamDiem() > 0 ? "-" : "") + df.format(hd.getTienGiamDiem())));
+            bill.append(String.format("%-24s %18s\n", "CẦN THANH TOÁN:", df.format(hd.getTongTien())));
+            bill.append(String.format("%-24s %18s\n", "Khách đưa:", df.format(tienDua)));
+            bill.append(String.format("%-24s %18s\n", "Tiền thừa:", df.format(tienThua)));
+            bill.append(String.format("%-24s %18s\n", "Điểm cộng mới:", "+" + hd.getDiemCong() + " điểm"));
+            bill.append(String.format("%-24s %18s\n", "Hình thức:", cboPhuongThuc.getSelectedItem()));
             bill.append("=============================================\n");
             bill.append("       CẢM ƠN QUÝ KHÁCH & HẸN GẶP LẠI!       \n");
 
@@ -901,5 +905,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
 
     public void thanhToanDonHang() {
         btnThanhToan.doClick();
+    }
+
+    public DefaultTableModel getModelGioHang() {
+        return modelGioHang;
     }
 }

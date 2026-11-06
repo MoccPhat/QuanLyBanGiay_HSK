@@ -26,6 +26,8 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
     private JTextField txtHoTen;
     private JTextField txtSDT;
     private JTextField txtDiaChi;
+    private JTextField txtNgaySinh;
+    private JTextField txtEmail;
     private JTextField txtLuong;
     private JComboBox<String> cboCaLam;
     private JComboBox<String> cboChucVu;
@@ -82,6 +84,10 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         pnlGender.add(radNam); pnlGender.add(radNu);
         g.gridx = 1; g.gridy = 3; pnlForm.add(pnlGender, g);
 
+        g.gridx = 0; g.gridy = 4; pnlForm.add(new JLabel("Ngày sinh (dd/MM/yyyy):"), g);
+        txtNgaySinh = new JTextField("01/01/2000", 15);
+        g.gridx = 1; g.gridy = 4; pnlForm.add(txtNgaySinh, g);
+
         // Cột 2
         g.gridx = 2; g.gridy = 0; pnlForm.add(new JLabel("Chức vụ:"), g);
         cboChucVu = new JComboBox<>(new String[]{"Nhân viên bán hàng", "Quản lý"});
@@ -98,6 +104,10 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         g.gridx = 2; g.gridy = 3; pnlForm.add(new JLabel("Địa chỉ:"), g);
         txtDiaChi = new JTextField(15);
         g.gridx = 3; g.gridy = 3; pnlForm.add(txtDiaChi, g);
+
+        g.gridx = 2; g.gridy = 4; pnlForm.add(new JLabel("Email:"), g);
+        txtEmail = new JTextField(15);
+        g.gridx = 3; g.gridy = 4; pnlForm.add(txtEmail, g);
 
         // NÚT CHỨC NĂNG
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
@@ -164,7 +174,8 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
 
     private void hienThiThongTinLenForm(int row) {
         if (row < 0 || row >= modelNV.getRowCount()) return;
-        txtMaNV.setText((String) modelNV.getValueAt(row, 1));
+        String ma = (String) modelNV.getValueAt(row, 1);
+        txtMaNV.setText(ma);
         txtMaNV.setEditable(false); // Khóa mã nhân viên khi sửa
         txtHoTen.setText((String) modelNV.getValueAt(row, 2));
         String gt = (String) modelNV.getValueAt(row, 3);
@@ -177,6 +188,28 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         if (ca != null) cboCaLam.setSelectedItem(ca);
         Object dc = modelNV.getValueAt(row, 8);
         txtDiaChi.setText(dc != null ? dc.toString() : "");
+
+        NhanVien nv = nv_dao.getNhanVienTheoMa(ma);
+        if (nv != null) {
+            if (nv.getNgaySinh() != null) {
+                txtNgaySinh.setText(nv.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            } else {
+                txtNgaySinh.setText("01/01/2000");
+            }
+            txtEmail.setText(nv.getEmail() != null ? nv.getEmail() : "");
+        }
+    }
+
+    private LocalDate parseNgaySinh(String text) {
+        if (text == null || text.trim().isEmpty()) return null;
+        text = text.trim();
+        String[] patterns = {"dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd", "yyyy/MM/dd"};
+        for (String pattern : patterns) {
+            try {
+                return LocalDate.parse(text, java.time.format.DateTimeFormatter.ofPattern(pattern));
+            } catch (Exception ignored) {}
+        }
+        return null;
     }
 
     @Override
@@ -189,6 +222,8 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             String chucVu = (String) cboChucVu.getSelectedItem();
             String ca = (String) cboCaLam.getSelectedItem();
             String dc = txtDiaChi.getText().trim();
+            String em = txtEmail.getText().trim();
+            String nsStr = txtNgaySinh.getText().trim();
 
             if (ma.isEmpty() || ten.isEmpty() || sdt.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ Mã, Họ tên và Số điện thoại!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
@@ -208,6 +243,39 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
                 return;
             }
 
+            LocalDate ngaySinh = parseNgaySinh(nsStr);
+            if (ngaySinh == null) {
+                JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ (định dạng dd/MM/yyyy, ví dụ: 20/08/1998)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtNgaySinh.requestFocus();
+                return;
+            }
+
+            // Kiểm tra độ tuổi theo ràng buộc CK_NhanVien_tuoi (>= 18 tuổi)
+            int tuoi = java.time.Period.between(ngaySinh, LocalDate.now()).getYears();
+            if (tuoi < 18) {
+                JOptionPane.showMessageDialog(this, "Nhân viên phải từ 18 tuổi trở lên!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtNgaySinh.requestFocus();
+                return;
+            }
+
+            if (!em.isEmpty() && !em.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                JOptionPane.showMessageDialog(this, "Email không đúng định dạng (ví dụ: nhanvien@stepup.vn)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtEmail.requestFocus();
+                return;
+            }
+
+            if (nv_dao.kiemTraTrungMa(ma)) {
+                JOptionPane.showMessageDialog(this, "Mã nhân viên '" + ma + "' đã tồn tại trong hệ thống!", "Trùng mã", JOptionPane.WARNING_MESSAGE);
+                txtMaNV.requestFocus();
+                return;
+            }
+
+            if (nv_dao.kiemTraTrungSDT(sdt, null)) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại '" + sdt + "' đã được sử dụng bởi nhân viên khác!", "Trùng số điện thoại", JOptionPane.WARNING_MESSAGE);
+                txtSDT.requestFocus();
+                return;
+            }
+
             try {
                 double luong = Double.parseDouble(txtLuong.getText().replace(",", "").replace(".", "").trim());
                 if (luong <= 0) {
@@ -215,7 +283,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
                     return;
                 }
 
-                NhanVien nv = new NhanVien(ma, ten, sdt, LocalDate.of(2000, 1, 1), radNam.isSelected(), dc.isEmpty() ? null : dc, null, chucVu, luong, ca, "123456", true);
+                NhanVien nv = new NhanVien(ma, ten, sdt, ngaySinh, radNam.isSelected(), dc.isEmpty() ? null : dc, em.isEmpty() ? null : em, chucVu, luong, ca, "123456", true);
                 if (nv_dao.themNhanVien(nv)) {
                     JOptionPane.showMessageDialog(this, "Thêm nhân viên mới thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                     docDuLieuVaoTable();
@@ -256,14 +324,42 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             String chucVu = (String) cboChucVu.getSelectedItem();
             String ca = (String) cboCaLam.getSelectedItem();
             String dc = txtDiaChi.getText().trim();
+            String em = txtEmail.getText().trim();
+            String nsStr = txtNgaySinh.getText().trim();
 
             if (ma.isEmpty() || ten.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập Mã và Họ tên nhân viên!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên và nhập đầy đủ thông tin!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             if (!sdt.matches("^0[35789]\\d{8}$")) {
                 JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ (phải gồm 10 chữ số bắt đầu bằng 03, 05, 07, 08, 09)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtSDT.requestFocus();
+                return;
+            }
+
+            LocalDate ngaySinh = parseNgaySinh(nsStr);
+            if (ngaySinh == null) {
+                JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ (định dạng dd/MM/yyyy, ví dụ: 20/08/1998)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtNgaySinh.requestFocus();
+                return;
+            }
+
+            int tuoi = java.time.Period.between(ngaySinh, LocalDate.now()).getYears();
+            if (tuoi < 18) {
+                JOptionPane.showMessageDialog(this, "Nhân viên phải từ 18 tuổi trở lên!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtNgaySinh.requestFocus();
+                return;
+            }
+
+            if (!em.isEmpty() && !em.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                JOptionPane.showMessageDialog(this, "Email không đúng định dạng (ví dụ: nhanvien@stepup.vn)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtEmail.requestFocus();
+                return;
+            }
+
+            if (nv_dao.kiemTraTrungSDT(sdt, ma)) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại '" + sdt + "' đã được sử dụng bởi nhân viên khác!", "Trùng số điện thoại", JOptionPane.WARNING_MESSAGE);
                 txtSDT.requestFocus();
                 return;
             }
@@ -275,7 +371,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
                     return;
                 }
 
-                NhanVien nv = new NhanVien(ma, ten, sdt, LocalDate.of(2000, 1, 1), radNam.isSelected(), dc.isEmpty() ? null : dc, null, chucVu, luong, ca, "123456", true);
+                NhanVien nv = new NhanVien(ma, ten, sdt, ngaySinh, radNam.isSelected(), dc.isEmpty() ? null : dc, em.isEmpty() ? null : em, chucVu, luong, ca, "123456", true);
                 if (nv_dao.capNhatNhanVien(nv)) {
                     JOptionPane.showMessageDialog(this, "Cập nhật thông tin nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                     docDuLieuVaoTable();
@@ -298,6 +394,8 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         txtHoTen.setText("");
         txtSDT.setText("");
         txtDiaChi.setText("");
+        txtNgaySinh.setText("01/01/2000");
+        txtEmail.setText("");
         txtLuong.setText("");
         cboCaLam.setSelectedIndex(0);
         radNam.setSelected(true);

@@ -34,7 +34,7 @@ public class NhanVien_DAO {
             } else if (msg != null && msg.contains("CK_NhanVien_email")) {
                 lastError = "Email không đúng định dạng!";
             } else if (msg != null && msg.contains("CK_NhanVien_tuoi")) {
-                lastError = "Nhân viên phải từ đủ 18 tuổi trở lên!";
+                lastError = "Nhân viên phải từ 18 tuổi trở lên";
             } else if (msg != null && msg.contains("CK_NhanVien_chucVu")) {
                 lastError = "Chức vụ không hợp lệ (Quản lý hoặc Nhân viên bán hàng)!";
             } else if (msg != null && msg.contains("CK_NhanVien_ca")) {
@@ -121,7 +121,7 @@ public class NhanVien_DAO {
                 String dbHash = rs.getString("matKhau");
                 String inputHash = hashSHA256(matKhau);
 
-                if (inputHash.equalsIgnoreCase(dbHash) || matKhau.equals(dbHash)) {
+                if (inputHash.equalsIgnoreCase(dbHash)) {
                     String hoTen = rs.getString("hoTen");
                     String sdt = rs.getString("soDienThoai");
                     Date ns = rs.getDate("ngaySinh");
@@ -215,6 +215,13 @@ public class NhanVien_DAO {
 
     public boolean themNhanVien(NhanVien nv) {
         lastError = "";
+        if (nv.getNgaySinh() != null) {
+            int age = java.time.Period.between(nv.getNgaySinh(), LocalDate.now()).getYears();
+            if (age < 18) {
+                lastError = "Nhân viên phải từ 18 tuổi trở lên";
+                return false;
+            }
+        }
         int n = 0;
         try {
             Connection con = getConnection();
@@ -256,6 +263,7 @@ public class NhanVien_DAO {
             pstmt.setBoolean(12, nv.isTrangThai());
 
             n = pstmt.executeUpdate();
+            pstmt.close();
         } catch (SQLException e) {
             handleSQLException(e);
             e.printStackTrace();
@@ -265,30 +273,47 @@ public class NhanVien_DAO {
 
     public boolean capNhatNhanVien(NhanVien nv) {
         lastError = "";
+        if (nv.getNgaySinh() != null) {
+            int age = java.time.Period.between(nv.getNgaySinh(), LocalDate.now()).getYears();
+            if (age < 18) {
+                lastError = "Nhân viên phải từ 18 tuổi trở lên";
+                return false;
+            }
+        }
         int n = 0;
         try {
             Connection con = getConnection();
-            String sql = "UPDATE NhanVien SET hoTen = ?, soDienThoai = ?, chucVu = ?, luongCoBan = ?, caLamViec = ?, diaChi = ? WHERE maNhanVien = ?";
+            String sql = "UPDATE NhanVien SET hoTen = ?, soDienThoai = ?, ngaySinh = ?, gioiTinh = ?, diaChi = ?, email = ?, chucVu = ?, luongCoBan = ?, caLamViec = ? WHERE maNhanVien = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, nv.getHoTen());
             pstmt.setString(2, nv.getSoDienThoai());
-            pstmt.setString(3, nv.getChucVu());
-            pstmt.setDouble(4, nv.getLuongCoBan());
-
-            if (nv.getCaLamViec() == null || nv.getCaLamViec().trim().isEmpty()) {
-                pstmt.setNull(5, Types.NVARCHAR);
-            } else {
-                pstmt.setString(5, nv.getCaLamViec().trim());
-            }
+            pstmt.setDate(3, (nv.getNgaySinh() != null) ? Date.valueOf(nv.getNgaySinh()) : Date.valueOf(LocalDate.of(2000, 1, 1)));
+            pstmt.setBoolean(4, nv.isGioiTinh());
 
             if (nv.getDiaChi() == null || nv.getDiaChi().trim().isEmpty()) {
-                pstmt.setNull(6, Types.NVARCHAR);
+                pstmt.setNull(5, Types.NVARCHAR);
             } else {
-                pstmt.setString(6, nv.getDiaChi().trim());
+                pstmt.setString(5, nv.getDiaChi().trim());
             }
 
-            pstmt.setString(7, nv.getMaNhanVien());
+            if (nv.getEmail() == null || nv.getEmail().trim().isEmpty()) {
+                pstmt.setNull(6, Types.VARCHAR);
+            } else {
+                pstmt.setString(6, nv.getEmail().trim());
+            }
+
+            pstmt.setString(7, nv.getChucVu());
+            pstmt.setDouble(8, nv.getLuongCoBan());
+
+            if (nv.getCaLamViec() == null || nv.getCaLamViec().trim().isEmpty()) {
+                pstmt.setNull(9, Types.NVARCHAR);
+            } else {
+                pstmt.setString(9, nv.getCaLamViec().trim());
+            }
+
+            pstmt.setString(10, nv.getMaNhanVien());
             n = pstmt.executeUpdate();
+            pstmt.close();
         } catch (SQLException e) {
             handleSQLException(e);
             e.printStackTrace();
