@@ -18,6 +18,9 @@ def create_document():
     section.left_margin = Inches(1.18)  # 3 cm
     section.right_margin = Inches(0.79) # 2 cm
     
+    # Configure Word to update fields (including TOC) on open
+    doc.settings.element.append(parse_xml(r'<w:updateFields %s w:val="true"/>' % nsdecls('w')))
+
     # Header & Footer setup
     header = section.header
     p_head = header.paragraphs[0]
@@ -62,8 +65,11 @@ def create_document():
             set_font(r_t)
         return p
 
+    recorded_headings = []
+
     def add_h1(text):
-        p = doc.add_paragraph()
+        recorded_headings.append((1, text))
+        p = doc.add_paragraph(style='Heading 1')
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         p.paragraph_format.space_before = Pt(14)
         p.paragraph_format.space_after = Pt(6)
@@ -73,7 +79,8 @@ def create_document():
         return p
 
     def add_h2(text):
-        p = doc.add_paragraph()
+        recorded_headings.append((2, text))
+        p = doc.add_paragraph(style='Heading 2')
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         p.paragraph_format.space_before = Pt(10)
         p.paragraph_format.space_after = Pt(4)
@@ -83,7 +90,8 @@ def create_document():
         return p
 
     def add_h3(text):
-        p = doc.add_paragraph()
+        recorded_headings.append((3, text))
+        p = doc.add_paragraph(style='Heading 3')
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         p.paragraph_format.space_before = Pt(7)
         p.paragraph_format.space_after = Pt(3)
@@ -91,6 +99,25 @@ def create_document():
         r = p.add_run(text)
         set_font(r, size=13, bold=True, italic=True, color_rgb=(15, 23, 42))
         return p
+
+    def add_table_caption(number, title):
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.space_before = Pt(8)
+        p.paragraph_format.space_after = Pt(3)
+        p.paragraph_format.keep_with_next = True
+        r = p.add_run(f"Bảng {number}. {title}")
+        set_font(r, size=10, bold=True, italic=True, color_rgb=(30, 58, 138))
+        return p
+
+    def add_leader_entry(p, title, page, is_bold=False, is_italic=False, size=11):
+        r1 = p.add_run(title)
+        set_font(r1, size=size, bold=is_bold, italic=is_italic)
+        r_tab = p.add_run()
+        ptab = parse_xml(r'<w:ptab %s w:alignment="right" w:leader="dot" w:relativeTo="margin"/>' % nsdecls('w'))
+        r_tab._r.append(ptab)
+        r2 = p.add_run(str(page))
+        set_font(r2, size=size, bold=is_bold)
 
     def add_bullet(text, bold_prefix=""):
         p = doc.add_paragraph(style='List Bullet')
@@ -119,7 +146,7 @@ def create_document():
         p = cell.paragraphs[0]
         p.paragraph_format.space_before = Pt(4)
         p.paragraph_format.space_after = Pt(4)
-        r1 = p.add_run(f"💡 {title} ")
+        r1 = p.add_run(f"{title} ")
         set_font(r1, bold=True, color_rgb=(37, 99, 235))
         r2 = p.add_run(text)
         set_font(r2, italic=True, color_rgb=(51, 65, 85))
@@ -232,6 +259,7 @@ def create_document():
     # DANH SÁCH THÀNH VIÊN & NHẬN XÉT GIẢNG VIÊN
     # ==========================================
     add_h1("DANH SÁCH THÀNH VIÊN TRONG NHÓM THỰC HIỆN")
+    add_table_caption(1, "Danh sách phân công nhiệm vụ và đánh giá đóng góp của thành viên")
     t_members = doc.add_table(rows=5, cols=5)
     members_data = [
         ["1", "24704381", "Nguyễn Trọng Vinh", "Nhóm trưởng, Thiết kế CSDL & Tầng DAO (JDBC Transaction)", "100%"],
@@ -248,6 +276,7 @@ def create_document():
     add_p("Kính chúc cô luôn dồi dào sức khỏe, hạnh phúc và gặt hái thêm nhiều thành công trên con đường nghiên cứu và giảng dạy!", italic_prefix="")
 
     add_h1("NHẬN XÉT CỦA GIẢNG VIÊN HƯỚNG DẪN")
+    add_table_caption(2, "Tiêu chí đánh giá đồ án của Giảng viên hướng dẫn")
     t_eval = doc.add_table(rows=6, cols=3)
     eval_data = [
         ["1", "Tài liệu báo cáo (Rõ ràng, đầy đủ phân tích Use Case, Sequence, Sơ đồ lớp, CSDL, Giao diện)", "........ / 2.0"],
@@ -267,9 +296,22 @@ def create_document():
     # MỤC LỤC & LỜI MỞ ĐẦU
     # ==========================================
     add_h1("MỤC LỤC BÁO CÁO")
+    
+    # Word Dynamic TOC field wrapper
+    p_toc_start = doc.add_paragraph()
+    p_toc_start.paragraph_format.space_before = Pt(2)
+    p_toc_start.paragraph_format.space_after = Pt(2)
+    r_fld_begin = p_toc_start.add_run()
+    r_fld_begin._r.append(parse_xml(r'<w:fldChar %s w:fldCharType="begin"/>' % nsdecls('w')))
+    r_fld_instr = p_toc_start.add_run()
+    r_fld_instr._r.append(parse_xml(r'<w:instrText %s xml:space="preserve"> TOC \o "1-3" \h \z \u </w:instrText>' % nsdecls('w')))
+    r_fld_sep = p_toc_start.add_run()
+    r_fld_sep._r.append(parse_xml(r'<w:fldChar %s w:fldCharType="separate"/>' % nsdecls('w')))
+
     toc_items = [
+        ("DANH SÁCH THÀNH VIÊN TRONG NHÓM THỰC HIỆN", "2"),
         ("LỜI CẢM ƠN", "2"),
-        ("DANH SÁCH THÀNH VIÊN VÀ NHẬN XÉT GIẢNG VIÊN", "2"),
+        ("NHẬN XÉT CỦA GIẢNG VIÊN HƯỚNG DẪN", "3"),
         ("LỜI MỞ ĐẦU", "4"),
         ("DANH MỤC HÌNH ẢNH VÀ BẢNG BIỂU", "5"),
         ("PHẦN I: THU THẬP VÀ PHÂN TÍCH YÊU CẦU", "6"),
@@ -281,20 +323,20 @@ def create_document():
         ("    VI. Sơ đồ Kiến trúc hệ thống 3 tầng (3-Tier Architecture)", "12"),
         ("PHẦN II: THIẾT KẾ SƠ ĐỒ LỚP HƯỚNG ĐỐI TƯỢNG (OOP CLASS DIAGRAM)", "14"),
         ("    I. Kiến trúc Sơ đồ lớp tổng thể theo chuẩn OOP (7 Lớp thực thể)", "14"),
-        ("    II. Phân tích 4 đặc trưng Hướng đối tượng áp dụng trong hệ thống", "15"),
+        ("    II. Phân tích 4 đặc trưng Hướng đối tượng (OOP) áp dụng trong hệ thống", "15"),
         ("    III. Mô tả chi tiết 7 Lớp đối tượng quan trọng cốt lõi", "16"),
         ("PHẦN III: SƠ ĐỒ CƠ SỞ DỮ LIỆU (DATABASE DIAGRAM)", "21"),
         ("    I. Sơ đồ thực thể liên kết trên HQTCSDL SQL Server (ERD 6 bảng)", "21"),
         ("    II. Mô tả chi tiết cấu trúc 6 bảng dữ liệu chuẩn 3NF", "22"),
         ("    III. Cơ chế xử lý toàn vẹn dữ liệu nâng cao (Ràng buộc CHECK & JDBC Transaction)", "26"),
         ("PHẦN IV: HIỆN THỰC VÀ MÔ TẢ GIAO DIỆN CHƯƠNG TRÌNH", "29"),
-        ("    I. Chức năng Đăng nhập & Phân quyền truy cập", "29"),
+        ("    I. Chức năng Đăng nhập & Phân quyền truy cập (Login & RBAC)", "29"),
         ("    II. Chức năng Bán hàng tại quầy (POS) & Sơ đồ tuần tự Sequence", "30"),
         ("    III. Chức năng Quản lý sản phẩm giày dép & Biến thể SKU", "34"),
         ("    IV. Chức năng Quản lý khách hàng & Tích điểm thành viên", "36"),
-        ("    V. Chức năng Quản lý nhân sự & Phân quyền", "38"),
+        ("    V. Chức năng Quản lý nhân sự & Phân quyền (Staff Management)", "38"),
         ("    VI. Phân hệ Thống kê doanh thu (Định hướng mở rộng)", "40"),
-        ("    VII. Bảng hệ thống phím tắt & Điều hướng bán hàng", "41"),
+        ("    VII. Bảng hệ thống phím tắt & Điều hướng bán hàng (Hotkeys)", "41"),
         ("PHẦN V: TỔNG KẾT VÀ HƯỚNG PHÁT TRIỂN", "43"),
         ("    I. Đánh giá kết quả đạt được (Chỉ số định lượng)", "43"),
         ("    II. Những điểm còn hạn chế", "44"),
@@ -310,12 +352,14 @@ def create_document():
         p_t = doc.add_paragraph()
         p_t.paragraph_format.space_before = Pt(1)
         p_t.paragraph_format.space_after = Pt(2)
-        r1 = p_t.add_run(item)
-        set_font(r1, size=11, bold=item.strip().startswith("PHẦN") or item.strip().startswith("LỜI"))
-        r_dots = p_t.add_run(" " + "." * (85 - len(item) * 2) + " ")
-        set_font(r_dots, size=9, color_rgb=(148, 163, 184))
-        r2 = p_t.add_run(page)
-        set_font(r2, size=11, bold=True)
+        is_major = item.strip().startswith("PHẦN") or item.strip().startswith("LỜI") or item.strip().startswith("DANH") or item.strip().startswith("NHẬN")
+        add_leader_entry(p_t, item, page, is_bold=is_major, size=11 if is_major else 10.5)
+
+    p_toc_end = doc.add_paragraph()
+    p_toc_end.paragraph_format.space_before = Pt(0)
+    p_toc_end.paragraph_format.space_after = Pt(2)
+    r_fld_end = p_toc_end.add_run()
+    r_fld_end._r.append(parse_xml(r'<w:fldChar %s w:fldCharType="end"/>' % nsdecls('w')))
 
     add_h1("LỜI MỞ ĐẦU")
     add_p("Trong kỷ nguyên chuyển đổi số và thương mại hiện đại, việc ứng dụng công nghệ thông tin vào quản lý bán lẻ không còn là một lựa chọn xa xỉ mà đã trở thành điều kiện sống còn của các doanh nghiệp. Đối với ngành hàng thời trang, đặc biệt là kinh doanh giày dép, bài toán quản lý luôn chứa đựng những nét đặc thù phức tạp vượt trội so với các mô hình bán lẻ hàng hóa thông thường khác.")
@@ -324,6 +368,7 @@ def create_document():
     add_p("Báo cáo này được biên soạn với mục tiêu diễn giải toàn diện, rõ ràng từng khâu từ khảo sát yêu cầu, thiết kế kiến trúc đối tượng, sơ đồ cơ sở dữ liệu đến các bước thao tác trên màn hình thực tế, giúp quý Thầy Cô cùng các bạn sinh viên dễ dàng nắm bắt được cơ chế vận hành của hệ thống.")
 
     add_h1("DANH MỤC HÌNH ẢNH VÀ BẢNG BIỂU")
+    add_h2("I. Danh mục hình ảnh (Figures)")
     figures = [
         ("Hình 1. Sơ đồ Use Case tổng thể hệ thống Quản lý bán giày thời trang", "10"),
         ("Hình 2. Sơ đồ kiến trúc hệ thống 3 tầng (3-Tier Architecture)", "12"),
@@ -340,12 +385,34 @@ def create_document():
         p_f = doc.add_paragraph()
         p_f.paragraph_format.space_before = Pt(1)
         p_f.paragraph_format.space_after = Pt(2)
-        r1 = p_f.add_run(fig_title)
-        set_font(r1, size=10.5, italic=True)
-        r_dots = p_f.add_run(" " + "." * (85 - len(fig_title)) + " ")
-        set_font(r_dots, size=9, color_rgb=(148, 163, 184))
-        r2 = p_f.add_run(p_num)
-        set_font(r2, size=10.5, bold=True)
+        add_leader_entry(p_f, fig_title, p_num, is_italic=True, size=10.5)
+
+    add_h2("II. Danh mục bảng biểu (Tables)")
+    tables_list = [
+        ("Bảng 1. Danh sách phân công nhiệm vụ và đánh giá đóng góp của thành viên", "2"),
+        ("Bảng 2. Tiêu chí đánh giá đồ án của Giảng viên hướng dẫn", "3"),
+        ("Bảng 3. Ma trận phân rã Use Case và mức độ hoàn thành chức năng", "11"),
+        ("Bảng 4. Thuộc tính và phương thức của lớp trừu tượng Nguoi", "16"),
+        ("Bảng 5. Thuộc tính và phương thức của lớp NhanVien", "17"),
+        ("Bảng 6. Thuộc tính và phương thức của lớp KhachHang", "17"),
+        ("Bảng 7. Thuộc tính và phương thức của lớp SanPham", "18"),
+        ("Bảng 8. Thuộc tính và phương thức của lớp ChiTietGiay", "19"),
+        ("Bảng 9. Thuộc tính và phương thức của lớp HoaDon", "19"),
+        ("Bảng 10. Thuộc tính và phương thức của lớp ChiTietHoaDon", "20"),
+        ("Bảng 11. Cấu trúc trường dữ liệu bảng NhanVien trên Microsoft SQL Server", "22"),
+        ("Bảng 12. Cấu trúc trường dữ liệu bảng KhachHang trên Microsoft SQL Server", "23"),
+        ("Bảng 13. Cấu trúc trường dữ liệu bảng SanPham trên Microsoft SQL Server", "23"),
+        ("Bảng 14. Cấu trúc trường dữ liệu bảng ChiTietGiay trên Microsoft SQL Server", "24"),
+        ("Bảng 15. Cấu trúc trường dữ liệu bảng HoaDon trên Microsoft SQL Server", "25"),
+        ("Bảng 16. Cấu trúc trường dữ liệu bảng ChiTietHoaDon trên Microsoft SQL Server", "26"),
+        ("Bảng 17. Hệ thống phím tắt công thái học điều hướng bán hàng POS", "41"),
+        ("Bảng 18. Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)", "48")
+    ]
+    for tbl_title, p_num in tables_list:
+        p_t = doc.add_paragraph()
+        p_t.paragraph_format.space_before = Pt(1)
+        p_t.paragraph_format.space_after = Pt(2)
+        add_leader_entry(p_t, tbl_title, p_num, is_italic=True, size=10.5)
 
     doc.add_page_break()
 
@@ -368,7 +435,7 @@ def create_document():
     add_bullet("Cần một màn hình POS trực quan, tốc độ xử lý tức thì, hỗ trợ tối đa việc dùng phím tắt (F1-F4 chuyển nhanh các tab, F10 thanh toán, Delete xóa dòng giỏ hàng, Esc hủy thao tác) để thu ngân không cần rời tay khỏi bàn phím.", "Tốc độ và công thái học: ")
     add_bullet("Gõ tên hoặc chọn mẫu giày là hệ thống hiển thị ngay danh sách các size (35-45) kèm màu sắc và số lượng tồn thực tế trong kho.", "Tra cứu biến thể theo size: ")
     add_bullet("Nhập số điện thoại là hệ thống tự hiển thị tên khách, hạng thẻ thành viên (Đồng, Bạc, Vàng, Kim Cương) và số điểm tích lũy. Cho phép dùng điểm để trừ tiền trực tiếp trên đơn hàng hiện tại.", "Tích điểm và chăm sóc khách hàng: ")
-    add_bullet("Tính tổng tiền hàng, tiền khách đưa, tiền thừa phải thối lại; trừ tồn kho qua JDBC Transaction tại tầng DAO theo đúng size/màu và in hóa đơn bán lẻ rõ ràng.", "Thanh toán và in hóa đơn: ")
+    add_bullet("Tính tổng tiền hàng, tiền khách đưa, tiền thừa phải thối lại; trừ tồn kho qua JDBC Transaction tại tầng DAO theo đúng size/màu và mở hộp thoại JDialog xem trước phiếu thanh toán K80 rõ ràng.", "Thanh toán và xem trước hóa đơn: ")
 
     add_h3("2. Nghiệp vụ của người quản lý cửa hàng (Store Manager)")
     add_bullet("Thêm mẫu giày mới, cập nhật giá bán, bổ sung các biến thể kích cỡ và màu sắc khi nhập đợt hàng mới.", "Quản lý danh mục sản phẩm: ")
@@ -376,7 +443,7 @@ def create_document():
     add_bullet("Theo dõi doanh thu, số lượng đơn hàng, danh mục sản phẩm tiêu biểu và xuất báo cáo tài chính định kỳ.", "Thống kê và báo cáo kinh doanh: ")
 
     add_h2("III. Tác nhân chính trong hệ thống")
-    add_bullet("Thực hiện các thao tác thường nhật tại quầy: Đăng nhập hệ thống, tra cứu tồn kho, lập đơn bán hàng, áp dụng tích điểm đổi thưởng, nhận tiền khách đưa, hoàn tất thanh toán và in phiếu thanh toán K80.", "1. Nhân viên thu ngân (Cashier / Staff): ")
+    add_bullet("Thực hiện các thao tác thường nhật tại quầy: Đăng nhập hệ thống, tra cứu tồn kho, lập đơn bán hàng, áp dụng tích điểm đổi thưởng, nhận tiền khách đưa, hoàn tất thanh toán và mở hộp thoại JDialog xem trước phiếu thanh toán K80.", "1. Nhân viên thu ngân (Cashier / Staff): ")
     add_bullet("Nắm giữ toàn bộ quyền hạn của nhân viên thu ngân, đồng thời sở hữu đặc quyền quản trị: Quản lý danh mục mẫu giày và biến thể SKU, quản lý hồ sơ nhân sự, phân quyền tài khoản, xem thống kê doanh thu toàn cửa hàng.", "2. Người quản lý cửa hàng (Store Manager / Admin): ")
 
     add_h2("IV. Phân tích yêu cầu chức năng và phi chức năng")
@@ -394,7 +461,7 @@ def create_document():
     add_bullet("Áp dụng JDBC Transaction để đảm bảo tính toàn vẹn (ACID): thêm hóa đơn, thêm chi tiết và trừ tồn kho phải thành công đồng thời, nếu một bước lỗi thì rollback toàn bộ.", "An toàn dữ liệu & Concurrency: ")
     add_bullet("Giao diện đồ họa Java Swing kết hợp UIHelper trực quan, hiện đại, hỗ trợ thao tác nhanh thông qua các phím tắt công thái học.", "Tính dễ dùng & Công thái học: ")
 
-    add_callout("Quy trình bán hàng chuẩn 6 bước: [1] Tiếp nhận mẫu giày -> [2] Tra cứu tồn kho theo size/màu -> [3] Thêm vào giỏ hàng -> [4] Nhập SĐT tích điểm -> [5] Nhập tiền khách đưa & kiểm tra tiền thừa -> [6] Nhấn F10 thanh toán, trừ kho và in hóa đơn K80.", "CHUỖI HÀNH ĐỘNG CỐT LÕI TẠI QUẦY:")
+    add_callout("Quy trình bán hàng chuẩn 6 bước: [1] Tiếp nhận mẫu giày -> [2] Tra cứu tồn kho theo size/màu -> [3] Thêm vào giỏ hàng -> [4] Nhập SĐT tích điểm -> [5] Nhập tiền khách đưa & kiểm tra tiền thừa -> [6] Nhấn F10 thanh toán, trừ kho và mở hộp thoại JDialog xem trước phiếu thanh toán K80.", "CHUỖI HÀNH ĐỘNG CỐT LÕI TẠI QUẦY:")
 
     # Sơ đồ Use Case tổng thể (L21)
     add_h2("V. Sơ đồ Use Case tổng thể và Đặc tả nghiệp vụ")
@@ -408,12 +475,13 @@ def create_document():
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_p("Bảng đặc tả chi tiết các Use Case chính trong hệ thống:")
+    add_table_caption(3, "Ma trận phân rã Use Case và mức độ hoàn thành chức năng")
     t_uc = doc.add_table(rows=8, cols=5)
     uc_data = [
         ["UC01", "Đăng nhập hệ thống", "Thu ngân, Quản lý", "Xác thực mã nhân viên và mật khẩu băm SHA-256", "Điều hướng mở giao diện tương ứng theo quyền"],
         ["UC02", "Đăng xuất & Thoát", "Thu ngân, Quản lý", "Xác nhận kết thúc phiên làm việc", "Đóng cửa sổ làm việc, hoàn nguyên màn hình đăng nhập"],
-        ["UC03", "Bán hàng tại quầy (POS)", "Thu ngân, Quản lý", "Tra cứu size/màu, lập giỏ hàng, tính tiền thừa, trừ kho ACID", "Ghi nhận hóa đơn, trừ kho, tích điểm, xuất phiếu K80"],
-        ["UC03.1", "Tra cứu tồn kho size/màu", "Thu ngân, Quản lý", "<<include>> trong Bán hàng POS, tra cứu tồn kho thực tế", "Hiển thị số lượng SoLuongTon tức thì tại quầy"],
+        ["UC03", "Bán hàng tại quầy (POS)", "Thu ngân, Quản lý", "Tra cứu size/màu, lập giỏ hàng, tính tiền thừa, trừ kho ACID", "Ghi nhận hóa đơn, trừ kho, tích điểm, xem trước phiếu K80"],
+        ["UC03.1", "Tra cứu tồn kho size/màu", "Thu ngân, Quản lý", "<<include>> trong Bán hàng POS, tra cứu tồn kho thực tế", "Hiển thị số lượng tồn kho (soLuongTon) tức thì tại quầy"],
         ["UC03.2", "Trừ tồn kho & Thanh toán ACID", "Thu ngân, Quản lý", "<<include>> trong Bán hàng POS, thực thi JDBC Transaction", "Trừ kho nguyên tử có điều kiện, cam kết commit()"],
         ["UC03.3", "Tích điểm & Giảm giá hội viên", "Thu ngân, Quản lý", "<<extend>> trong Bán hàng POS khi khách có đăng ký hội viên", "Tự tính chiết khấu theo hạng và trừ điểm nếu khách yêu cầu"],
         ["UC04", "Quản lý khách hàng", "Thu ngân, Quản lý", "Thêm, cập nhật khách hàng, tra cứu lịch sử mua và điểm", "Bảo vệ điểm tích lũy, kiểm soát regex SĐT 10 chữ số"]
@@ -441,7 +509,7 @@ def create_document():
     # PHẦN II: THIẾT KẾ SƠ ĐỒ LỚP HƯỚNG ĐỐI TƯỢNG (OOP CLASS DIAGRAM)
     # ==========================================
     add_h1("PHẦN II: THIẾT KẾ SƠ ĐỒ LỚP HƯỚNG ĐỐI TƯỢNG (OOP CLASS DIAGRAM)")
-    add_h2("I. Kiến trúc Sơ đồ lớp tổng thể theo chuẩn OOP")
+    add_h2("I. Kiến trúc Sơ đồ lớp tổng thể theo chuẩn OOP (7 Lớp thực thể)")
     add_p("Khác với cách tiếp cận ánh xạ phẳng từ các bảng cơ sở dữ liệu vật lý, sơ đồ lớp của hệ thống được nhóm chúng em thiết kế chuẩn mực theo đúng 4 trụ cột của Lập trình hướng đối tượng (OOP: Kế thừa, Đóng gói, Trừu tượng và Đa hình). Đồng thời, sơ đồ tập trung vào 7 lớp đối tượng quan trọng nhất, gắn liền trực tiếp với bản sắc của bài toán Quản lý bán hàng giày dép thời trang, lược bỏ bớt các lớp cấu hình phụ trợ để bức tranh nghiệp vụ trở nên mạch lạc, rõ ràng và dễ bảo vệ trước Hội đồng chấm thi.")
     
     if os.path.exists("SoDoLop_QuanLyBanGiay.png"):
@@ -470,6 +538,7 @@ def create_document():
     # Table 1: Nguoi (Abstract)
     add_h3("1. Lớp trừu tượng Nguoi (Lớp cơ sở nhân thân)")
     add_p("Lớp cha đại diện cho con người tham gia vào hoạt động của cửa hàng, định nghĩa cấu trúc dữ liệu và hành vi dùng chung.")
+    add_table_caption(4, "Thuộc tính và phương thức của lớp trừu tượng Nguoi")
     t_ng = doc.add_table(rows=7, cols=5)
     ng_data = [
         ["1", "hoTen", "String", "Không rỗng, Độ dài từ 3 - 50 ký tự", "Họ và tên đầy đủ theo tiếng Việt"],
@@ -484,6 +553,7 @@ def create_document():
     # Table 2: NhanVien (extends Nguoi)
     add_h3("2. Lớp NhanVien (Nhân sự - Kế thừa từ Nguoi)")
     add_p("Lớp kế thừa lớp Nguoi, bổ sung các thuộc tính và hành vi nghiệp vụ dành riêng cho nhân viên thu ngân và quản lý cửa hàng.")
+    add_table_caption(5, "Thuộc tính và phương thức của lớp NhanVien")
     t_nv = doc.add_table(rows=7, cols=5)
     nv_data = [
         ["1", "maNhanVien", "String", "PK, Không rỗng, Regex: ^NV[0-9]{4}$", "Mã định danh nhân viên (NV0001, NV0002...)"],
@@ -498,6 +568,7 @@ def create_document():
     # Table 3: KhachHang (extends Nguoi)
     add_h3("3. Lớp KhachHang (Khách hàng thân thiết - Kế thừa từ Nguoi)")
     add_p("Lớp kế thừa lớp Nguoi, quản lý thông tin tích điểm, xếp hạng thành viên và tính toán mức chiết khấu ưu đãi.")
+    add_table_caption(6, "Thuộc tính và phương thức của lớp KhachHang")
     t_kh = doc.add_table(rows=4, cols=5)
     kh_data = [
         ["1", "maKhachHang", "String", "PK, Không rỗng, Regex: ^KH[0-9]{4}$", "Mã khách hàng thành viên (KH0001...)"],
@@ -509,6 +580,7 @@ def create_document():
     # Table 4: SanPham
     add_h3("4. Lớp SanPham (Mẫu giày cha)")
     add_p("Lớp đại diện cho thông tin kiểu dáng chung của mẫu giày thời trang trước khi phân rã thành các kích cỡ và màu sắc cụ thể.")
+    add_table_caption(7, "Thuộc tính và phương thức của lớp SanPham")
     t_sp = doc.add_table(rows=9, cols=5)
     sp_data = [
         ["1", "maSanPham", "String", "PK, Không rỗng, Regex: ^SP[0-9]{4}$", "Mã mẫu giày (SP0001, SP0002...)"],
@@ -525,6 +597,7 @@ def create_document():
     # Table 5: ChiTietGiay
     add_h3("5. Lớp ChiTietGiay (Biến thể SKU - Kích cỡ & Màu sắc)")
     add_p("Lớp thành phần thuộc mối quan hệ Tổng thành chặt chẽ (Composition) với SanPham, lưu trữ số lượng tồn kho theo từng size và màu sắc.")
+    add_table_caption(8, "Thuộc tính và phương thức của lớp ChiTietGiay")
     t_ctg = doc.add_table(rows=7, cols=5)
     ctg_data = [
         ["1", "maChiTietGiay", "String", "PK, Không rỗng, Regex: ^CTG[0-9]{4}$", "Mã định danh biến thể SKU (CTG0001...)"],
@@ -539,6 +612,7 @@ def create_document():
     # Table 6: HoaDon
     add_h3("6. Lớp HoaDon (Hóa đơn thanh toán bán lẻ)")
     add_p("Lớp thực thể quản lý giao dịch thanh toán tại quầy thu ngân, lưu trữ đầy đủ 13 thuộc tính tài chính phục vụ hạch toán kế toán.")
+    add_table_caption(9, "Thuộc tính và phương thức của lớp HoaDon")
     t_hd = doc.add_table(rows=14, cols=5)
     hd_data = [
         ["1", "maHoaDon", "String", "PK, Không rỗng, Regex: ^HD[0-9]{6}$", "Mã hóa đơn (HD000001, HD000002...)"],
@@ -560,6 +634,7 @@ def create_document():
     # Table 7: ChiTietHoaDon
     add_h3("7. Lớp ChiTietHoaDon (Chi tiết dòng sản phẩm trong hóa đơn)")
     add_p("Lớp thành phần thuộc mối quan hệ Tổng thành chặt chẽ (Composition) với HoaDon, lưu thông tin sản phẩm, số lượng và giá bán tại thời điểm lập đơn.")
+    add_table_caption(10, "Thuộc tính và phương thức của lớp ChiTietHoaDon")
     t_cthd = doc.add_table(rows=7, cols=5)
     cthd_data = [
         ["1", "hoaDon", "HoaDon", "PK, FK, Không rỗng, Tham chiếu HoaDon cha", "Con trỏ đối tượng hóa đơn sở hữu"],
@@ -657,8 +732,18 @@ def create_document():
         ])
     ]
 
-    for t_name, rows_info in tables_db:
+    db_table_titles = {
+        "NhanVien": "Cấu trúc trường dữ liệu bảng NhanVien trên Microsoft SQL Server",
+        "KhachHang": "Cấu trúc trường dữ liệu bảng KhachHang trên Microsoft SQL Server",
+        "SanPham": "Cấu trúc trường dữ liệu bảng SanPham trên Microsoft SQL Server",
+        "ChiTietGiay": "Cấu trúc trường dữ liệu bảng ChiTietGiay trên Microsoft SQL Server",
+        "HoaDon": "Cấu trúc trường dữ liệu bảng HoaDon trên Microsoft SQL Server",
+        "ChiTietHoaDon": "Cấu trúc trường dữ liệu bảng ChiTietHoaDon trên Microsoft SQL Server"
+    }
+    for t_idx, (t_name, rows_info) in enumerate(tables_db, 11):
         add_h3(t_name)
+        clean_tbl = t_name.split()[2]
+        add_table_caption(t_idx, db_table_titles.get(clean_tbl, f"Cấu trúc trường dữ liệu bảng {clean_tbl} trên Microsoft SQL Server"))
         t_elem = doc.add_table(rows=len(rows_info) + 1, cols=5)
         style_table(t_elem, [1.5, 1.2, 0.7, 0.7, 2.2], ["Tên cột", "Kiểu dữ liệu", "Khóa", "Null", "Ràng buộc & Mô tả"], rows_info)
 
@@ -676,15 +761,15 @@ def create_document():
     add_p("Để xử lý đồng thời trong giờ cao điểm khi nhiều quầy thu ngân cùng thực hiện giao dịch thanh toán trên cùng một biến thể sản phẩm có số lượng tồn kho giới hạn, hệ thống không dùng thủ tục phản xạ sự kiện CSDL ngầm định nhằm tránh tắc nghẽn khóa máy chủ. Thay vào đó, toàn bộ nghiệp vụ kiểm soát bán hàng được quản trị chặt chẽ tại tầng DAO (dao/HoaDon_DAO.java) bằng cơ chế JDBC Transaction tuân thủ nghiêm ngặt 4 nguyên lý ACID:")
     add_bullet("Thiết lập con.setAutoCommit(false) ngay đầu phương thức themHoaDon() để khởi tạo Transaction cục bộ, gom toàn bộ chuỗi ghi nhận dữ liệu vào một phiên giao dịch nguyên tử duy nhất.", "Khởi tạo Transaction: ")
     add_bullet("Khi sinh mã hóa đơn mới, thực thi câu lệnh 'SELECT ISNULL(MAX(CAST(SUBSTRING(maHoaDon,3,6) AS INT)),0)+1 FROM HoaDon WITH (UPDLOCK, HOLDLOCK)'. Khóa UPDLOCK kết hợp HOLDLOCK giữ an toàn dải khóa trong suốt Transaction, ngăn chặn triệt để xung đột sinh trùng mã hóa đơn giữa các quầy thu ngân chạy song song.", "Khóa đọc an toàn sinh mã: ")
-    add_bullet("Thực thi câu lệnh UPDATE trừ kho nguyên tử có điều kiện: 'UPDATE ChiTietGiay SET soLuongTon = soLuongTon - ? WHERE maChiTietGiay = ? AND soLuongTon >= ?'. Nhờ điều kiện soLuongTon >= ?, nếu số lượng tồn kho SoLuongTon hiện tại không đủ đáp ứng, SQL Server sẽ cập nhật 0 dòng (rowsAffected == 0). Khi đó, hệ thống lập tức phát lệnh con.rollback() và ném ngoại lệ thông báo kho không đủ hàng để giao dịch viên và khách hàng nắm rõ.", "Khóa tồn kho nguyên tử: ")
+    add_bullet("Thực thi câu lệnh UPDATE trừ kho nguyên tử có điều kiện: 'UPDATE ChiTietGiay SET soLuongTon = soLuongTon - ? WHERE maChiTietGiay = ? AND soLuongTon >= ?'. Nhờ điều kiện soLuongTon >= ?, nếu số lượng tồn kho hiện tại không đủ đáp ứng, SQL Server sẽ cập nhật 0 dòng (rowsAffected == 0). Khi đó, hệ thống lập tức phát lệnh con.rollback(), ghi nhận thông báo lỗi chi tiết vào thuộc tính lastErrorMessage và trả về false để tầng giao diện BanHang_GUI hiển thị hộp thoại cảnh báo chính xác cho thu ngân.", "Khóa tồn kho nguyên tử: ")
     add_bullet("Cập nhật điểm tích lũy và tự động nâng hạng thẻ thành viên cho khách hàng thân thiết trên bảng KhachHang.", "Đồng bộ tích điểm: ")
-    add_bullet("Chỉ khi toàn bộ các bước ghi bảng HoaDon, từng dòng ChiTietHoaDon, trừ kho ChiTietGiay và cập nhật khách hàng đều hoàn thành hợp lệ, lệnh con.commit() mới được kích hoạt để chốt dữ liệu vĩnh viễn vào SQL Server. Trong khối catch (SQLException), hệ thống lập tức thực hiện con.rollback() nhằm hoàn nguyên trạng thái kho và hóa đơn về trước thời điểm bắt đầu giao dịch. Khối finally luôn gọi con.setAutoCommit(true) để trả lại trạng thái kết nối cho Connection Pool.", "Cam kết & Hoàn nguyên (Commit & Rollback): ")
+    add_bullet("Chỉ khi toàn bộ các bước ghi bảng HoaDon, từng dòng ChiTietHoaDon, trừ kho ChiTietGiay và cập nhật khách hàng đều hoàn thành hợp lệ, lệnh con.commit() mới được kích hoạt để chốt dữ liệu vĩnh viễn vào SQL Server. Trong khối catch (SQLException), hệ thống lập tức thực hiện con.rollback() nhằm hoàn nguyên trạng thái kho và hóa đơn về trước thời điểm bắt đầu giao dịch. Khối finally luôn gọi con.setAutoCommit(true) để đưa trạng thái kết nối của Singleton ConnectDB trở lại chế độ tự động xác nhận mặc định, bảo đảm an toàn cho các tác vụ tiếp theo.", "Cam kết & Hoàn nguyên (Commit & Rollback): ")
 
     add_h3("3. Chiến lược Xóa mềm (Soft-Delete Pattern)")
     add_p("Trong hệ thống bán lẻ, việc xóa vật lý (DELETE) trực tiếp các bản ghi dữ liệu danh mục là điều tối kỵ vì sẽ gây lỗi ràng buộc khóa ngoại (Foreign Key Constraint Error 547) đối với các hóa đơn giao dịch đã phát sinh trong quá khứ. Ngược lại, nếu thiết lập xóa lan truyền (CASCADE DELETE), hệ thống sẽ vô tình xóa sạch toàn bộ lịch sử bán hàng và chi tiết đơn hàng, gây sai lệch nghiêm trọng báo cáo doanh thu kế toán.")
     add_p("Nhóm phát triển giải quyết triệt để bài toán này bằng chiến lược Xóa mềm (Soft-Delete Pattern) thông qua các trường trạng thái quản lý:")
     add_bullet("Bảng SanPham được thiết kế cột trangThai (BIT, DEFAULT 1). Khi người quản lý thực hiện thao tác xóa một mẫu giày, hệ thống (thông qua SanPham_DAO) chỉ thực thi câu lệnh cập nhật trạng thái: UPDATE SanPham SET trangThai = 0 WHERE maSanPham = ?. Giao diện bán hàng chỉ tải dữ liệu danh mục với điều kiện WHERE trangThai = 1, do đó mẫu giày đã ngừng kinh doanh sẽ lập tức ẩn khỏi quầy thu ngân nhưng toàn bộ hóa đơn và doanh thu trong quá khứ vẫn được bảo toàn nguyên vẹn 100%.", "Xóa mềm sản phẩm: ")
-    add_bullet("Bảng NhanVien cũng được quản lý trạng thái bằng cột trangThai (BIT, DEFAULT 1). Khi nhân viên nghỉ việc, lớp NhanVien_DAO thực hiện cập nhật trangThai = 0. Hệ thống sẽ chặn nhân viên này đăng nhập bằng mật khẩu SHA-256 đã vô hiệu hóa, nhưng toàn bộ mã nhân viên phụ trách trên các chứng từ hóa đơn cũ vẫn được lưu giữ phục vụ tra cứu kiểm toán.", "Quản lý nhân viên nghỉ việc: ")
+    add_bullet("Bảng NhanVien cũng được quản lý trạng thái bằng cột trangThai (BIT, DEFAULT 1). Khi nhân viên thôi việc, lớp NhanVien_DAO thực hiện cập nhật trangThai = 0 (xóa mềm). Chuỗi băm mật khẩu SHA-256 trong CSDL vẫn được giữ nguyên vẹn, nhưng phương thức xác thực NhanVien_DAO.dangNhap() kiểm tra điều kiện lọc 'WHERE trangThai = 1', do đó tài khoản nhân viên đã nghỉ sẽ bị từ chối đăng nhập ngay lập tức trong khi lịch sử lập hóa đơn trong quá khứ vẫn được bảo toàn nguyên vẹn.", "Quản lý nhân viên thôi việc: ")
     add_bullet("Các ràng buộc khóa ngoại tham chiếu từ ChiTietHoaDon đến HoaDon và ChiTietGiay đều giữ nguyên tắc không xóa lan truyền (NO ACTION), bảo đảm dữ liệu chứng từ thanh toán là bất biến (immutable) theo đúng chuẩn mực hạch toán tài chính.", "Bảo toàn chứng từ tài chính: ")
 
     doc.add_page_break()
@@ -732,7 +817,7 @@ def create_document():
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_p("Diễn giải 10 bước luồng thực thi trong Sơ đồ Tuần tự:")
-    add_bullet("Thu ngân nhấn phím tắt F10 hoặc click nút 'THANH TOÁN & IN HÓA ĐƠN [F10]' trên giao diện BanHang_GUI.", "1. Kích hoạt giao dịch: ")
+    add_bullet("Thu ngân nhấn phím tắt F10 hoặc click nút 'THANH TOÁN & IN HÓA ĐƠN [F10]' trên giao diện BanHang_GUI (khi thanh toán thành công, hệ thống sẽ kích hoạt hộp thoại JDialog hiển thị bản xem trước phiếu hóa đơn K80 để thu ngân và khách hàng đối chiếu, không phát lệnh in phần cứng trực tiếp).", "1. Kích hoạt giao dịch: ")
     add_bullet("BanHang_GUI thực hiện hàm nội bộ validateForm() kiểm tra giỏ hàng không rỗng, tiền khách đưa >= tổng tiền cần thanh toán.", "2. Kiểm tra hình thức tại GUI: ")
     add_bullet("BanHang_GUI gọi phương thức themHoaDon(hoaDon) trên đối tượng HoaDon_DAO.", "3. Chuyển giao xuống DAO: ")
     add_bullet("HoaDon_DAO phát lệnh con.setAutoCommit(false) để khởi tạo phiên giao dịch ACID cục bộ trên kết nối JDBC.", "4. Khởi tạo Transaction: ")
@@ -740,8 +825,9 @@ def create_document():
     add_bullet("Thực thi lệnh INSERT INTO HoaDon ghi nhận đầy đủ 13 thuộc tính tài chính, chiết khấu và điểm tích lũy.", "6. Ghi nhận hóa đơn: ")
     add_bullet("Lặp qua từng dòng sản phẩm trong giỏ hàng và thực thi INSERT INTO ChiTietHoaDon.", "7. Ghi chi tiết hóa đơn: ")
     add_bullet("Thực thi UPDATE trừ kho nguyên tử: 'UPDATE ChiTietGiay SET soLuongTon = soLuongTon - ? WHERE maChiTietGiay = ? AND soLuongTon >= ?'.", "8. Trừ tồn kho có điều kiện: ")
-    add_bullet("Phân nhánh alt [THÀNH CÔNG]: Nếu kho đủ tồn (rowsUpdated > 0), hệ thống cập nhật điểm tích lũy và nâng hạng thẻ thành viên KhachHang, sau đó phát lệnh con.commit() chốt dữ liệu vĩnh viễn vào SQL Server. Trả về true cho GUI để hiển thị hộp thoại JDialog Hóa đơn nhiệt K80 và làm mới giỏ hàng.", "9. Nhánh Thành công (Commit): ")
-    add_bullet("Phân nhánh alt [THẤT BẠI]: Nếu kho không đủ tồn (rowsUpdated == 0), hệ thống lập tức phát lệnh con.rollback() hủy toàn bộ thay đổi, ném ngoại lệ thông báo kho không đủ hàng. GUI hiển thị hộp thoại JOptionPane cảnh báo lỗi và giữ nguyên giỏ hàng để thu ngân xử lý.", "10. Nhánh Thất bại (Rollback): ")
+    add_bullet("Phân nhánh alt [THÀNH CÔNG]: Nếu kho đủ tồn (rowsUpdated > 0), hệ thống cập nhật điểm tích lũy và nâng hạng thẻ thành viên KhachHang, sau đó phát lệnh con.commit() chốt dữ liệu vĩnh viễn vào SQL Server. Trả về true cho GUI để kích hoạt hộp thoại JDialog xem trước hóa đơn K80 và làm mới giỏ hàng.", "9. Nhánh Thành công (Commit): ")
+    add_bullet("Phân nhánh alt [THẤT BẠI]: Nếu kho không đủ tồn (rowsUpdated == 0), hệ thống lập tức phát lệnh con.rollback() hủy toàn bộ thay đổi, gán thông báo lỗi vào thuộc tính lastErrorMessage và trả về false. Giao diện BanHang_GUI nhận kết quả false, lấy thông báo từ lastErrorMessage để hiển thị hộp thoại JOptionPane cảnh báo và giữ nguyên giỏ hàng để thu ngân xử lý.", "10. Nhánh Thất bại (Rollback): ")
+    add_bullet("Hệ thống hỗ trợ 2 hình thức thanh toán tại quầy là 'Tiền mặt' và 'Chuyển khoản QR'. Đối với phương thức 'Chuyển khoản QR', hệ thống tự động thiết lập số tiền khách đưa bằng chính xác tổng tiền thanh toán để tiện đối soát tại quầy; hệ thống hiện tại ghi nhận trạng thái phương thức vào trường phuongThucTT trong CSDL mà chưa tích hợp API tự sinh mã VietQR động hay webhook ngân hàng (đây là tính năng được quy hoạch mở rộng ở giai đoạn tiếp theo).", "Phương thức thanh toán: ")
 
     # 3. Quản lý sản phẩm
     add_h2("III. Chức năng Quản lý sản phẩm giày dép & Biến thể SKU")
@@ -755,7 +841,7 @@ def create_document():
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_bullet("Form thông tin sản phẩm gồm: Mã sản phẩm (định dạng SPxxxx), Tên sản phẩm, Phân loại (Sneaker, Chạy bộ, Sandal, Da bò), Thương hiệu (Nike, Adidas, Vans, Converse, Biti's), Giá nhập, Giá bán và Chất liệu.", "Bố cục form thông tin: ")
-    add_bullet("Hệ thống tự động sinh một biến thể SKU mặc định (kích cỡ 40, màu Đen, SoLuongTon = 20) trong ChiTietGiay khi tạo mới mẫu giày để sẵn sàng phục vụ bán hàng ngay lập tức.", "Khởi tạo biến thể mặc định: ")
+    add_bullet("Hệ thống tự động sinh một biến thể SKU mặc định (kích cỡ 40, màu Đen, soLuongTon = 20) trong ChiTietGiay khi tạo mới mẫu giày để sẵn sàng phục vụ bán hàng ngay lập tức.", "Khởi tạo biến thể mặc định: ")
     add_bullet("Kiểm tra tính hợp lệ của dữ liệu: Ràng buộc giaBan >= giaNhap > 0 nhằm bảo đảm hiệu quả kinh tế cho cửa hàng.", "Kiểm soát giá cả nghiêm ngặt: ")
     add_bullet("Áp dụng cơ chế Xóa mềm (Soft-Delete): Khi người quản lý thực hiện xóa một mẫu giày, hệ thống cập nhật trangThai = 0 trong bảng SanPham. Nhờ vậy, sản phẩm sẽ không còn xuất hiện trong danh mục bán lẻ tại quầy POS nhưng toàn bộ các dòng hóa đơn bán hàng trong quá khứ vẫn được bảo toàn nguyên vẹn 100%, tránh được lỗi vi phạm khóa ngoại trong cơ sở dữ liệu.", "Cơ chế xóa mềm an toàn: ")
 
@@ -789,7 +875,8 @@ def create_document():
     add_bullet("Form quản lý nhân viên gồm: Mã nhân viên (NVxxxx), Họ tên, Số điện thoại, Giới tính, Ngày sinh, Địa chỉ, Email, Chức vụ (Quản lý hoặc Nhân viên bán hàng), Lương cơ bản và Ca làm việc (Toàn thời gian, Ca sáng, Ca chiều, Ca tối).", "Hồ sơ nhân sự chi tiết: ")
     add_bullet("Ràng buộc độ tuổi lao động: Kiểm tra ngày sinh của nhân viên bảo đảm từ đủ 18 tuổi trở lên theo quy định pháp luật lao động.", "Kiểm tra tuổi lao động >= 18: ")
     add_bullet("Bảo mật mật khẩu SHA-256: Khi tạo nhân viên mới, mật khẩu mặc định (123456) được băm một chiều qua thuật toán SHA-256 thành chuỗi hex 64 ký tự trước khi lưu vào CSDL.", "Bảo mật tài khoản: ")
-    add_bullet("Xử lý cho nhân viên nghỉ việc: Khi nhân viên thôi việc, hệ thống thực hiện cập nhật trangThai = 0. Tài khoản lập tức bị từ chối đăng nhập nhưng mã nhân viên vẫn được lưu giữ trên các hóa đơn đã lập trước đây.", "Vô hiệu hóa tài khoản an toàn: ")
+    add_bullet("Xử lý cho nhân viên nghỉ việc: Khi nhân viên thôi việc, hệ thống thực hiện cập nhật trangThai = 0 (xóa mềm). Chuỗi băm mật khẩu SHA-256 trong CSDL vẫn được giữ nguyên vẹn, nhưng phương thức xác thực NhanVien_DAO.dangNhap() kiểm tra điều kiện lọc 'WHERE trangThai = 1', do đó tài khoản nhân viên đã nghỉ sẽ bị từ chối đăng nhập ngay lập tức trong khi lịch sử hóa đơn trong quá khứ vẫn được bảo toàn nguyên vẹn.", "Khóa quyền truy cập nhân viên thôi việc: ")
+    add_bullet("Cơ chế bảo vệ tài khoản Quản trị trưởng: Để bảo đảm hệ thống luôn duy trì ít nhất một tài khoản Quản lý hoạt động, tại tầng giao diện QuanLyNhanVien_GUI.java (dòng 305), hệ thống chặn cứng thao tác đổi trạng thái/nghỉ việc đối với mã quản trị mặc định 'NV0001' (kiểm tra điều kiện if (maNV.equalsIgnoreCase(\"NV0001\")) và hiển thị cảnh báo không được phép vô hiệu hóa tài khoản quản trị trưởng).", "Bảo vệ tài khoản Quản trị trưởng: ")
 
     # 6. Định hướng phân hệ Thống kê (L05)
     add_h2("VI. Phân hệ Thống kê doanh thu (Định hướng mở rộng)")
@@ -801,6 +888,7 @@ def create_document():
     # 7. Bảng phím tắt
     add_h2("VII. Bảng hệ thống phím tắt & Điều hướng bán hàng (Hotkeys)")
     add_p("Để tối ưu hóa trải nghiệm công thái học và giải phóng nhân viên thu ngân khỏi việc phải liên tục dùng chuột, hệ thống triển khai cơ chế KeyBindings với phạm vi WHEN_IN_FOCUSED_WINDOW trên JRootPane của ManHinhChinh_GUI. Cơ chế này cho phép bắt trọn vẹn các sự kiện phím chức năng trên toàn bộ cửa sổ ứng dụng:")
+    add_table_caption(17, "Hệ thống phím tắt công thái học điều hướng bán hàng POS")
     t_hotkeys = doc.add_table(rows=8, cols=3)
     hotkey_data = [
         ["F1", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Bán hàng (POS)"],
@@ -916,6 +1004,7 @@ def create_document():
         ["TC-35", "Dọn dẹp rác", "Dọn dẹp dữ liệu kiểm thử sau test", "Xóa sạch các bản ghi test (SP9991, NV9991...)", "CSDL sạch sẽ, hoàn nguyên trạng thái ban đầu", "Hoàn tất dọn rác, không còn bản ghi thử nghiệm", "PASS"]
     ]
 
+    add_table_caption(18, "Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)")
     t_matrix = doc.add_table(rows=len(test_cases_matrix) + 1, cols=7)
     style_table(t_matrix, [0.6, 0.9, 1.3, 1.2, 1.2, 1.3, 0.6], ["Mã TC", "Phân hệ", "Mục tiêu kiểm thử", "Dữ liệu đầu vào", "Kết quả mong đợi", "Kết quả thực tế", "Đánh giá"], test_cases_matrix)
 
@@ -947,14 +1036,10 @@ def create_document():
         r = p_ref.add_run(ref)
         set_font(r, size=11, color_rgb=(30, 41, 59))
 
-    # Save document
+    # Save document (Single authoritative source - L31)
     output_filename = "BaoCao_QuanLyBanGiay_HSK.docx"
     doc.save(output_filename)
     print(f"Document saved successfully as: {output_filename}")
-    
-    # Also save a copy as QuanLyBanGiay_HSK.docx
-    doc.save("QuanLyBanGiay_HSK.docx")
-    print("Also saved copy as: QuanLyBanGiay_HSK.docx")
 
 if __name__ == '__main__':
     create_document()

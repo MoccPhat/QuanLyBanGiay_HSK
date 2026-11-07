@@ -171,6 +171,7 @@ E:\Eclipse Java\project\
 3. Kiểm tra thông số kết nối trong `src/connectDB/ConnectDB.java`:
    - URL: `jdbc:sqlserver://localhost:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;`
    - User: `sa` | Password: Mật khẩu sa của máy bạn (mặc định: `sapassword` hoặc `123456789`).
+   - *(Lưu ý kỹ thuật: Hiện tại lớp `ConnectDB` áp dụng mô hình Singleton quản lý 1 kết nối duy nhất với mảng fallback mật khẩu cục bộ; tính năng đọc cấu hình động qua tệp `db.properties` hoặc biến môi trường đang được quy hoạch triển khai trong phiên bản tiếp theo).*
 
 ### 3. Tài Khoản Đăng Nhập Mẫu
 

@@ -50,3 +50,8 @@ Desktop.ini
 # Database credentials
 db.properties
 !db.properties.example
+
+# Critique folder & archive
+PHAN-BIEN-DO-AN-project*
+PHAN-BIEN-DO-AN-project.zip
+PHAN-BIEN-DO-AN-project/

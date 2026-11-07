@@ -107,7 +107,7 @@ E:\Project_HSK\
         ├── UIHelper.java         # Tiện ích giao diện: Nút bấm, bảng, ô nhập, màu sắc
         ├── DangNhap_GUI.java     # Cửa sổ đăng nhập xác thực tài khoản
         ├── ManHinhChinh_GUI.java # Cửa sổ chính chứa Tab chức năng & Hotkeys
-        ├── BanHang_GUI.java      # Phân hệ POS bán hàng, thanh toán, in hóa đơn K80
+        ├── BanHang_GUI.java      # Phân hệ POS bán hàng, thanh toán, hộp thoại xem trước hóa đơn K80
         ├── QuanLySanPham_GUI.java# Phân hệ quản lý mẫu giày & tạo biến thể SKU
         ├── QuanLyKhachHang_GUI.java # Phân hệ quản lý khách hàng & lịch sử điểm
         ├── QuanLyNhanVien_GUI.java  # Phân hệ quản lý nhân sự (chỉ Quản lý)
