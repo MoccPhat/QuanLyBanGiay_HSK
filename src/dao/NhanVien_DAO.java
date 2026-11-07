@@ -3,9 +3,15 @@ package dao;
 import connectDB.ConnectDB;
 import entity.NhanVien;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class NhanVien_DAO {
 
@@ -94,10 +100,73 @@ public class NhanVien_DAO {
         return ds;
     }
 
-    public String hashSHA256(String input) {
+    public static final int PBKDF2_ITERATIONS = 100000;
+    public static final int PBKDF2_KEY_LENGTH = 256;
+    public static final int SALT_BYTES = 16;
+
+    /**
+     * Băm mật khẩu bằng PBKDF2WithHmacSHA256 (L08).
+     * Định dạng lưu trữ: pbkdf2$<iterations>$<saltBase64>$<hashBase64>
+     */
+    public static String hashPBKDF2(String password) {
         try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[SALT_BYTES];
+            random.nextBytes(salt);
+
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, PBKDF2_ITERATIONS, PBKDF2_KEY_LENGTH);
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            byte[] hash = skf.generateSecret(spec).getEncoded();
+
+            String saltBase64 = Base64.getEncoder().encodeToString(salt);
+            String hashBase64 = Base64.getEncoder().encodeToString(hash);
+            return "pbkdf2$" + PBKDF2_ITERATIONS + "$" + saltBase64 + "$" + hashBase64;
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi băm mật khẩu PBKDF2: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Xác thực mật khẩu: Hỗ trợ cả chuẩn mới PBKDF2 và chuẩn cũ SHA-256 (64 hex) (L08).
+     * Dùng MessageDigest.isEqual để chống tấn công Timing Attack.
+     */
+    public static boolean verifyPassword(String password, String storedHash) {
+        if (password == null || storedHash == null) {
+            return false;
+        }
+        storedHash = storedHash.trim();
+        if (storedHash.startsWith("pbkdf2$")) {
+            String[] parts = storedHash.split("\\$");
+            if (parts.length != 4) {
+                return false;
+            }
+            try {
+                int iterations = Integer.parseInt(parts[1]);
+                byte[] salt = Base64.getDecoder().decode(parts[2]);
+                byte[] expectedHash = Base64.getDecoder().decode(parts[3]);
+
+                PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, expectedHash.length * 8);
+                SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+                byte[] testHash = skf.generateSecret(spec).getEncoded();
+
+                return MessageDigest.isEqual(expectedHash, testHash);
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            // Tương thích ngược: Chuỗi băm SHA-256 cũ (64 ký tự hex)
+            String sha256 = hashSHA256Static(password);
+            return MessageDigest.isEqual(
+                sha256.getBytes(StandardCharsets.UTF_8),
+                storedHash.toLowerCase().getBytes(StandardCharsets.UTF_8)
+            );
+        }
+    }
+
+    public static String hashSHA256Static(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
@@ -110,12 +179,86 @@ public class NhanVien_DAO {
         }
     }
 
+    public String hashSHA256(String input) {
+        return hashSHA256Static(input);
+    }
+
     /**
-     * Xác thực đăng nhập (L10):
+     * Kiểm tra kích thước cột matKhau trong bảng NhanVien có đủ lưu chuỗi PBKDF2 (~83 ký tự) hay không.
+     * Nếu CHAR(64), không thể nhồi 83 ký tự để tránh lỗi SQL Server 8152.
+     */
+    public boolean isColumnLargeEnoughForPBKDF2(Connection con) {
+        try {
+            String sql = "SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'NhanVien' AND COLUMN_NAME = 'matKhau'";
+            try (Statement stmt = con.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) {
+                    int len = rs.getInt(1);
+                    return len >= 83 || len == -1;
+                }
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    /**
+     * Đổi mật khẩu nhân viên (L08):
+     * Bắt buộc kiểm tra mật khẩu cũ. Băm mật khẩu mới bằng PBKDF2 (nếu cột hỗ trợ) hoặc SHA-256.
+     */
+    public boolean doiMatKhau(String maNV, String matKhauCu, String matKhauMoi) {
+        lastError = "";
+        if (maNV == null || maNV.trim().isEmpty()) {
+            lastError = "Mã nhân viên không hợp lệ!";
+            return false;
+        }
+        if (matKhauMoi == null || matKhauMoi.trim().length() < 6) {
+            lastError = "Mật khẩu mới phải từ 6 ký tự trở lên!";
+            return false;
+        }
+        try {
+            Connection con = getConnection();
+            String selectSql = "SELECT matKhau FROM NhanVien WHERE maNhanVien = ?";
+            String storedHash = null;
+            try (PreparedStatement pstmt = con.prepareStatement(selectSql)) {
+                pstmt.setString(1, maNV);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        storedHash = rs.getString("matKhau");
+                    } else {
+                        lastError = "Không tìm thấy nhân viên có mã: " + maNV;
+                        return false;
+                    }
+                }
+            }
+
+            if (!verifyPassword(matKhauCu, storedHash)) {
+                lastError = "Mật khẩu cũ không chính xác!";
+                return false;
+            }
+
+            boolean canUsePBKDF2 = isColumnLargeEnoughForPBKDF2(con);
+            String newHash = canUsePBKDF2 ? hashPBKDF2(matKhauMoi) : hashSHA256(matKhauMoi);
+
+            String updateSql = "UPDATE NhanVien SET matKhau = ? WHERE maNhanVien = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(updateSql)) {
+                pstmt.setString(1, newHash);
+                pstmt.setString(2, maNV);
+                return pstmt.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Xác thực đăng nhập (L08 & L10):
      * Phân biệt rõ ràng 3 trường hợp khi thất bại:
      * 1. Không tìm thấy mã nhân viên (hoặc tài khoản bị ngừng hoạt động).
-     * 2. Mật khẩu không chính xác.
+     * 2. Mật khẩu không chính xác (hỗ trợ cả PBKDF2 và SHA-256).
      * 3. Lỗi kết nối CSDL hoặc ngoại lệ hệ thống.
+     * Tự động nâng cấp hash SHA-256 lên PBKDF2 nếu đăng nhập đúng và kích thước cột cho phép (L08).
      */
     public NhanVien dangNhap(String maNV, String matKhau) {
         lastError = "";
@@ -133,9 +276,19 @@ public class NhanVien_DAO {
                             return null;
                         }
                         String dbHash = rs.getString("matKhau");
-                        String inputHash = hashSHA256(matKhau);
 
-                        if (inputHash.equalsIgnoreCase(dbHash)) {
+                        if (verifyPassword(matKhau, dbHash)) {
+                            // Tự động nâng cấp từ SHA-256 lên PBKDF2 khi login thành công nếu cột DB đủ chứa (L08)
+                            if (dbHash != null && !dbHash.trim().startsWith("pbkdf2$") && isColumnLargeEnoughForPBKDF2(con)) {
+                                try (PreparedStatement upStmt = con.prepareStatement("UPDATE NhanVien SET matKhau = ? WHERE maNhanVien = ?")) {
+                                    String pbkdf2Hash = hashPBKDF2(matKhau);
+                                    upStmt.setString(1, pbkdf2Hash);
+                                    upStmt.setString(2, maNV);
+                                    upStmt.executeUpdate();
+                                    dbHash = pbkdf2Hash;
+                                } catch (Exception ignored) {}
+                            }
+
                             String hoTen = rs.getString("hoTen");
                             String sdt = rs.getString("soDienThoai");
                             Date ns = rs.getDate("ngaySinh");
@@ -283,8 +436,17 @@ public class NhanVien_DAO {
                 }
 
                 String pwd = nv.getMatKhau();
-                if (pwd == null || pwd.length() != 64) {
-                    pwd = hashSHA256(pwd != null ? pwd : "123456");
+                if (pwd == null || pwd.trim().isEmpty()) {
+                    lastError = "Vui lòng nhập mật khẩu khởi tạo cho nhân viên mới!";
+                    return false;
+                }
+                if (!pwd.startsWith("pbkdf2$") && pwd.length() != 64) {
+                    if (pwd.length() < 6) {
+                        lastError = "Mật khẩu khởi tạo phải từ 6 ký tự trở lên!";
+                        return false;
+                    }
+                    boolean canUsePBKDF2 = isColumnLargeEnoughForPBKDF2(con);
+                    pwd = canUsePBKDF2 ? hashPBKDF2(pwd) : hashSHA256(pwd);
                 }
                 pstmt.setString(11, pwd);
                 pstmt.setBoolean(12, nv.isTrangThai());

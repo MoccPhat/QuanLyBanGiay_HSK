@@ -604,22 +604,14 @@ public class BanHang_GUI extends JPanel implements ActionListener {
             tongTienGoc += (Double) modelGioHang.getValueAt(i, 8);
         }
 
-        // 1. Tính chiết khấu hạng thẻ
-        double ptChietKhau = (khachHienTai != null) ? khachHienTai.tinhChietKhau() : 0.0;
-        double tienChietKhau = Math.floor(tongTienGoc * ptChietKhau);
+        // L09: Gọi hàm tính tiền tập trung bằng BigDecimal
+        int diemMuonDung = (chkDungDiem.isSelected() && khachHienTai != null) ? khachHienTai.getDiemTichLuy() : 0;
+        HoaDon_DAO.KetQuaTinhTien kq = HoaDon_DAO.tinhChiTietTien(tongTienGoc, khachHienTai, diemMuonDung);
 
-        // 2. Tính giảm giá dùng điểm tích lũy (1 điểm = 1.000 VNĐ)
-        double tienGiamDiem = 0;
-        if (chkDungDiem.isSelected() && khachHienTai != null) {
-            int diem = khachHienTai.getDiemTichLuy();
-            double toiDaCoTheGiam = Math.max(0, tongTienGoc - tienChietKhau);
-            tienGiamDiem = Math.min(diem * 1000.0, toiDaCoTheGiam);
-        }
+        tongTienGiam = kq.getChietKhau() + kq.getTienGiamDiem();
+        khachCanTra = kq.getTongPhaiTra();
 
-        tongTienGiam = tienChietKhau + tienGiamDiem;
-        khachCanTra = Math.max(0, tongTienGoc - tongTienGiam);
-
-        lblTongTienHangVal.setText(df.format(tongTienGoc));
+        lblTongTienHangVal.setText(df.format(kq.getTongTienHang()));
         lblChietKhauVal.setText(df.format(tongTienGiam));
         lblKhachCanTraVal.setText(df.format(khachCanTra));
 
@@ -792,24 +784,21 @@ public class BanHang_GUI extends JPanel implements ActionListener {
             return;
         }
 
-        // Tạo đối tượng HoaDon với đầy đủ các số liệu tài chính đã chiết khấu
-        String maHD = "HD" + String.format("%06d", System.currentTimeMillis() % 1000000);
+        // L28: Bỏ việc tự sinh mã HD tạm "HD" + timestamp trên GUI. DAO sẽ sinh mã an toàn trong Transaction có UPDLOCK/HOLDLOCK.
         double tienThua = Math.max(0, tienDua - canTra);
 
-        HoaDon hd = new HoaDon(maHD, LocalDateTime.now(), nhanVienDangNhap, khachHienTai, canTra,
+        HoaDon hd = new HoaDon(null, LocalDateTime.now(), nhanVienDangNhap, khachHienTai, canTra,
                 (String) cboPhuongThuc.getSelectedItem(), tienDua, tienThua);
 
-        int diemToiDa = (int) Math.floor((tongTienGoc - (khachHienTai != null ? Math.floor(tongTienGoc * khachHienTai.tinhChietKhau()) : 0)) / 1000.0);
-        int diemDung = (chkDungDiem.isSelected() && khachHienTai != null) ? Math.min(khachHienTai.getDiemTichLuy(), diemToiDa) : 0;
-        double tienGiamDiem = diemDung * 1000.0;
-        double chietKhauHang = Math.max(0, tongTienGiam - tienGiamDiem);
+        int diemMuonDung = (chkDungDiem.isSelected() && khachHienTai != null) ? khachHienTai.getDiemTichLuy() : 0;
+        HoaDon_DAO.KetQuaTinhTien kq = HoaDon_DAO.tinhChiTietTien(tongTienGoc, khachHienTai, diemMuonDung);
 
-        hd.setTongTienHang(tongTienGoc);
-        hd.setChietKhau(chietKhauHang);
-        hd.setDiemSuDung(diemDung);
-        hd.setTienGiamDiem(tienGiamDiem);
-        hd.setTongTien(canTra);
-        hd.setDiemCong((int) Math.floor(canTra / 100000.0));
+        hd.setTongTienHang(kq.getTongTienHang());
+        hd.setChietKhau(kq.getChietKhau());
+        hd.setDiemSuDung(kq.getDiemSuDung());
+        hd.setTienGiamDiem(kq.getTienGiamDiem());
+        hd.setTongTien(kq.getTongPhaiTra());
+        hd.setDiemCong(kq.getDiemCong());
 
         // Thêm chi tiết các sản phẩm trong giỏ
         for (int i = 0; i < modelGioHang.getRowCount(); i++) {

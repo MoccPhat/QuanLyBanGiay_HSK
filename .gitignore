@@ -46,3 +46,7 @@ __pycache__/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Database credentials
+db.properties
+!db.properties.example

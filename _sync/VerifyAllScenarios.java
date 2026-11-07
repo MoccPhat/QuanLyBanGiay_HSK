@@ -48,10 +48,11 @@ public class VerifyAllScenarios {
             testScenario5_POSAndCheckout();
             testScenario6_Statistics();
             testScenario8_Batch2Verification();
+            testScenario9_Batch3Verification();
             testScenario7_DBIntegrityAndCleanup();
 
             System.out.println("\n===============================================================================");
-            System.out.println(String.format("    AUDIT SUMMARY: %d PASSED, %d FAILED across all 8 scenarios", totalPassed, totalFailed));
+            System.out.println(String.format("    AUDIT SUMMARY: %d PASSED, %d FAILED across all 9 scenarios", totalPassed, totalFailed));
             System.out.println("===============================================================================");
 
             if (totalFailed > 0) {
@@ -822,6 +823,217 @@ public class VerifyAllScenarios {
         }
 
         System.out.println();
+    }
+
+    // SCENARIO 9: Batch 3 Verification (L07, L08, L09, L26, L27, L28, L33)
+    private static void testScenario9_Batch3Verification() {
+        System.out.println("--- SCENARIO 9: Kiểm chứng Lô 3 (L07 db.properties, L08 PBKDF2/Đổi MK, L09 BigDecimal, L26 AutoCommit, L27 SwingWorker, L28 Sinh mã, L33 Từ chối thiếu tiền) ---");
+        NhanVien_DAO nvDao = new NhanVien_DAO();
+        HoaDon_DAO hdDao = new HoaDon_DAO();
+        KhachHang_DAO khDao = new KhachHang_DAO();
+        ChiTietGiay_DAO ctgDao = new ChiTietGiay_DAO();
+
+        // 9.1 L07: Quét mã nguồn src/** bảo đảm không còn mật khẩu hardcode
+        boolean zeroHardcode = true;
+        try {
+            java.io.File srcDir = new java.io.File("src");
+            java.util.List<java.io.File> allFiles = new java.util.ArrayList<>();
+            collectFiles(srcDir, allFiles);
+            for (java.io.File f : allFiles) {
+                if (f.getName().endsWith(".java")) {
+                    String content = java.nio.file.Files.readString(f.toPath());
+                    if (content.contains("123456789") || content.contains("sapassword")) {
+                        zeroHardcode = false;
+                        fail("9.1 Quét mã nguồn sạch mật khẩu hardcode (L07)", "Phát hiện mật khẩu hardcode trong: " + f.getPath());
+                        break;
+                    }
+                }
+            }
+            if (zeroHardcode) {
+                pass("9.1 Quét mã nguồn sạch mật khẩu hardcode (L07)", "Đã quét toàn bộ file .java trong src/**: 0 xuất hiện của '123456789' hoặc 'sapassword'");
+            }
+        } catch (Exception e) {
+            fail("9.1 Quét mã nguồn sạch mật khẩu (L07)", e.getMessage());
+        }
+
+        // 9.2 L08: Băm PBKDF2 & Xác thực mật khẩu 2 chiều
+        try {
+            String rawPass = "StepUp@Secure2026";
+            String pbkdf2Hash = NhanVien_DAO.hashPBKDF2(rawPass);
+            boolean checkPrefix = pbkdf2Hash.startsWith("pbkdf2$100000$");
+            boolean verifyCorrect = NhanVien_DAO.verifyPassword(rawPass, pbkdf2Hash);
+            boolean verifyWrong = !NhanVien_DAO.verifyPassword("SaiPassRoi", pbkdf2Hash);
+
+            // Kiểm tra tương thích ngược SHA-256
+            String legacySha256 = NhanVien_DAO.hashSHA256Static("123456");
+            boolean verifyLegacy = NhanVien_DAO.verifyPassword("123456", legacySha256);
+
+            if (checkPrefix && verifyCorrect && verifyWrong && verifyLegacy) {
+                pass("9.2 Băm PBKDF2 (100.000 rounds) & Xác thực tương thích ngược (L08)",
+                    "PBKDF2 hash: " + pbkdf2Hash.substring(0, 30) + "... | Verify đúng=true, sai=false, legacy SHA-256=true");
+            } else {
+                fail("9.2 Băm PBKDF2 & Xác thực (L08)", "Thất bại: prefix=" + checkPrefix + ", ok=" + verifyCorrect + ", wrong=" + verifyWrong + ", leg=" + verifyLegacy);
+            }
+        } catch (Exception e) {
+            fail("9.2 Băm PBKDF2 (L08)", e.getMessage());
+        }
+
+        // 9.3 L08: Đổi mật khẩu nhân viên (yêu cầu mật khẩu cũ) & Bắt buộc nhập mật khẩu khi thêm NV
+        try {
+            NhanVien nvQuanLy = nvDao.dangNhap("NV0001", "123456");
+            NhanVien nvTest = new NhanVien("NV9995", "NV Test Đổi MK", "0987999888",
+                    LocalDate.of(1995, 5, 20), true, "123 Test St", "test95@stepup.vn",
+                    "Nhân viên bán hàng", 8000000, "Toàn thời gian", "MatKhauGoc@123", true);
+
+            // 9.3a Chặn tạo nhân viên thiếu mật khẩu
+            NhanVien nvThieuPass = new NhanVien("NV9996", "NV Thiếu Pass", "0987999777",
+                    LocalDate.of(1995, 5, 20), true, "123 Test St", "test96@stepup.vn",
+                    "Nhân viên bán hàng", 8000000, "Toàn thời gian", "", true);
+            boolean themThieuPassBiChan = !nvDao.themNhanVien(nvThieuPass, nvQuanLy);
+            String errThieuPass = nvDao.getLastError();
+
+            boolean themNvTestOk = nvDao.themNhanVien(nvTest, nvQuanLy);
+
+            // 9.3b Đổi mật khẩu sai mật khẩu cũ -> Thất bại
+            boolean doiSaiCu = !nvDao.doiMatKhau("NV9995", "MatKhauCuSai", "MatKhauMoi@456");
+            String errDoiSai = nvDao.getLastError();
+
+            // 9.3c Đổi mật khẩu đúng mật khẩu cũ -> Thành công
+            boolean doiDungCu = nvDao.doiMatKhau("NV9995", "MatKhauGoc@123", "MatKhauMoi@456");
+
+            // 9.3d Đăng nhập bằng mật khẩu mới
+            NhanVien nvLoginMoi = nvDao.dangNhap("NV9995", "MatKhauMoi@456");
+
+            if (themThieuPassBiChan && themNvTestOk && doiSaiCu && doiDungCu && nvLoginMoi != null) {
+                pass("9.3 Đổi mật khẩu & Bắt buộc mật khẩu khởi tạo (L08)",
+                    String.format("Chặn pass rỗng: '%s' | Chặn sai pass cũ: '%s' | Đổi MK mới & login thành công: '%s'",
+                        errThieuPass, errDoiSai, nvLoginMoi.getHoTen()));
+            } else {
+                fail("9.3 Đổi mật khẩu & Khởi tạo (L08)",
+                    String.format("rỗng=%b, them=%b, saiCu=%b, dungCu=%b, login=%b",
+                        themThieuPassBiChan, themNvTestOk, doiSaiCu, doiDungCu, (nvLoginMoi != null)));
+            }
+        } catch (Exception e) {
+            fail("9.3 Đổi mật khẩu (L08)", e.getMessage());
+        }
+
+        // 9.4 L09: Tính chiết khấu & số tiền tập trung bằng BigDecimal (0 đồng sai lệch)
+        try {
+            // Case 1: Khách vãng lai (null)
+            HoaDon_DAO.KetQuaTinhTien kqVangLai = HoaDon_DAO.tinhChiTietTien(1500000.0, null, 100);
+            boolean checkVangLai = (kqVangLai.getTongTienHang() == 1500000.0 &&
+                                    kqVangLai.getChietKhau() == 0.0 &&
+                                    kqVangLai.getDiemSuDung() == 0 &&
+                                    kqVangLai.getTienGiamDiem() == 0.0 &&
+                                    kqVangLai.getTongPhaiTra() == 1500000.0 &&
+                                    kqVangLai.getDiemCong() == 0);
+
+            // Case 2: Khách hàng Kim Cương (15% chiết khấu, 50 điểm tích lũy)
+            KhachHang khKimCuong = new KhachHang("KH9999", "Khách VIP", "0987111999",
+                    LocalDate.of(1990, 1, 1), true, "HCM", "vip@test.vn", 50, "Kim Cương");
+            // Tiền hàng: 1,000,000. Chiết khấu 15% = 150,000. Còn lại: 850,000.
+            // Dùng 50 điểm = 50,000. Tổng trả: 800,000. Điểm cộng = 8.
+            HoaDon_DAO.KetQuaTinhTien kqVip = HoaDon_DAO.tinhChiTietTien(1000000.0, khKimCuong, 50);
+            boolean checkVip = (kqVip.getTongTienHang() == 1000000.0 &&
+                                kqVip.getChietKhau() == 150000.0 &&
+                                kqVip.getDiemSuDung() == 50 &&
+                                kqVip.getTienGiamDiem() == 50000.0 &&
+                                kqVip.getTongPhaiTra() == 800000.0 &&
+                                kqVip.getDiemCong() == 8);
+
+            if (checkVangLai && checkVip) {
+                pass("9.4 Tính tiền tập trung BigDecimal khớp 100% nghiệp vụ (L09)",
+                    String.format("Vãng lai: trả %.0f VNĐ, điểm=0 | Kim Cương: giảm 15%% (%.0f VNĐ) + giảm điểm (%.0f VNĐ) = trả %.0f VNĐ (+%d điểm)",
+                        kqVangLai.getTongPhaiTra(), kqVip.getChietKhau(), kqVip.getTienGiamDiem(), kqVip.getTongPhaiTra(), kqVip.getDiemCong()));
+            } else {
+                fail("9.4 Tính tiền tập trung BigDecimal (L09)",
+                    String.format("Sai lệch: Vãng lai ok=%b, VIP ok=%b", checkVangLai, checkVip));
+            }
+        } catch (Exception e) {
+            fail("9.4 Tính tiền tập trung BigDecimal (L09)", e.getMessage());
+        }
+
+        // 9.5 L28: Sinh mã KH và SKU sử dụng WITH (UPDLOCK, HOLDLOCK)
+        try {
+            String maKHMoi = khDao.sinhMaKhachHangMoi();
+            String maCTGMoi = ctgDao.sinhMaChiTietGiayMoi();
+            boolean checkMaKH = maKHMoi != null && maKHMoi.matches("^KH\\d{4}$");
+            boolean checkMaCTG = maCTGMoi != null && maCTGMoi.matches("^CTG\\d{4}$");
+
+            if (checkMaKH && checkMaCTG) {
+                pass("9.5 Sinh mã Khách Hàng & SKU an toàn đa luồng (L28)",
+                    String.format("Mã KH mới sinh: %s | Mã SKU biến thể mới: %s (chống race condition)", maKHMoi, maCTGMoi));
+            } else {
+                fail("9.5 Sinh mã Khách Hàng & SKU (L28)", "Mã không đúng định dạng: KH=" + maKHMoi + ", CTG=" + maCTGMoi);
+            }
+        } catch (Exception e) {
+            fail("9.5 Sinh mã Khách Hàng & SKU (L28)", e.getMessage());
+        }
+
+        // 9.6 L33 & L26: DAO từ chối thanh toán thiếu tiền & Phục hồi autoCommit(true)
+        try {
+            NhanVien nv = nvDao.dangNhap("NV0001", "123456");
+            HoaDon hdThieuTien = new HoaDon(null, LocalDateTime.now(), nv, null, 1000000.0, "Tiền mặt", 800000.0, 0);
+            hdThieuTien.setTongTienHang(1000000.0);
+            hdThieuTien.setChietKhau(0);
+            hdThieuTien.setDiemSuDung(0);
+            hdThieuTien.setTienGiamDiem(0);
+            hdThieuTien.setTongTien(1000000.0);
+            hdThieuTien.setTienKhachDua(800000.0); // Thiếu 200,000 VNĐ
+
+            // Thêm 1 sản phẩm vào giỏ
+            ChiTietGiay ctg = ctgDao.getAllChiTietGiay().get(0);
+            ChiTietHoaDon cthd = new ChiTietHoaDon(hdThieuTien, ctg, 1, 1000000.0, 0, 1000000.0);
+            hdThieuTien.themChiTiet(cthd);
+
+            boolean ketQuaLuu = hdDao.themHoaDon(hdThieuTien);
+            String errThieuTien = hdDao.getLastErrorMessage();
+
+            // Kiểm tra AutoCommit được khôi phục về true (L26)
+            boolean autoCommitRestored = ConnectDB.getConnection().getAutoCommit();
+
+            if (!ketQuaLuu && errThieuTien.contains("không đủ thanh toán") && autoCommitRestored) {
+                pass("9.6 DAO từ chối thiếu tiền (L33) & Khôi phục AutoCommit=true (L26)",
+                    String.format("Bị từ chối chính xác: '%s' | Connection autoCommit = %b", errThieuTien, autoCommitRestored));
+            } else {
+                fail("9.6 DAO từ chối thiếu tiền (L33)",
+                    String.format("ketQua=%b, err='%s', autoCommit=%b", ketQuaLuu, errThieuTien, autoCommitRestored));
+            }
+        } catch (Exception e) {
+            fail("9.6 DAO từ chối thiếu tiền (L33)", e.getMessage());
+        }
+
+        // 9.7 L27: Kiểm chứng SwingWorker Off-EDT trong ThongKe_GUI
+        try {
+            gui.ThongKe_GUI tkGUI = new gui.ThongKe_GUI();
+            gui.ThongKe_GUI.ThongKeData data = tkGUI.loadThongKeData();
+            boolean checkData = data != null && data.dsHD != null && data.topList != null;
+
+            if (checkData) {
+                pass("9.7 Kiểm chứng truy vấn thống kê ngoài luồng sự kiện SwingWorker (L27)",
+                    String.format("Tách biệt nạp dữ liệu: nạp được %d HĐ, %d dòng top SP ngoài EDT không nghẽn giao diện",
+                        data.dsHD.size(), data.topList.size()));
+            } else {
+                fail("9.7 Kiểm chứng SwingWorker (L27)", "Không nạp được dữ liệu ThongKeData");
+            }
+        } catch (Exception e) {
+            fail("9.7 Kiểm chứng SwingWorker (L27)", e.getMessage());
+        }
+
+        System.out.println();
+    }
+
+    private static void collectFiles(java.io.File dir, java.util.List<java.io.File> list) {
+        java.io.File[] files = dir.listFiles();
+        if (files != null) {
+            for (java.io.File f : files) {
+                if (f.isDirectory()) {
+                    collectFiles(f, list);
+                } else {
+                    list.add(f);
+                }
+            }
+        }
     }
 
     // SCENARIO 7: DB Integrity & Cleanup

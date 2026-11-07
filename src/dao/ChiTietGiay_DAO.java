@@ -163,7 +163,7 @@ public class ChiTietGiay_DAO {
                 ConnectDB.getInstance().connect();
                 con = ConnectDB.getConnection();
             }
-            String sql = "SELECT ISNULL(MAX(CAST(SUBSTRING(maChiTietGiay, 4, 10) AS INT)), 0) + 1 AS nextId FROM ChiTietGiay WHERE maChiTietGiay LIKE 'CTG%'";
+            String sql = "SELECT ISNULL(MAX(CAST(SUBSTRING(maChiTietGiay, 4, 10) AS INT)), 0) + 1 AS nextId FROM ChiTietGiay WITH (UPDLOCK, HOLDLOCK) WHERE maChiTietGiay LIKE 'CTG%'";
             try (Statement st = con.createStatement();
                  ResultSet rs = st.executeQuery(sql)) {
                 if (rs.next()) {

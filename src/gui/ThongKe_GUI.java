@@ -163,11 +163,71 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         return card;
     }
 
+    public static class ThongKeData {
+        public ArrayList<HoaDon> dsHD;
+        public int tongSL;
+        public int tongKH;
+        public ArrayList<Object[]> topList;
+    }
+
+    /**
+     * Nạp dữ liệu thống kê ngoài luồng sự kiện (Off-EDT) bằng SwingWorker (L27).
+     * Tránh treo giao diện người dùng khi cơ sở dữ liệu có lượng hóa đơn lớn.
+     */
+    public ThongKeData loadThongKeData() {
+        ThongKeData data = new ThongKeData();
+        data.dsHD = hd_dao.getAllHoaDon();
+        data.tongSL = hd_dao.getTongSoLuongBanRa();
+        data.tongKH = hd_dao.getTongKhachHang();
+        data.topList = hd_dao.getTopSanPhamBanChay(5);
+        return data;
+    }
+
+    /**
+     * Nạp dữ liệu thống kê ngoài luồng sự kiện (Off-EDT) bằng SwingWorker (L27).
+     * Tránh treo giao diện người dùng khi cơ sở dữ liệu có lượng hóa đơn lớn.
+     */
     public void napDuLieuThongKe() {
+        if (btnLoc != null) btnLoc.setEnabled(false);
+        if (btnLamMoi != null) btnLamMoi.setEnabled(false);
+
+        SwingWorker<ThongKeData, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ThongKeData doInBackground() {
+                return loadThongKeData();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    ThongKeData data = get();
+                    capNhatGiaoDienThongKe(data);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (btnLoc != null) btnLoc.setEnabled(true);
+                    if (btnLamMoi != null) btnLamMoi.setEnabled(true);
+                }
+            }
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            worker.execute();
+        } else {
+            try {
+                ThongKeData data = loadThongKeData();
+                capNhatGiaoDienThongKe(data);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void capNhatGiaoDienThongKe(ThongKeData data) {
         modelHoaDon.setRowCount(0);
         modelTopSP.setRowCount(0);
 
-        ArrayList<HoaDon> dsHD = hd_dao.getAllHoaDon();
+        ArrayList<HoaDon> dsHD = data.dsHD;
         double tongDoanhThu = 0;
         int stt = 1;
         int countDon = 0;
@@ -210,19 +270,17 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
 
             lblTongDoanhThuVal.setText(df.format(tongDoanhThu));
             lblTongDonHangVal.setText(countDon + " đơn");
-            int tongSL = hd_dao.getTongSoLuongBanRa();
-            lblTongSoLuongVal.setText(tongSL + " đôi");
+            lblTongSoLuongVal.setText(data.tongSL + " đôi");
         } else {
             lblTongDoanhThuVal.setText("0 VNĐ");
             lblTongDonHangVal.setText("0 đơn");
             lblTongSoLuongVal.setText("0 đôi");
         }
 
-        int tongKH = hd_dao.getTongKhachHang();
-        lblKhachHangVal.setText(tongKH + " khách");
+        lblKhachHangVal.setText(data.tongKH + " khách");
 
         // L06: Bảng Top Sản Phẩm Bán Chạy từ CSDL thật (HoaDon_DAO.getTopSanPhamBanChay)
-        ArrayList<Object[]> topList = hd_dao.getTopSanPhamBanChay(5);
+        ArrayList<Object[]> topList = data.topList;
         if (topList != null && !topList.isEmpty()) {
             for (Object[] row : topList) {
                 int sl = (row[4] instanceof Number) ? ((Number) row[4]).intValue() : 0;

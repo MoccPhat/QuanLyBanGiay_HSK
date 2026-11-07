@@ -26,6 +26,89 @@ public class HoaDon_DAO {
         return lastErrorMessage;
     }
 
+    /**
+     * Lớp đóng gói kết quả tính toán chi tiết hóa đơn, bảo toàn kiểu tiền BigDecimal (L09).
+     */
+    public static class KetQuaTinhTien {
+        private final double tongTienHang;
+        private final double chietKhau;
+        private final int diemSuDung;
+        private final double tienGiamDiem;
+        private final double tongPhaiTra;
+        private final int diemCong;
+
+        public KetQuaTinhTien(double tongTienHang, double chietKhau, int diemSuDung, double tienGiamDiem, double tongPhaiTra, int diemCong) {
+            this.tongTienHang = tongTienHang;
+            this.chietKhau = chietKhau;
+            this.diemSuDung = diemSuDung;
+            this.tienGiamDiem = tienGiamDiem;
+            this.tongPhaiTra = tongPhaiTra;
+            this.diemCong = diemCong;
+        }
+
+        public double getTongTienHang() { return tongTienHang; }
+        public double getChietKhau() { return chietKhau; }
+        public int getDiemSuDung() { return diemSuDung; }
+        public double getTienGiamDiem() { return tienGiamDiem; }
+        public double getTongPhaiTra() { return tongPhaiTra; }
+        public int getDiemCong() { return diemCong; }
+    }
+
+    /**
+     * Tập trung tính chiết khấu và tiền thanh toán tại 1 điểm duy nhất (L09).
+     * Mọi phép tính số học dùng BigDecimal với quy tắc làm tròn HALF_UP.
+     * Khách vãng lai: chiết khấu = 0, điểm = 0, điểm cộng = 0.
+     */
+    public static KetQuaTinhTien tinhChiTietTien(double tongTienHangVal, KhachHang kh, int diemMuonDung) {
+        java.math.BigDecimal tienHang = java.math.BigDecimal.valueOf(tongTienHangVal).setScale(0, java.math.RoundingMode.HALF_UP);
+        if (tienHang.compareTo(java.math.BigDecimal.ZERO) < 0) {
+            tienHang = java.math.BigDecimal.ZERO;
+        }
+
+        java.math.BigDecimal chietKhau = java.math.BigDecimal.ZERO;
+        int diemDung = 0;
+        java.math.BigDecimal tienGiamDiem = java.math.BigDecimal.ZERO;
+        int diemCong = 0;
+
+        if (kh != null && kh.getMaKhachHang() != null && !kh.getMaKhachHang().trim().isEmpty()) {
+            double pt = kh.tinhChietKhau();
+            if (pt > 0) {
+                chietKhau = tienHang.multiply(java.math.BigDecimal.valueOf(pt)).setScale(0, java.math.RoundingMode.HALF_UP);
+            }
+            java.math.BigDecimal tienSauChietKhau = tienHang.subtract(chietKhau);
+            if (tienSauChietKhau.compareTo(java.math.BigDecimal.ZERO) < 0) {
+                tienSauChietKhau = java.math.BigDecimal.ZERO;
+            }
+
+            int diemCoTheDung = tienSauChietKhau.divide(java.math.BigDecimal.valueOf(1000), 0, java.math.RoundingMode.FLOOR).intValue();
+            int diemCo = kh.getDiemTichLuy();
+            int diemToiDa = Math.min(diemCo, diemCoTheDung);
+
+            diemDung = Math.max(0, Math.min(diemMuonDung, diemToiDa));
+            tienGiamDiem = java.math.BigDecimal.valueOf(diemDung).multiply(java.math.BigDecimal.valueOf(1000));
+        }
+
+        java.math.BigDecimal tongPhaiTra = tienHang.subtract(chietKhau).subtract(tienGiamDiem);
+        if (tongPhaiTra.compareTo(java.math.BigDecimal.ZERO) < 0) {
+            tongPhaiTra = java.math.BigDecimal.ZERO;
+        }
+
+        if (kh != null && kh.getMaKhachHang() != null && !kh.getMaKhachHang().trim().isEmpty()) {
+            diemCong = tongPhaiTra.divide(java.math.BigDecimal.valueOf(100000), 0, java.math.RoundingMode.FLOOR).intValue();
+        } else {
+            diemCong = 0;
+        }
+
+        return new KetQuaTinhTien(
+            tienHang.doubleValue(),
+            chietKhau.doubleValue(),
+            diemDung,
+            tienGiamDiem.doubleValue(),
+            tongPhaiTra.doubleValue(),
+            diemCong
+        );
+    }
+
     public ArrayList<HoaDon> getAllHoaDon() {
         ArrayList<HoaDon> ds = new ArrayList<>();
         String sql = "SELECT h.*, nv.hoTen AS tenNV, kh.hoTen AS tenKH " +
@@ -118,58 +201,41 @@ public class HoaDon_DAO {
                 }
             }
 
-            // Bước 2: Chuẩn bị các giá trị số tiền và điểm
+            // Bước 2: Chuẩn bị các giá trị số tiền và điểm dùng logic tập trung BigDecimal (L09)
             double tienHang = hd.getTongTienHang();
             if (tienHang <= 0) {
                 for (ChiTietHoaDon ct : hd.getDanhSachChiTiet()) {
                     tienHang += ct.getThanhTien();
                 }
-                hd.setTongTienHang(tienHang);
-            }
-            double chietKhau = 0;
-            int diemDung = 0;
-            double tienGiamDiem = 0;
-            int diemCong = 0;
-
-            if (hd.getKhachHang() != null && hd.getKhachHang().getMaKhachHang() != null && !hd.getKhachHang().getMaKhachHang().trim().isEmpty()) {
-                chietKhau = hd.getChietKhau();
-                // Điểm dùng tối đa không được vượt quá số tiền còn lại sau chiết khấu thành viên
-                double tienSauChietKhau = Math.max(0, tienHang - chietKhau);
-                int diemToiDa = (int) Math.floor(tienSauChietKhau / 1000.0);
-                diemDung = Math.min(hd.getDiemSuDung(), diemToiDa);
-                tienGiamDiem = diemDung * 1000.0;
-                hd.setDiemSuDung(diemDung);
-                hd.setTienGiamDiem(tienGiamDiem);
-            } else {
-                // Khách vãng lai: bắt buộc = 0 theo ràng buộc CK_HoaDon_diemKhach của SQL Server
-                chietKhau = 0;
-                diemDung = 0;
-                tienGiamDiem = 0;
-                hd.setChietKhau(0);
-                hd.setDiemSuDung(0);
-                hd.setTienGiamDiem(0);
             }
 
-            double tongPhaiTra = Math.max(0, tienHang - chietKhau - tienGiamDiem);
-            hd.setTongTien(tongPhaiTra);
+            KetQuaTinhTien kq = tinhChiTietTien(tienHang, hd.getKhachHang(), hd.getDiemSuDung());
+            hd.setTongTienHang(kq.getTongTienHang());
+            hd.setChietKhau(kq.getChietKhau());
+            hd.setDiemSuDung(kq.getDiemSuDung());
+            hd.setTienGiamDiem(kq.getTienGiamDiem());
+            hd.setTongTien(kq.getTongPhaiTra());
+            hd.setDiemCong(kq.getDiemCong());
 
-            if (hd.getKhachHang() != null && hd.getKhachHang().getMaKhachHang() != null && !hd.getKhachHang().getMaKhachHang().trim().isEmpty()) {
-                diemCong = (int) Math.floor(tongPhaiTra / 100000.0);
-            } else {
-                diemCong = 0;
-            }
-            hd.setDiemCong(diemCong);
-
+            double chietKhau = kq.getChietKhau();
+            int diemDung = kq.getDiemSuDung();
+            double tienGiamDiem = kq.getTienGiamDiem();
+            int diemCong = kq.getDiemCong();
+            double tongPhaiTra = kq.getTongPhaiTra();
             double tienDua = hd.getTienKhachDua();
+
+            // L33: DAO từ chối thanh toán nếu tiền khách đưa không đủ (không ghi đè tiềnDua = tongPhaiTra)
             if ("Chuyển khoản QR".equals(hd.getPhuongThucTT())) {
                 tienDua = tongPhaiTra;
                 hd.setTienKhachDua(tienDua);
                 hd.setTienThua(0);
             } else {
                 if (tienDua < tongPhaiTra) {
-                    tienDua = tongPhaiTra;
-                    hd.setTienKhachDua(tienDua);
+                    con.rollback();
+                    lastErrorMessage = "Tiền khách đưa không đủ thanh toán đơn hàng (Thiếu: " + (tongPhaiTra - tienDua) + " VNĐ)!";
+                    return false;
                 }
+                hd.setTienKhachDua(tienDua);
                 hd.setTienThua(Math.max(0, tienDua - tongPhaiTra));
             }
 

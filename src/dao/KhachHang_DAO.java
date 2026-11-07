@@ -292,7 +292,7 @@ public class KhachHang_DAO {
     public String sinhMaKhachHangMoi() {
         try {
             Connection con = getConnection();
-            String sql = "SELECT ISNULL(MAX(CAST(SUBSTRING(maKhachHang, 3, 4) AS INT)), 0) + 1 AS nextId FROM KhachHang WHERE maKhachHang LIKE 'KH[0-9][0-9][0-9][0-9]'";
+            String sql = "SELECT ISNULL(MAX(CAST(SUBSTRING(maKhachHang, 3, 4) AS INT)), 0) + 1 AS nextId FROM KhachHang WITH (UPDLOCK, HOLDLOCK) WHERE maKhachHang LIKE 'KH[0-9][0-9][0-9][0-9]'";
             try (Statement st = con.createStatement();
                  ResultSet rs = st.executeQuery(sql)) {
                 if (rs.next()) {
