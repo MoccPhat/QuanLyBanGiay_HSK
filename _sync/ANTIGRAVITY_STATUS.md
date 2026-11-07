@@ -154,3 +154,32 @@ Chạy script `_sync/TestCustomerEventAudit.java` qua JDBC kết nối thẳng `
 - `TEST 3b`: Kiểm tra trùng SĐT `0987654321` tách bạch riêng -> **PASS**.
 - `TEST 3c`: Regex chặn đầu số không hợp lệ `0112345678` ngay tại GUI -> **PASS**.
 - `CLEANUP`: DELETE dòng test `KH9999`, trả CSDL về trạng thái sạch ban đầu -> **PASS**.
+
+---
+
+## 7. TIẾN ĐỘ LÔ 2 TÀI LIỆU: GIẢI QUYẾT L19, L21, L22, L23 & L05 (07/11/2026)
+**Thời gian hoàn thành:** 07/11/2026  
+**Trạng thái:** `HOÀN THÀNH 100%` - Đồng bộ hoàn toàn giữa code thật, CSDL thật, ảnh chụp thật và báo cáo Word.
+
+### 7.1. Các điểm đã khắc phục:
+1. **L21 (Sơ đồ phân tích còn thiếu):**
+   - Bổ sung Sơ đồ Use Case tổng thể (`diagram_usecase_shoe.png` & `SoDoUseCase_QuanLyBanGiay.drawio`) + Bảng đặc tả Use Case chi tiết (Hình 1).
+   - Bổ sung Sơ đồ Kiến trúc hệ thống 3 tầng (`diagram_architecture_shoe.png` & `SoDoKienTruc_QuanLyBanGiay.drawio`) với phân rã Presentation, Data Access & Entity, Database Layer (Hình 2).
+   - Bổ sung Sơ đồ Tuần tự Sequence Diagram (`diagram_sequence_shoe.png` & `SoDoSequence_QuanLyBanGiay.drawio`) luồng thanh toán POS chuẩn ACID với phân nhánh commit/rollback và khóa UPDLOCK/HOLDLOCK (Hình 5).
+2. **L22 (Ảnh chụp màn hình ứng dụng thật):**
+   - Viết công cụ `_sync/CaptureScreenshots.java` kết nối trực tiếp SQL Server, kết xuất 5 ảnh chụp giao diện Swing thật:
+     + `screenshot_dangnhap.png` (Hình 6)
+     + `screenshot_banhang.png` (Hình 7)
+     + `screenshot_sanpham.png` (Hình 8)
+     + `screenshot_khachhang.png` (Hình 9)
+     + `screenshot_nhanvien.png` (Hình 10)
+   - Chú thích rõ ràng thời điểm chụp thật ngày 07/11/2026.
+3. **L05 (Gỡ bỏ biểu đồ giả):**
+   - Gỡ bỏ hoàn toàn `diagram_chart_shoe.png` khỏi báo cáo Word.
+   - Ghi nhận trung thực: Phân hệ Thống kê hiện tại ở dạng module thử nghiệm độc lập, chưa liên kết vào thanh Tab của `ManHinhChinh_GUI`, các biểu đồ tương tác động và xuất Excel thuộc định hướng pha nâng cấp tiếp theo.
+4. **L23 (Bổ sung Chương Kiểm thử & Tài liệu tham khảo):**
+   - Thêm Phần VI: Kết quả kiểm thử hệ thống (Testing & Verification) với bảng ma trận 35 Test Cases từ bộ kiểm thử tự động `VerifyAllScenarios` (TC-01 đến TC-35, 100% PASS).
+   - Thêm Phần VII: Danh mục tài liệu tham khảo chuẩn học thuật (Giáo trình IUH, Java SE 17, MS SQL Server, mssql-jdbc, Clean Code).
+   - Cập nhật Phần V Tổng kết với các chỉ số định lượng cụ thể (35/35 test pass, 6 bảng 3NF, 7 lớp OOP, 33 CHECK, 5 FK, 3 UQ, SHA-256).
+5. **L19 (Cập nhật toàn diện README.md):**
+   - Mô tả chuẩn xác cấu trúc dự án, JDK 17, lệnh `javac --release 17 ...`, `run.bat`, tài khoản mẫu `NV0001` (Quản lý) và `NV0002` (Nhân viên), thứ tự script CSDL, single driver `mssql-jdbc-12.4.2.jre11.jar`, lệnh chạy kiểm thử `VerifyAllScenarios`.

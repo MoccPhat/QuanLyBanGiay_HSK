@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0" version="21.6.8" type="device">
+  <diagram id="Arch_3Tier" name="SoDoKienTruc_QuanLyBanGiay">
+    <mxGraphModel dx="1422" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tier1" value="TẦNG TRÌNH DIỄN (GUI - JAVA SWING)" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#0284C7;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="1440" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="tier2" value="TẦNG TRUY CẬP DỮ LIỆU &amp; THỰC THỂ (DAO &amp; ENTITY)" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#7C3AED;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="380" width="1440" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="tier3" value="TẦNG CƠ SỞ DỮ LIỆU (MICROSOFT SQL SERVER)" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#BE185D;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="690" width="1440" height="220" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
