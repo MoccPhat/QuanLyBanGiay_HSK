@@ -430,4 +430,203 @@ public class HoaDon_DAO {
         }
         return list;
     }
+
+    /**
+     * Lấy danh sách chi tiết các món hàng (sản phẩm, biến thể, số lượng, giá, thành tiền) của một hóa đơn.
+     */
+    public ArrayList<ChiTietHoaDon> getChiTietHoaDonTheoMa(String maHD) {
+        ArrayList<ChiTietHoaDon> list = new ArrayList<>();
+        String sql = "SELECT ct.*, ctg.kichThuoc, ctg.mauSac, ctg.soLuongTon, ctg.hinhAnh, " +
+                     "       sp.maSanPham, sp.tenSanPham, sp.loaiGiay, sp.thuongHieu, sp.giaNhap, sp.giaBan, sp.chatLieu, sp.trangThai AS spTrangThai " +
+                     "FROM ChiTietHoaDon ct " +
+                     "JOIN ChiTietGiay ctg ON ct.maChiTietGiay = ctg.maChiTietGiay " +
+                     "JOIN SanPham sp ON ctg.maSanPham = sp.maSanPham " +
+                     "WHERE ct.maHoaDon = ? " +
+                     "ORDER BY ct.maChiTietGiay ASC";
+        try {
+            ConnectDB.getInstance();
+            Connection con = ConnectDB.getConnection();
+            if (con == null || con.isClosed()) {
+                ConnectDB.getInstance().connect();
+                con = ConnectDB.getConnection();
+            }
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maHD);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    HoaDon hdRef = new HoaDon(maHD);
+                    while (rs.next()) {
+                        String maCTG = rs.getString("maChiTietGiay");
+                        int sl = rs.getInt("soLuong");
+                        double donGia = rs.getDouble("donGia");
+                        double giamGia = rs.getDouble("giamGia");
+                        double thanhTien = rs.getDouble("thanhTien");
+
+                        String maSP = rs.getString("maSanPham");
+                        String tenSP = rs.getString("tenSanPham");
+                        String loai = rs.getString("loaiGiay");
+                        String hang = rs.getString("thuongHieu");
+                        double giaNhap = rs.getDouble("giaNhap");
+                        double giaBan = rs.getDouble("giaBan");
+                        String chatLieu = rs.getString("chatLieu");
+                        boolean spTrangThai = rs.getBoolean("spTrangThai");
+                        SanPham sp = new SanPham(maSP, tenSP, loai, hang, giaNhap, giaBan, chatLieu, spTrangThai);
+
+                        int size = rs.getInt("kichThuoc");
+                        String mau = rs.getString("mauSac");
+                        int ton = rs.getInt("soLuongTon");
+                        String hinh = rs.getString("hinhAnh");
+                        ChiTietGiay ctg = new ChiTietGiay(maCTG, sp, size, mau, ton, hinh);
+
+                        ChiTietHoaDon cthd = new ChiTietHoaDon(hdRef, ctg, sl, donGia, giamGia, thanhTien);
+                        list.add(cthd);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            lastErrorMessage = "Không kết nối được CSDL: " + e.getMessage();
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Lấy thông tin một hóa đơn theo mã.
+     */
+    public HoaDon getHoaDonTheoMa(String maHD) {
+        String sql = "SELECT h.*, nv.hoTen AS tenNV, kh.hoTen AS tenKH " +
+                     "FROM HoaDon h " +
+                     "JOIN NhanVien nv ON h.maNhanVien = nv.maNhanVien " +
+                     "LEFT JOIN KhachHang kh ON h.maKhachHang = kh.maKhachHang " +
+                     "WHERE h.maHoaDon = ?";
+        try {
+            ConnectDB.getInstance();
+            Connection con = ConnectDB.getConnection();
+            if (con == null || con.isClosed()) {
+                ConnectDB.getInstance().connect();
+                con = ConnectDB.getConnection();
+            }
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maHD);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("ngayLap");
+                        LocalDateTime ngayLap = (ts != null) ? ts.toLocalDateTime() : LocalDateTime.now();
+
+                        String maNV = rs.getString("maNhanVien");
+                        String tenNV = rs.getString("tenNV");
+                        NhanVien nv = new NhanVien(maNV);
+                        nv.setHoTen(tenNV);
+
+                        String maKH = rs.getString("maKhachHang");
+                        String tenKH = rs.getString("tenKH");
+                        KhachHang kh = null;
+                        if (maKH != null) {
+                            kh = new KhachHang(maKH);
+                            kh.setHoTen(tenKH);
+                        }
+
+                        double tongTienHang = rs.getDouble("tongTienHang");
+                        double chietKhau = rs.getDouble("chietKhau");
+                        int diemSuDung = rs.getInt("diemSuDung");
+                        double tienGiamDiem = rs.getDouble("tienGiamDiem");
+                        double tongTien = rs.getDouble("tongTien");
+                        String phuongThuc = rs.getString("phuongThucTT");
+                        double tienKhachDua = rs.getDouble("tienKhachDua");
+                        double tienThua = rs.getDouble("tienThua");
+                        int diemCong = rs.getInt("diemCong");
+
+                        HoaDon hd = new HoaDon(maHD, ngayLap, nv, kh, tongTien, phuongThuc, tienKhachDua, tienThua);
+                        hd.setTongTienHang(tongTienHang);
+                        hd.setChietKhau(chietKhau);
+                        hd.setDiemSuDung(diemSuDung);
+                        hd.setTienGiamDiem(tienGiamDiem);
+                        hd.setDiemCong(diemCong);
+
+                        ArrayList<ChiTietHoaDon> dsCT = getChiTietHoaDonTheoMa(maHD);
+                        for (ChiTietHoaDon ct : dsCT) {
+                            hd.themChiTiet(ct);
+                        }
+                        return hd;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            lastErrorMessage = "Không kết nối được CSDL: " + e.getMessage();
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Tìm kiếm hóa đơn theo từ khóa (Mã HĐ, Tên Thu ngân, Tên Khách hàng).
+     */
+    public ArrayList<HoaDon> timKiemHoaDon(String tuKhoa) {
+        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
+            return getAllHoaDon();
+        }
+        ArrayList<HoaDon> ds = new ArrayList<>();
+        String pattern = "%" + tuKhoa.trim() + "%";
+        String sql = "SELECT h.*, nv.hoTen AS tenNV, kh.hoTen AS tenKH " +
+                     "FROM HoaDon h " +
+                     "JOIN NhanVien nv ON h.maNhanVien = nv.maNhanVien " +
+                     "LEFT JOIN KhachHang kh ON h.maKhachHang = kh.maKhachHang " +
+                     "WHERE h.maHoaDon LIKE ? OR nv.hoTen LIKE ? OR kh.hoTen LIKE ? " +
+                     "ORDER BY h.ngayLap DESC";
+        try {
+            ConnectDB.getInstance();
+            Connection con = ConnectDB.getConnection();
+            if (con == null || con.isClosed()) {
+                ConnectDB.getInstance().connect();
+                con = ConnectDB.getConnection();
+            }
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, pattern);
+                pstmt.setString(2, pattern);
+                pstmt.setString(3, pattern);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        String maHD = rs.getString("maHoaDon");
+                        Timestamp ts = rs.getTimestamp("ngayLap");
+                        LocalDateTime ngayLap = (ts != null) ? ts.toLocalDateTime() : LocalDateTime.now();
+
+                        String maNV = rs.getString("maNhanVien");
+                        String tenNV = rs.getString("tenNV");
+                        NhanVien nv = new NhanVien(maNV);
+                        nv.setHoTen(tenNV);
+
+                        String maKH = rs.getString("maKhachHang");
+                        String tenKH = rs.getString("tenKH");
+                        KhachHang kh = null;
+                        if (maKH != null) {
+                            kh = new KhachHang(maKH);
+                            kh.setHoTen(tenKH);
+                        }
+
+                        double tongTienHang = rs.getDouble("tongTienHang");
+                        double chietKhau = rs.getDouble("chietKhau");
+                        int diemSuDung = rs.getInt("diemSuDung");
+                        double tienGiamDiem = rs.getDouble("tienGiamDiem");
+                        double tongTien = rs.getDouble("tongTien");
+                        String phuongThuc = rs.getString("phuongThucTT");
+                        double tienKhachDua = rs.getDouble("tienKhachDua");
+                        double tienThua = rs.getDouble("tienThua");
+                        int diemCong = rs.getInt("diemCong");
+
+                        HoaDon hd = new HoaDon(maHD, ngayLap, nv, kh, tongTien, phuongThuc, tienKhachDua, tienThua);
+                        hd.setTongTienHang(tongTienHang);
+                        hd.setChietKhau(chietKhau);
+                        hd.setDiemSuDung(diemSuDung);
+                        hd.setTienGiamDiem(tienGiamDiem);
+                        hd.setDiemCong(diemCong);
+
+                        ds.add(hd);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            lastErrorMessage = "Không kết nối được CSDL: " + e.getMessage();
+            e.printStackTrace();
+        }
+        return ds;
+    }
 }

@@ -546,4 +546,49 @@ public class NhanVien_DAO {
     public boolean xoaNhanVien(String maNV) {
         return xoaNhanVien(maNV, null);
     }
+
+    /**
+     * Tìm kiếm nhân viên theo từ khóa (Mã NV, Họ tên hoặc Số điện thoại).
+     */
+    public ArrayList<NhanVien> timKiemNhanVien(String tuKhoa) {
+        ArrayList<NhanVien> ds = new ArrayList<>();
+        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
+            return getAllNhanVien();
+        }
+        String pattern = "%" + tuKhoa.trim() + "%";
+        String sql = "SELECT * FROM NhanVien WHERE trangThai = 1 AND (maNhanVien LIKE ? OR hoTen LIKE ? OR soDienThoai LIKE ? OR chucVu LIKE ?) ORDER BY maNhanVien ASC";
+        try {
+            Connection con = getConnection();
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, pattern);
+                pstmt.setString(2, pattern);
+                pstmt.setString(3, pattern);
+                pstmt.setString(4, pattern);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        String maNV = rs.getString("maNhanVien");
+                        String hoTen = rs.getString("hoTen");
+                        String sdt = rs.getString("soDienThoai");
+                        Date ns = rs.getDate("ngaySinh");
+                        LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : null;
+                        boolean gioiTinh = rs.getBoolean("gioiTinh");
+                        String diaChi = rs.getString("diaChi");
+                        String email = rs.getString("email");
+                        String chucVu = rs.getString("chucVu");
+                        double luong = rs.getDouble("luongCoBan");
+                        String caLam = rs.getString("caLamViec");
+                        String matKhau = rs.getString("matKhau");
+                        boolean trangThai = rs.getBoolean("trangThai");
+
+                        NhanVien nv = new NhanVien(maNV, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, chucVu, luong, caLam, matKhau, trangThai);
+                        ds.add(nv);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            e.printStackTrace();
+        }
+        return ds;
+    }
 }

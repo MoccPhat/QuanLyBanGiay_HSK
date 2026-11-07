@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +34,8 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
     private JComboBox<String> cboCaLam;
     private JComboBox<String> cboChucVu;
     private JRadioButton radNam, radNu;
-    private JButton btnThem, btnXoa, btnSua, btnDoiMatKhau, btnXoaTrang;
+    private JButton btnThem, btnXoa, btnSua, btnDoiMatKhau, btnXemChiTiet, btnXoaTrang, btnTimNV;
+    private JTextField txtTimNV;
 
     private JTable tableNV;
     private DefaultTableModel modelNV;
@@ -118,17 +120,28 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         pnlButtons.setBackground(Color.WHITE);
 
-        btnThem = UIHelper.createSuccessBtn("Thêm Nhân Viên", 150, 34);
-        btnXoa = UIHelper.createDangerBtn("Thôi Việc (Xóa)", 130, 34);
-        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 110, 34);
-        btnDoiMatKhau = UIHelper.createButton("Đổi Mật Khẩu", UIHelper.WARN_AMBER, Color.WHITE, 130, 34);
-        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 110, 34);
+        btnThem = UIHelper.createSuccessBtn("Thêm Nhân Viên", 140, 34);
+        btnXoa = UIHelper.createDangerBtn("Thôi Việc", 100, 34);
+        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 95, 34);
+        btnDoiMatKhau = UIHelper.createButton("Đổi Mật Khẩu", UIHelper.WARN_AMBER, Color.WHITE, 120, 34);
+        btnXemChiTiet = UIHelper.createButton("Xem Chi Tiết", UIHelper.PRIMARY_BLUE, Color.WHITE, 115, 34);
+        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 95, 34);
+
+        JLabel lblTim = new JLabel("Tìm NV:");
+        lblTim.setFont(new Font("Arial", Font.BOLD, 12));
+        txtTimNV = new JTextField(9);
+        btnTimNV = UIHelper.createDarkBtn("Tìm", 60, 28);
 
         pnlButtons.add(btnThem);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnSua);
         pnlButtons.add(btnDoiMatKhau);
+        pnlButtons.add(btnXemChiTiet);
         pnlButtons.add(btnXoaTrang);
+        pnlButtons.add(Box.createHorizontalStrut(10));
+        pnlButtons.add(lblTim);
+        pnlButtons.add(txtTimNV);
+        pnlButtons.add(btnTimNV);
 
         JPanel pnlTop = new JPanel(new BorderLayout());
         pnlTop.add(pnlForm, BorderLayout.CENTER);
@@ -152,7 +165,10 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         btnXoa.addActionListener(this);
         btnSua.addActionListener(this);
         btnDoiMatKhau.addActionListener(this);
+        btnXemChiTiet.addActionListener(this);
         btnXoaTrang.addActionListener(this);
+        btnTimNV.addActionListener(this);
+        txtTimNV.addActionListener(this);
         tableNV.addMouseListener(this);
 
         // C8: ListSelectionListener để điều hướng bàn phím mũi tên cũng nạp dữ liệu lên form
@@ -407,6 +423,37 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             }
         } else if (o.equals(btnDoiMatKhau)) {
             hienThiDialogDoiMatKhau();
+        } else if (o.equals(btnXemChiTiet)) {
+            int row = tableNV.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhân viên trong bảng để xem chi tiết hồ sơ!", "Chưa chọn nhân viên", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String maNV = (String) modelNV.getValueAt(row, 1);
+            hienThiChiTietNhanVien(maNV);
+        } else if (o.equals(btnTimNV) || o.equals(txtTimNV)) {
+            String tuKhoa = txtTimNV.getText().trim();
+            if (tuKhoa.isEmpty()) {
+                docDuLieuVaoTable();
+                return;
+            }
+            ArrayList<NhanVien> ketQua = nv_dao.timKiemNhanVien(tuKhoa);
+            modelNV.setRowCount(0);
+            if (ketQua.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên nào khớp với từ khóa '" + tuKhoa + "'!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+                docDuLieuVaoTable();
+                txtTimNV.selectAll();
+                txtTimNV.requestFocus();
+            } else {
+                int stt = 1;
+                for (NhanVien nv : ketQua) {
+                    modelNV.addRow(new Object[]{
+                        stt++, nv.getMaNhanVien(), nv.getHoTen(), nv.isGioiTinh() ? "Nam" : "Nữ",
+                        nv.getSoDienThoai(), nv.getChucVu(), df.format(nv.getLuongCoBan()),
+                        nv.getCaLamViec(), nv.getDiaChi()
+                    });
+                }
+            }
         } else if (o.equals(btnXoaTrang)) {
             xoaTrang();
         }
@@ -494,6 +541,76 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         dlg.setVisible(true);
     }
 
+    private void hienThiChiTietNhanVien(String maNV) {
+        NhanVien nv = nv_dao.getNhanVienTheoMa(maNV);
+        if (nv == null) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin nhân viên: " + maNV, "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Window parentWindow = SwingUtilities.getWindowAncestor(this);
+        JDialog dlg = new JDialog((Frame) (parentWindow instanceof Frame ? parentWindow : null), "Chi Tiết Hồ Sơ Nhân Viên - " + maNV, true);
+        dlg.setLayout(new BorderLayout(10, 10));
+        dlg.setSize(680, 520);
+        dlg.setLocationRelativeTo(this);
+
+        JPanel pnlInfo = new JPanel(new GridLayout(6, 2, 10, 6));
+        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("Thông Tin Nhân Viên"),
+            BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
+        pnlInfo.setBackground(Color.WHITE);
+
+        pnlInfo.add(new JLabel("Mã nhân viên: " + nv.getMaNhanVien()));
+        pnlInfo.add(new JLabel("Họ và tên: " + nv.getHoTen()));
+        pnlInfo.add(new JLabel("Giới tính: " + (nv.isGioiTinh() ? "Nam" : "Nữ")));
+        pnlInfo.add(new JLabel("Ngày sinh: " + (nv.getNgaySinh() != null ? nv.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa rõ")));
+        pnlInfo.add(new JLabel("Số điện thoại: " + nv.getSoDienThoai()));
+        pnlInfo.add(new JLabel("Email: " + (nv.getEmail() != null ? nv.getEmail() : "Chưa cập nhật")));
+        pnlInfo.add(new JLabel("Địa chỉ: " + (nv.getDiaChi() != null ? nv.getDiaChi() : "Chưa cập nhật")));
+        pnlInfo.add(new JLabel("Chức vụ: " + nv.getChucVu()));
+        pnlInfo.add(new JLabel("Ca làm việc: " + (nv.getCaLamViec() != null ? nv.getCaLamViec() : "Toàn thời gian")));
+        pnlInfo.add(new JLabel("Lương cơ bản: " + df.format(nv.getLuongCoBan()) + " VNĐ"));
+        pnlInfo.add(new JLabel("Trạng thái: " + (nv.isTrangThai() ? "Đang làm việc" : "Đã nghỉ việc")));
+        pnlInfo.add(new JLabel("Vai trò hệ thống: " + (nv.isQuanLy() ? "Quản lý cấp cao" : "Nhân viên bán hàng")));
+
+        // Bảng hóa đơn do nhân viên đã lập
+        dao.HoaDon_DAO hd_dao = new dao.HoaDon_DAO();
+        ArrayList<entity.HoaDon> allHD = hd_dao.getAllHoaDon();
+        String[] headers = {"STT", "Mã HĐ", "Thời Gian Lập", "Khách Hàng", "Tổng Tiền", "Phương Thức"};
+        DefaultTableModel modelHD = new DefaultTableModel(headers, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        int stt = 1;
+        java.text.DecimalFormat dfTien = new java.text.DecimalFormat("#,### VNĐ");
+        for (entity.HoaDon h : allHD) {
+            if (h.getNhanVien() != null && nv.getMaNhanVien().equals(h.getNhanVien().getMaNhanVien())) {
+                modelHD.addRow(new Object[]{
+                    stt++,
+                    h.getMaHoaDon(),
+                    h.getNgayLap().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    (h.getKhachHang() != null ? h.getKhachHang().getHoTen() : "Khách lẻ"),
+                    dfTien.format(h.getTongTien()),
+                    h.getPhuongThucTT()
+                });
+            }
+        }
+        JTable tableHD = new JTable(modelHD);
+        tableHD.setRowHeight(24);
+        JScrollPane scrollHD = new JScrollPane(tableHD);
+        scrollHD.setBorder(BorderFactory.createTitledBorder("Doanh Số Đã Lập (" + (stt - 1) + " hóa đơn)"));
+
+        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 32);
+        btnDong.addActionListener(e -> dlg.dispose());
+        pnlBot.add(btnDong);
+
+        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(scrollHD, BorderLayout.CENTER);
+        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.setVisible(true);
+    }
+
     private void xoaTrang() {
         txtMaNV.setText("");
         txtMaNV.setEditable(true);
@@ -517,6 +634,10 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         int row = tableNV.getSelectedRow();
         if (row >= 0) {
             hienThiThongTinLenForm(row);
+            if (e.getClickCount() == 2) {
+                String maNV = (String) modelNV.getValueAt(row, 1);
+                hienThiChiTietNhanVien(maNV);
+            }
         }
     }
 

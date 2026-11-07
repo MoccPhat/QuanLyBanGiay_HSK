@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
     private JComboBox<String> cboHang;
     private JTextField txtDiem;
     private JTextField txtTimSDT;
-    private JButton btnThem, btnXoa, btnSua, btnXoaTrang, btnTim;
+    private JButton btnThem, btnXoa, btnSua, btnXoaTrang, btnTim, btnTimNangCao, btnXoaLoc, btnXemChiTiet;
 
     private JTable tableKH;
     private DefaultTableModel modelKH;
@@ -93,21 +94,27 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         pnlButtons.setBackground(Color.WHITE);
 
-        btnThem = UIHelper.createSuccessBtn("Thêm Khách Hàng", 150, 34);
-        btnXoa = UIHelper.createDangerBtn("Xóa Khách", 110, 34);
-        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 110, 34);
-        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 110, 34);
+        btnThem = UIHelper.createSuccessBtn("Thêm Khách Hàng", 145, 34);
+        btnXoa = UIHelper.createDangerBtn("Xóa Khách", 105, 34);
+        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 100, 34);
+        btnXemChiTiet = UIHelper.createButton("Xem Chi Tiết", UIHelper.PRIMARY_BLUE, Color.WHITE, 120, 34);
+        btnTimNangCao = UIHelper.createButton("Tìm Nâng Cao", UIHelper.TEXT_DARK, Color.WHITE, 125, 34);
+        btnXoaLoc = UIHelper.createSecondaryBtn("Xóa Lọc", 90, 34);
+        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 95, 34);
 
         JLabel lblTraCuu = new JLabel("Tìm SĐT:");
         lblTraCuu.setFont(new Font("Arial", Font.BOLD, 12));
-        txtTimSDT = new JTextField(11);
-        btnTim = UIHelper.createDarkBtn("Tìm", 65, 28);
+        txtTimSDT = new JTextField(9);
+        btnTim = UIHelper.createDarkBtn("Tìm", 60, 28);
 
         pnlButtons.add(btnThem);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnSua);
+        pnlButtons.add(btnXemChiTiet);
+        pnlButtons.add(btnTimNangCao);
+        pnlButtons.add(btnXoaLoc);
         pnlButtons.add(btnXoaTrang);
-        pnlButtons.add(Box.createHorizontalStrut(20));
+        pnlButtons.add(Box.createHorizontalStrut(10));
         pnlButtons.add(lblTraCuu);
         pnlButtons.add(txtTimSDT);
         pnlButtons.add(btnTim);
@@ -139,6 +146,9 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         btnThem.addActionListener(this);
         btnXoa.addActionListener(this);
         btnSua.addActionListener(this);
+        btnXemChiTiet.addActionListener(this);
+        btnTimNangCao.addActionListener(this);
+        btnXoaLoc.addActionListener(this);
         btnXoaTrang.addActionListener(this);
         btnTim.addActionListener(this);
         txtTimSDT.addActionListener(this);
@@ -299,8 +309,18 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
                 String errMsg = kh_dao.getLastError();
                 JOptionPane.showMessageDialog(this, "Cập nhật thất bại: " + (errMsg.isEmpty() ? "Lỗi hệ thống!" : errMsg), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
-        } else if (o.equals(btnXoaTrang)) {
+        } else if (o.equals(btnXoaTrang) || o.equals(btnXoaLoc)) {
             xoaTrang();
+        } else if (o.equals(btnTimNangCao)) {
+            hienThiHopThoaiTimNangCao();
+        } else if (o.equals(btnXemChiTiet)) {
+            int row = tableKH.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một khách hàng trong bảng để xem chi tiết hồ sơ!", "Chưa chọn khách hàng", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String maKH = modelKH.getValueAt(row, 1).toString();
+            hienThiChiTietKhachHang(maKH);
         } else if (o.equals(btnTim) || o.equals(txtTimSDT)) {
             String sdt = txtTimSDT.getText().trim();
             if (sdt.isEmpty()) {
@@ -323,6 +343,154 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         }
     }
 
+    /**
+     * Hộp thoại tìm kiếm nâng cao khách hàng: hạng thành viên, khoảng điểm tích lũy, giới tính.
+     */
+    private void hienThiHopThoaiTimNangCao() {
+        JDialog dlg = new JDialog(SwingUtilities.getWindowAncestor(this), "TÌM KIẾM NÂNG CAO KHÁCH HÀNG", Dialog.ModalityType.APPLICATION_MODAL);
+        dlg.setLayout(new BorderLayout(10, 10));
+        dlg.setSize(420, 280);
+        dlg.setLocationRelativeTo(this);
+
+        JPanel pnl = new JPanel(new GridBagLayout());
+        pnl.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(6, 6, 6, 6);
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        JComboBox<String> cboLocHang = new JComboBox<>(new String[]{"Tất cả", "Đồng", "Bạc", "Vàng", "Bạch Kim", "Kim Cương"});
+        JTextField txtDiemTu = new JTextField(10);
+        JTextField txtDiemDen = new JTextField(10);
+        JComboBox<String> cboLocGT = new JComboBox<>(new String[]{"Tất cả", "Nam", "Nữ"});
+
+        g.gridx = 0; g.gridy = 0; pnl.add(new JLabel("Hạng thành viên:"), g);
+        g.gridx = 1; g.gridy = 0; pnl.add(cboLocHang, g);
+
+        g.gridx = 0; g.gridy = 1; pnl.add(new JLabel("Điểm tích lũy từ:"), g);
+        g.gridx = 1; g.gridy = 1; pnl.add(txtDiemTu, g);
+
+        g.gridx = 0; g.gridy = 2; pnl.add(new JLabel("Điểm tích lũy đến:"), g);
+        g.gridx = 1; g.gridy = 2; pnl.add(txtDiemDen, g);
+
+        g.gridx = 0; g.gridy = 3; pnl.add(new JLabel("Giới tính:"), g);
+        g.gridx = 1; g.gridy = 3; pnl.add(cboLocGT, g);
+
+        JPanel pnlAction = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
+        JButton btnLoc = UIHelper.createPrimaryBtn("Tìm Kiếm", 100, 32);
+        JButton btnHuy = UIHelper.createSecondaryBtn("Hủy", 80, 32);
+
+        btnLoc.addActionListener(e -> {
+            String hang = cboLocHang.getSelectedItem().toString();
+            Integer diemTu = null;
+            Integer diemDen = null;
+            try {
+                String strTu = txtDiemTu.getText().trim();
+                if (!strTu.isEmpty()) diemTu = Integer.parseInt(strTu);
+                String strDen = txtDiemDen.getText().trim();
+                if (!strDen.isEmpty()) diemDen = Integer.parseInt(strDen);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(dlg, "Điểm tích lũy phải là số nguyên hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Boolean gt = null;
+            int idxGT = cboLocGT.getSelectedIndex();
+            if (idxGT == 1) gt = true;
+            else if (idxGT == 2) gt = false;
+
+            ArrayList<KhachHang> ketQua = kh_dao.timKiemNangCao(hang, diemTu, diemDen, gt);
+            if (ketQua.isEmpty()) {
+                JOptionPane.showMessageDialog(dlg, "Không tìm thấy khách hàng nào khớp với tiêu chí lọc nâng cao!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                modelKH.setRowCount(0);
+                int stt = 1;
+                for (KhachHang kh : ketQua) {
+                    modelKH.addRow(new Object[]{
+                        stt++, kh.getMaKhachHang(), kh.getHoTen(), kh.getSoDienThoai(),
+                        kh.getDiaChi(), kh.getDiemTichLuy(), kh.getHangThanhVien()
+                    });
+                }
+                dlg.dispose();
+            }
+        });
+
+        btnHuy.addActionListener(e -> dlg.dispose());
+        pnlAction.add(btnLoc);
+        pnlAction.add(btnHuy);
+
+        dlg.add(pnl, BorderLayout.CENTER);
+        dlg.add(pnlAction, BorderLayout.SOUTH);
+        dlg.setVisible(true);
+    }
+
+    /**
+     * Hộp thoại xem hồ sơ chi tiết khách hàng và lịch sử hóa đơn.
+     */
+    private void hienThiChiTietKhachHang(String maKH) {
+        KhachHang kh = kh_dao.getKhachHangTheoMa(maKH);
+        if (kh == null) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin khách hàng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JDialog dlg = new JDialog(SwingUtilities.getWindowAncestor(this), "HỒ SƠ CHI TIẾT KHÁCH HÀNG: " + kh.getMaKhachHang(), Dialog.ModalityType.APPLICATION_MODAL);
+        dlg.setLayout(new BorderLayout(10, 10));
+        dlg.setSize(620, 420);
+        dlg.setLocationRelativeTo(this);
+
+        JPanel pnlInfo = new JPanel(new GridLayout(5, 2, 8, 4));
+        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10),
+            BorderFactory.createTitledBorder("Thông Tin Khách Hàng")
+        ));
+        pnlInfo.add(new JLabel("Mã khách hàng: " + kh.getMaKhachHang()));
+        pnlInfo.add(new JLabel("Họ tên: " + kh.getHoTen()));
+        pnlInfo.add(new JLabel("Giới tính: " + (kh.isGioiTinh() ? "Nam" : "Nữ")));
+        pnlInfo.add(new JLabel("Ngày sinh: " + (kh.getNgaySinh() != null ? kh.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa cập nhật")));
+        pnlInfo.add(new JLabel("Số điện thoại: " + kh.getSoDienThoai()));
+        pnlInfo.add(new JLabel("Email: " + (kh.getEmail() != null ? kh.getEmail() : "Chưa cập nhật")));
+        pnlInfo.add(new JLabel("Địa chỉ: " + (kh.getDiaChi() != null ? kh.getDiaChi() : "Chưa cập nhật")));
+        pnlInfo.add(new JLabel("Hạng thành viên: " + kh.getHangThanhVien()));
+        pnlInfo.add(new JLabel("Điểm tích lũy hiện tại: " + kh.getDiemTichLuy() + " điểm"));
+        pnlInfo.add(new JLabel("Ưu đãi giảm giá: " + ((int)(kh.tinhChietKhau() * 100)) + "%"));
+
+        // Lấy lịch sử hóa đơn của khách
+        dao.HoaDon_DAO hd_dao = new dao.HoaDon_DAO();
+        ArrayList<entity.HoaDon> allHD = hd_dao.getAllHoaDon();
+        String[] headers = {"STT", "Mã HĐ", "Thời Gian Lập", "Tổng Thanh Toán", "Phương Thức", "Thu Ngân"};
+        DefaultTableModel modelHD = new DefaultTableModel(headers, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        int stt = 1;
+        java.text.DecimalFormat df = new java.text.DecimalFormat("#,### VNĐ");
+        for (entity.HoaDon h : allHD) {
+            if (h.getKhachHang() != null && kh.getMaKhachHang().equals(h.getKhachHang().getMaKhachHang())) {
+                modelHD.addRow(new Object[]{
+                    stt++,
+                    h.getMaHoaDon(),
+                    h.getNgayLap().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    df.format(h.getTongTien()),
+                    h.getPhuongThucTT(),
+                    (h.getNhanVien() != null ? h.getNhanVien().getHoTen() : "")
+                });
+            }
+        }
+        JTable tableHD = new JTable(modelHD);
+        tableHD.setRowHeight(24);
+        JScrollPane scrollHD = new JScrollPane(tableHD);
+        scrollHD.setBorder(BorderFactory.createTitledBorder("Lịch Sử Mua Hàng (" + (stt - 1) + " hóa đơn)"));
+
+        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 32);
+        btnDong.addActionListener(e -> dlg.dispose());
+        pnlBot.add(btnDong);
+
+        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(scrollHD, BorderLayout.CENTER);
+        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.setVisible(true);
+    }
+
     private void xoaTrang() {
         txtMaKH.setText("");
         txtMaKH.setEditable(true);
@@ -343,6 +511,10 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         int row = tableKH.getSelectedRow();
         if (row >= 0) {
             hienThiThongTinLenForm(row);
+            if (e.getClickCount() == 2) {
+                String maKH = modelKH.getValueAt(row, 1).toString();
+                hienThiChiTietKhachHang(maKH);
+            }
         }
     }
 

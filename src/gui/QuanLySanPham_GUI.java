@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +40,9 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
     private JButton btnSua;
     private JButton btnXoaTrang;
     private JButton btnTim;
+    private JButton btnTimNangCao;
+    private JButton btnXoaLoc;
+    private JButton btnXemChiTiet;
 
     private JTable tableSP;
     private DefaultTableModel modelSP;
@@ -122,17 +126,23 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         g.gridx = 3; g.gridy = 3; pnlForm.add(pnlTim, g);
 
         // 3. NÚT CHỨC NĂNG
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         pnlButtons.setBackground(Color.WHITE);
 
-        btnThem = UIHelper.createSuccessBtn("Thêm Mới", 115, 34);
-        btnXoa = UIHelper.createDangerBtn("Xóa Sản Phẩm", 130, 34);
-        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 115, 34);
-        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng Form", 130, 34);
+        btnThem = UIHelper.createSuccessBtn("Thêm Mới", 110, 34);
+        btnXoa = UIHelper.createDangerBtn("Xóa (Ngừng)", 115, 34);
+        btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 105, 34);
+        btnXemChiTiet = UIHelper.createButton("Xem Chi Tiết", UIHelper.PRIMARY_BLUE, Color.WHITE, 120, 34);
+        btnTimNangCao = UIHelper.createButton("Tìm Nâng Cao", UIHelper.TEXT_DARK, Color.WHITE, 125, 34);
+        btnXoaLoc = UIHelper.createSecondaryBtn("Xóa Lọc", 95, 34);
+        btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 100, 34);
 
         pnlButtons.add(btnThem);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnSua);
+        pnlButtons.add(btnXemChiTiet);
+        pnlButtons.add(btnTimNangCao);
+        pnlButtons.add(btnXoaLoc);
         pnlButtons.add(btnXoaTrang);
 
         JPanel pnlTop = new JPanel(new BorderLayout());
@@ -164,6 +174,9 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         btnThem.addActionListener(this);
         btnXoa.addActionListener(this);
         btnSua.addActionListener(this);
+        btnXemChiTiet.addActionListener(this);
+        btnTimNangCao.addActionListener(this);
+        btnXoaLoc.addActionListener(this);
         btnXoaTrang.addActionListener(this);
         btnTim.addActionListener(this);
         txtTimKiem.addActionListener(this);
@@ -352,8 +365,20 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
                 JOptionPane.showMessageDialog(this, "Lỗi cập nhật dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
 
-        } else if (o.equals(btnXoaTrang)) {
+        } else if (o.equals(btnXoaTrang) || o.equals(btnXoaLoc)) {
             xoaTrang();
+
+        } else if (o.equals(btnTimNangCao)) {
+            hienThiHopThoaiTimNangCao();
+
+        } else if (o.equals(btnXemChiTiet)) {
+            int row = tableSP.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một sản phẩm trong bảng để xem chi tiết biến thể!", "Chưa chọn sản phẩm", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String maSP = modelSP.getValueAt(row, 1).toString();
+            hienThiChiTietSanPham(maSP);
 
         } else if (o.equals(btnTim) || o.equals(txtTimKiem)) {
             String key = txtTimKiem.getText().trim().toLowerCase();
@@ -372,7 +397,164 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
                     });
                 }
             }
+            if (modelSP.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm nào khớp với từ khóa '" + key + "'!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+                DocDuLieuDatabaseVaoTable();
+            }
         }
+    }
+
+    /**
+     * Hộp thoại tìm kiếm nâng cao đa tiêu chí: thương hiệu, loại giày, khoảng giá bán, tình trạng kho.
+     */
+    private void hienThiHopThoaiTimNangCao() {
+        JDialog dlg = new JDialog(SwingUtilities.getWindowAncestor(this), "TÌM KIẾM NÂNG CAO SẢN PHẨM", Dialog.ModalityType.APPLICATION_MODAL);
+        dlg.setLayout(new BorderLayout(10, 10));
+        dlg.setSize(440, 320);
+        dlg.setLocationRelativeTo(this);
+
+        JPanel pnl = new JPanel(new GridBagLayout());
+        pnl.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(6, 6, 6, 6);
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        ArrayList<String> dsHang = sp_dao.getAllThuongHieu();
+        dsHang.add(0, "Tất cả");
+        JComboBox<String> cboLocHang = new JComboBox<>(dsHang.toArray(new String[0]));
+
+        ArrayList<String> dsLoai = sp_dao.getAllLoaiGiay();
+        dsLoai.add(0, "Tất cả");
+        JComboBox<String> cboLocLoai = new JComboBox<>(dsLoai.toArray(new String[0]));
+
+        JTextField txtGiaTu = new JTextField(10);
+        JTextField txtGiaDen = new JTextField(10);
+
+        JComboBox<String> cboLocTon = new JComboBox<>(new String[]{"Tất cả", "Còn hàng trong kho", "Hết hàng / Ngừng bán"});
+
+        g.gridx = 0; g.gridy = 0; pnl.add(new JLabel("Thương hiệu:"), g);
+        g.gridx = 1; g.gridy = 0; pnl.add(cboLocHang, g);
+
+        g.gridx = 0; g.gridy = 1; pnl.add(new JLabel("Phân loại:"), g);
+        g.gridx = 1; g.gridy = 1; pnl.add(cboLocLoai, g);
+
+        g.gridx = 0; g.gridy = 2; pnl.add(new JLabel("Giá bán từ (VNĐ):"), g);
+        g.gridx = 1; g.gridy = 2; pnl.add(txtGiaTu, g);
+
+        g.gridx = 0; g.gridy = 3; pnl.add(new JLabel("Giá bán đến (VNĐ):"), g);
+        g.gridx = 1; g.gridy = 3; pnl.add(txtGiaDen, g);
+
+        g.gridx = 0; g.gridy = 4; pnl.add(new JLabel("Tình trạng kho:"), g);
+        g.gridx = 1; g.gridy = 4; pnl.add(cboLocTon, g);
+
+        JPanel pnlAction = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
+        JButton btnLoc = UIHelper.createPrimaryBtn("Tìm Kiếm", 100, 32);
+        JButton btnHuy = UIHelper.createSecondaryBtn("Hủy", 80, 32);
+
+        btnLoc.addActionListener(e -> {
+            String hang = cboLocHang.getSelectedItem().toString();
+            String loai = cboLocLoai.getSelectedItem().toString();
+            Double giaTu = null;
+            Double giaDen = null;
+            try {
+                String strTu = txtGiaTu.getText().trim();
+                if (!strTu.isEmpty()) giaTu = Double.parseDouble(strTu);
+                String strDen = txtGiaDen.getText().trim();
+                if (!strDen.isEmpty()) giaDen = Double.parseDouble(strDen);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(dlg, "Giá bán tìm kiếm phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Boolean conHang = null;
+            int idxTon = cboLocTon.getSelectedIndex();
+            if (idxTon == 1) conHang = true;
+            else if (idxTon == 2) conHang = false;
+
+            ArrayList<SanPham> ketQua = sp_dao.timKiemNangCao(hang, giaTu, giaDen, loai, conHang);
+            if (ketQua.isEmpty()) {
+                JOptionPane.showMessageDialog(dlg, "Không tìm thấy sản phẩm nào khớp với tiêu chí lọc nâng cao!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                modelSP.setRowCount(0);
+                int stt = 1;
+                for (SanPham sp : ketQua) {
+                    modelSP.addRow(new Object[]{
+                        stt++, sp.getMaSanPham(), sp.getTenSanPham(), sp.getLoaiGiay(),
+                        sp.getThuongHieu(), df.format(sp.getGiaNhap()), df.format(sp.getGiaBan()), sp.getChatLieu()
+                    });
+                }
+                dlg.dispose();
+            }
+        });
+
+        btnHuy.addActionListener(e -> dlg.dispose());
+        pnlAction.add(btnLoc);
+        pnlAction.add(btnHuy);
+
+        dlg.add(pnl, BorderLayout.CENTER);
+        dlg.add(pnlAction, BorderLayout.SOUTH);
+        dlg.setVisible(true);
+    }
+
+    /**
+     * Hộp thoại xem chi tiết sản phẩm mẫu và danh sách biến thể SKU (size, màu, số lượng tồn kho).
+     */
+    private void hienThiChiTietSanPham(String maSP) {
+        SanPham sp = sp_dao.getSanPhamTheoMa(maSP);
+        if (sp == null) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        java.util.ArrayList<ChiTietGiay> listCTG = ctg_dao.getChiTietTheoSanPham(maSP);
+
+        JDialog dlg = new JDialog(SwingUtilities.getWindowAncestor(this), "CHI TIẾT SẢN PHẨM & BIẾN THỂ SKU: " + sp.getMaSanPham(), Dialog.ModalityType.APPLICATION_MODAL);
+        dlg.setLayout(new BorderLayout(10, 10));
+        dlg.setSize(650, 420);
+        dlg.setLocationRelativeTo(this);
+
+        JPanel pnlInfo = new JPanel(new GridLayout(4, 2, 8, 4));
+        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10),
+            BorderFactory.createTitledBorder("Thông Tin Chung Mẫu Giày")
+        ));
+        pnlInfo.add(new JLabel("Mã sản phẩm: " + sp.getMaSanPham()));
+        pnlInfo.add(new JLabel("Tên sản phẩm: " + sp.getTenSanPham()));
+        pnlInfo.add(new JLabel("Phân loại: " + sp.getLoaiGiay()));
+        pnlInfo.add(new JLabel("Thương hiệu: " + sp.getThuongHieu()));
+        pnlInfo.add(new JLabel("Giá nhập: " + df.format(sp.getGiaNhap())));
+        pnlInfo.add(new JLabel("Giá bán: " + df.format(sp.getGiaBan())));
+        pnlInfo.add(new JLabel("Chất liệu: " + (sp.getChatLieu() != null ? sp.getChatLieu() : "Đang cập nhật")));
+        pnlInfo.add(new JLabel("Trạng thái: " + (sp.isTrangThai() ? "Đang kinh doanh" : "Ngừng kinh doanh")));
+
+        String[] headers = {"STT", "Mã SKU (CTG)", "Size", "Màu Sắc", "Tồn Kho", "Tình Trạng Kho"};
+        DefaultTableModel modelCTG = new DefaultTableModel(headers, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        int stt = 1;
+        for (ChiTietGiay ctg : listCTG) {
+            modelCTG.addRow(new Object[]{
+                stt++,
+                ctg.getMaChiTietGiay(),
+                ctg.getKichThuoc(),
+                ctg.getMauSac(),
+                ctg.getSoLuongTon(),
+                (ctg.getSoLuongTon() > 0 ? "Còn hàng (" + ctg.getSoLuongTon() + " đôi)" : "Hết hàng")
+            });
+        }
+        JTable tableCTG = new JTable(modelCTG);
+        tableCTG.setRowHeight(24);
+        JScrollPane scrollCTG = new JScrollPane(tableCTG);
+        scrollCTG.setBorder(BorderFactory.createTitledBorder("Danh Sách Biến Thể Kích Thước & Màu Sắc (SKU)"));
+
+        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 32);
+        btnDong.addActionListener(e -> dlg.dispose());
+        pnlBot.add(btnDong);
+
+        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(scrollCTG, BorderLayout.CENTER);
+        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.setVisible(true);
     }
 
     private void xoaTrang() {
@@ -384,6 +566,7 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         txtChatLieu.setText("");
         txtTimKiem.setText("");
         tableSP.clearSelection();
+        DocDuLieuDatabaseVaoTable();
         txtMaSP.requestFocus();
     }
 
@@ -392,6 +575,10 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         int row = tableSP.getSelectedRow();
         if (row >= 0) {
             hienThiThongTinLenForm(row);
+            if (e.getClickCount() == 2) {
+                String maSP = modelSP.getValueAt(row, 1).toString();
+                hienThiChiTietSanPham(maSP);
+            }
         }
     }
 

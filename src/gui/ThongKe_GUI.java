@@ -1,6 +1,7 @@
 package gui;
 
 import dao.HoaDon_DAO;
+import entity.ChiTietHoaDon;
 import entity.HoaDon;
 
 import javax.swing.*;
@@ -8,6 +9,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +27,10 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     private JButton btnLoc;
     private JButton btnLamMoi;
     private JButton btnXuatBaoCao;
+
+    private JTextField txtTimKiemHD;
+    private JButton btnTimHD;
+    private JButton btnXemChiTietHD;
 
     private JTable tableHoaDon;
     private DefaultTableModel modelHoaDon;
@@ -89,11 +97,22 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         btnLamMoi = UIHelper.createSecondaryBtn("Làm Mới", 100, 34);
         btnXuatBaoCao = UIHelper.createSuccessBtn("Xuất Báo Cáo [Excel]", 180, 34);
 
+        txtTimKiemHD = new JTextField(10);
+        txtTimKiemHD.setPreferredSize(new Dimension(130, 32));
+        txtTimKiemHD.setToolTipText("Nhập mã HĐ, tên thu ngân hoặc khách hàng");
+        btnTimHD = UIHelper.createPrimaryBtn("Tìm HĐ", 85, 34);
+        btnXemChiTietHD = UIHelper.createSecondaryBtn("Xem Chi Tiết", 115, 34);
+
         pnlFilterBar.add(lblKy);
         pnlFilterBar.add(cboThoiGian);
         pnlFilterBar.add(btnLoc);
         pnlFilterBar.add(btnLamMoi);
-        pnlFilterBar.add(Box.createHorizontalStrut(20));
+        pnlFilterBar.add(Box.createHorizontalStrut(12));
+        pnlFilterBar.add(new JLabel("Tìm:"));
+        pnlFilterBar.add(txtTimKiemHD);
+        pnlFilterBar.add(btnTimHD);
+        pnlFilterBar.add(btnXemChiTietHD);
+        pnlFilterBar.add(Box.createHorizontalStrut(12));
         pnlFilterBar.add(btnXuatBaoCao);
 
         // Ghép KPI + Filter vào TopCenter
@@ -115,6 +134,18 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         };
         tableHoaDon = new JTable(modelHoaDon);
         UIHelper.styleTable(tableHoaDon);
+        tableHoaDon.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = tableHoaDon.getSelectedRow();
+                    if (row >= 0) {
+                        String maHD = (String) modelHoaDon.getValueAt(row, 1);
+                        hienThiChiTietHoaDon(maHD);
+                    }
+                }
+            }
+        });
         JScrollPane scrollHD = new JScrollPane(tableHoaDon);
         scrollHD.setBorder(BorderFactory.createEmptyBorder());
         tabTables.addTab("📋 Danh Sách Hóa Đơn Bán Hàng", scrollHD);
@@ -138,6 +169,9 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         btnLoc.addActionListener(this);
         btnLamMoi.addActionListener(this);
         btnXuatBaoCao.addActionListener(this);
+        btnTimHD.addActionListener(this);
+        txtTimKiemHD.addActionListener(this);
+        btnXemChiTietHD.addActionListener(this);
 
         // Nạp dữ liệu
         napDuLieuThongKe();
@@ -293,6 +327,129 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         }
     }
 
+    public String taoNoiDungHoaDon(HoaDon hd) {
+        StringBuilder bill = new StringBuilder();
+        bill.append("=============================================\n");
+        bill.append("            STEPUP FOOTWEAR STORE            \n");
+        bill.append("      12 Nguyễn Văn Bảo, Gò Vấp, TP.HCM      \n\n");
+        bill.append("               HÓA ĐƠN BÁN LẺ                \n\n");
+        bill.append("Mã HĐ: ").append(hd.getMaHoaDon()).append("\n");
+        bill.append("Ngày: ").append((hd.getNgayLap() != null) ? dtf.format(hd.getNgayLap()) : "").append("\n");
+        bill.append("Thu ngân: ").append((hd.getNhanVien() != null && hd.getNhanVien().getHoTen() != null) ? hd.getNhanVien().getHoTen() : (hd.getNhanVien() != null ? hd.getNhanVien().getMaNhanVien() : "")).append("\n");
+        bill.append("Khách hàng: ").append((hd.getKhachHang() != null && hd.getKhachHang().getHoTen() != null) ? hd.getKhachHang().getHoTen() : "Khách lẻ vãng lai").append("\n");
+        bill.append("---------------------------------------------\n");
+        if (hd.getDanhSachChiTiet() != null) {
+            for (ChiTietHoaDon ct : hd.getDanhSachChiTiet()) {
+                String tenGiay = (ct.getChiTietGiay() != null && ct.getChiTietGiay().getSanPham() != null)
+                        ? ct.getChiTietGiay().getSanPham().getTenSanPham()
+                        : "Sản phẩm";
+                int size = (ct.getChiTietGiay() != null) ? ct.getChiTietGiay().getKichThuoc() : 0;
+                bill.append(tenGiay).append(" (Size ").append(size).append(")\n");
+                bill.append("  ").append(ct.getSoLuong()).append(" x ").append(df.format(ct.getDonGia()))
+                    .append(" = ").append(df.format(ct.getThanhTien())).append("\n");
+            }
+        }
+        bill.append("---------------------------------------------\n");
+        bill.append(String.format("%-24s %18s\n", "Tổng tiền hàng:", df.format(hd.getTongTienHang())));
+        bill.append(String.format("%-24s %18s\n", "Chiết khấu hạng thẻ:", (hd.getChietKhau() > 0 ? "-" : "") + df.format(hd.getChietKhau())));
+        bill.append(String.format("%-24s %18s\n", "Tiền giảm từ điểm:", (hd.getTienGiamDiem() > 0 ? "-" : "") + df.format(hd.getTienGiamDiem())));
+        bill.append(String.format("%-24s %18s\n", "CẦN THANH TOÁN:", df.format(hd.getTongTien())));
+        bill.append(String.format("%-24s %18s\n", "Khách đưa:", df.format(hd.getTienKhachDua())));
+        bill.append(String.format("%-24s %18s\n", "Tiền thừa:", df.format(hd.getTienThua())));
+        bill.append(String.format("%-24s %18s\n", "Điểm cộng mới:", "+" + hd.getDiemCong() + " điểm"));
+        bill.append(String.format("%-24s %18s\n", "Hình thức:", (hd.getPhuongThucTT() != null ? hd.getPhuongThucTT() : "Tiền mặt")));
+        bill.append("=============================================\n");
+        bill.append("       CẢM ƠN QUÝ KHÁCH & HẸN GẶP LẠI!       \n");
+        return bill.toString();
+    }
+
+    public void hienThiChiTietHoaDon(String maHD) {
+        HoaDon hd = hd_dao.getHoaDonTheoMa(maHD);
+        if (hd == null) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy chi tiết hóa đơn: " + maHD, "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Window parentWindow = SwingUtilities.getWindowAncestor(this);
+        JDialog dlg = new JDialog((Frame) (parentWindow instanceof Frame ? parentWindow : null), "Chi Tiết Hóa Đơn - " + maHD, true);
+        dlg.setLayout(new BorderLayout(10, 10));
+        dlg.setSize(760, 560);
+        dlg.setLocationRelativeTo(this);
+
+        JPanel pnlInfo = new JPanel(new GridLayout(6, 2, 10, 6));
+        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("Thông Tin Hóa Đơn & Thanh Toán"),
+            BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
+        pnlInfo.setBackground(Color.WHITE);
+
+        String tenNV = (hd.getNhanVien() != null && hd.getNhanVien().getHoTen() != null) ? hd.getNhanVien().getHoTen() : (hd.getNhanVien() != null ? hd.getNhanVien().getMaNhanVien() : "N/A");
+        String tenKH = (hd.getKhachHang() != null && hd.getKhachHang().getHoTen() != null) ? hd.getKhachHang().getHoTen() : "Khách lẻ vãng lai";
+
+        pnlInfo.add(new JLabel("Mã hóa đơn: " + hd.getMaHoaDon()));
+        pnlInfo.add(new JLabel("Thời gian lập: " + ((hd.getNgayLap() != null) ? dtf.format(hd.getNgayLap()) : "")));
+        pnlInfo.add(new JLabel("Thu ngân lập đơn: " + tenNV));
+        pnlInfo.add(new JLabel("Khách hàng: " + tenKH));
+        pnlInfo.add(new JLabel("Tổng tiền hàng: " + df.format(hd.getTongTienHang())));
+        pnlInfo.add(new JLabel("Chiết khấu hạng thẻ: " + (hd.getChietKhau() > 0 ? "-" : "") + df.format(hd.getChietKhau())));
+        pnlInfo.add(new JLabel("Điểm sử dụng: " + hd.getDiemSuDung() + " điểm"));
+        pnlInfo.add(new JLabel("Tiền giảm từ điểm: " + (hd.getTienGiamDiem() > 0 ? "-" : "") + df.format(hd.getTienGiamDiem())));
+        pnlInfo.add(new JLabel("Tổng thanh toán: " + df.format(hd.getTongTien())));
+        pnlInfo.add(new JLabel("Phương thức thanh toán: " + (hd.getPhuongThucTT() != null ? hd.getPhuongThucTT() : "Tiền mặt")));
+        pnlInfo.add(new JLabel("Tiền khách đưa / Tiền thừa: " + df.format(hd.getTienKhachDua()) + " / " + df.format(hd.getTienThua())));
+        pnlInfo.add(new JLabel("Điểm thưởng tích lũy thêm: +" + hd.getDiemCong() + " điểm"));
+
+        String[] headers = {"STT", "Mã Chi Tiết", "Tên Sản Phẩm", "Size", "Màu Sắc", "Số Lượng", "Đơn Giá", "Thành Tiền"};
+        DefaultTableModel modelCT = new DefaultTableModel(headers, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        int stt = 1;
+        if (hd.getDanhSachChiTiet() != null) {
+            for (ChiTietHoaDon ct : hd.getDanhSachChiTiet()) {
+                String maCTG = (ct.getChiTietGiay() != null) ? ct.getChiTietGiay().getMaChiTietGiay() : "";
+                String tenSP = (ct.getChiTietGiay() != null && ct.getChiTietGiay().getSanPham() != null)
+                        ? ct.getChiTietGiay().getSanPham().getTenSanPham() : "Sản phẩm";
+                int sz = (ct.getChiTietGiay() != null) ? ct.getChiTietGiay().getKichThuoc() : 0;
+                String mau = (ct.getChiTietGiay() != null) ? ct.getChiTietGiay().getMauSac() : "";
+
+                modelCT.addRow(new Object[]{
+                    stt++, maCTG, tenSP, sz, mau, ct.getSoLuong(), df.format(ct.getDonGia()), df.format(ct.getThanhTien())
+                });
+            }
+        }
+        JTable tableCT = new JTable(modelCT);
+        tableCT.setRowHeight(24);
+        JScrollPane scrollCT = new JScrollPane(tableCT);
+        scrollCT.setBorder(BorderFactory.createTitledBorder("Danh Sách Sản Phẩm Mua (" + (stt - 1) + " mặt hàng)"));
+
+        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
+        JButton btnIn = UIHelper.createPrimaryBtn("🖨 In Hóa Đơn", 130, 34);
+        JButton btnXuat = UIHelper.createSuccessBtn("📄 Xuất File Hóa Đơn", 160, 34);
+        JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 34);
+
+        final String billText = taoNoiDungHoaDon(hd);
+        btnIn.addActionListener(ev -> BanHang_GUI.inHoaDon(hd.getMaHoaDon(), billText, dlg));
+        btnXuat.addActionListener(ev -> {
+            File f = BanHang_GUI.xuatHoaDonRaFile(hd.getMaHoaDon(), billText);
+            if (f != null) {
+                JOptionPane.showMessageDialog(dlg, "Đã xuất hóa đơn thành công tại:\n" + f.getAbsolutePath(), "Xuất hóa đơn", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(dlg, "Lỗi khi ghi file hóa đơn!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        btnDong.addActionListener(ev -> dlg.dispose());
+
+        pnlBot.add(btnIn);
+        pnlBot.add(btnXuat);
+        pnlBot.add(btnDong);
+
+        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(scrollCT, BorderLayout.CENTER);
+        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.setVisible(true);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -305,6 +462,50 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog(this,
                     "Tính năng xuất Excel đang được hoàn thiện trong phiên bản nâng cấp tiếp theo!",
                     "Thông Báo", JOptionPane.INFORMATION_MESSAGE);
+        } else if (o.equals(btnTimHD) || o.equals(txtTimKiemHD)) {
+            String tuKhoa = txtTimKiemHD.getText().trim();
+            if (tuKhoa.isEmpty()) {
+                napDuLieuThongKe();
+                return;
+            }
+            ArrayList<HoaDon> ketQua = hd_dao.timKiemHoaDon(tuKhoa);
+            modelHoaDon.setRowCount(0);
+            if (ketQua.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn nào khớp với từ khóa '" + tuKhoa + "'!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+                napDuLieuThongKe();
+                txtTimKiemHD.selectAll();
+                txtTimKiemHD.requestFocus();
+            } else {
+                int stt = 1;
+                double tongTienTimDuoc = 0;
+                for (HoaDon hd : ketQua) {
+                    tongTienTimDuoc += hd.getTongTien();
+                    String tenKH = (hd.getKhachHang() != null && hd.getKhachHang().getHoTen() != null)
+                            ? hd.getKhachHang().getHoTen() : "Khách lẻ vãng lai";
+                    String tenNV = (hd.getNhanVien() != null && hd.getNhanVien().getHoTen() != null)
+                            ? hd.getNhanVien().getHoTen() : (hd.getNhanVien() != null ? hd.getNhanVien().getMaNhanVien() : "");
+
+                    modelHoaDon.addRow(new Object[]{
+                        stt++,
+                        hd.getMaHoaDon(),
+                        (hd.getNgayLap() != null) ? dtf.format(hd.getNgayLap()) : "",
+                        tenNV,
+                        tenKH,
+                        df.format(hd.getTongTien()),
+                        hd.getPhuongThucTT()
+                    });
+                }
+                lblTongDoanhThuVal.setText(df.format(tongTienTimDuoc));
+                lblTongDonHangVal.setText(ketQua.size() + " đơn (lọc)");
+            }
+        } else if (o.equals(btnXemChiTietHD)) {
+            int row = tableHoaDon.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn trong bảng để xem chi tiết!", "Chưa chọn hóa đơn", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String maHD = (String) modelHoaDon.getValueAt(row, 1);
+            hienThiChiTietHoaDon(maHD);
         }
     }
 }

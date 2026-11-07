@@ -221,4 +221,119 @@ public class SanPham_DAO {
     public boolean xoaSanPham(String maSP) {
         return xoaSanPham(maSP, null);
     }
+
+    /**
+     * Lấy danh sách tất cả thương hiệu giày hiện có trong CSDL (phục vụ lọc nâng cao).
+     */
+    public ArrayList<String> getAllThuongHieu() {
+        ArrayList<String> ds = new ArrayList<>();
+        String sql = "SELECT DISTINCT thuongHieu FROM SanPham WHERE thuongHieu IS NOT NULL AND thuongHieu <> '' ORDER BY thuongHieu ASC";
+        try {
+            Connection con = getConnection();
+            try (Statement stmt = con.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    ds.add(rs.getString("thuongHieu"));
+                }
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            e.printStackTrace();
+        }
+        return ds;
+    }
+
+    /**
+     * Lấy danh sách tất cả phân loại giày hiện có trong CSDL (phục vụ lọc nâng cao).
+     */
+    public ArrayList<String> getAllLoaiGiay() {
+        ArrayList<String> ds = new ArrayList<>();
+        String sql = "SELECT DISTINCT loaiGiay FROM SanPham WHERE loaiGiay IS NOT NULL AND loaiGiay <> '' ORDER BY loaiGiay ASC";
+        try {
+            Connection con = getConnection();
+            try (Statement stmt = con.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    ds.add(rs.getString("loaiGiay"));
+                }
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            e.printStackTrace();
+        }
+        return ds;
+    }
+
+    /**
+     * Tìm kiếm nâng cao sản phẩm theo nhiều tiêu chí kết hợp:
+     * Thương hiệu, khoảng giá bán (từ - đến), loại giày, tình trạng còn hàng/ngừng bán.
+     */
+    public ArrayList<SanPham> timKiemNangCao(String thuongHieu, Double giaTu, Double giaDen, String loaiGiay, Boolean conHang) {
+        ArrayList<SanPham> ds = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT sp.* FROM SanPham sp WHERE 1=1 ");
+        ArrayList<Object> params = new ArrayList<>();
+
+        if (thuongHieu != null && !thuongHieu.trim().isEmpty() && !thuongHieu.equalsIgnoreCase("Tất cả")) {
+            sql.append("AND sp.thuongHieu = ? ");
+            params.add(thuongHieu.trim());
+        }
+
+        if (giaTu != null && giaTu >= 0) {
+            sql.append("AND sp.giaBan >= ? ");
+            params.add(giaTu);
+        }
+
+        if (giaDen != null && giaDen >= 0) {
+            sql.append("AND sp.giaBan <= ? ");
+            params.add(giaDen);
+        }
+
+        if (loaiGiay != null && !loaiGiay.trim().isEmpty() && !loaiGiay.equalsIgnoreCase("Tất cả")) {
+            sql.append("AND sp.loaiGiay = ? ");
+            params.add(loaiGiay.trim());
+        }
+
+        if (conHang != null) {
+            if (conHang) {
+                sql.append("AND sp.trangThai = 1 AND EXISTS (SELECT 1 FROM ChiTietGiay ctg WHERE ctg.maSanPham = sp.maSanPham AND ctg.soLuongTon > 0) ");
+            } else {
+                sql.append("AND (sp.trangThai = 0 OR NOT EXISTS (SELECT 1 FROM ChiTietGiay ctg WHERE ctg.maSanPham = sp.maSanPham AND ctg.soLuongTon > 0)) ");
+            }
+        }
+
+        sql.append("ORDER BY sp.maSanPham ASC");
+
+        try {
+            Connection con = getConnection();
+            try (PreparedStatement pstmt = con.prepareStatement(sql.toString())) {
+                for (int i = 0; i < params.size(); i++) {
+                    Object p = params.get(i);
+                    if (p instanceof String) {
+                        pstmt.setString(i + 1, (String) p);
+                    } else if (p instanceof Double) {
+                        pstmt.setDouble(i + 1, (Double) p);
+                    }
+                }
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        String maSP = rs.getString("maSanPham");
+                        String tenSP = rs.getString("tenSanPham");
+                        String loai = rs.getString("loaiGiay");
+                        String hang = rs.getString("thuongHieu");
+                        double giaNhap = rs.getDouble("giaNhap");
+                        double giaBan = rs.getDouble("giaBan");
+                        String chatLieu = rs.getString("chatLieu");
+                        boolean trangThai = rs.getBoolean("trangThai");
+
+                        ds.add(new SanPham(maSP, tenSP, loai, hang, giaNhap, giaBan, chatLieu, trangThai));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            e.printStackTrace();
+        }
+        return ds;
+    }
 }
