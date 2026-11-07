@@ -29,16 +29,19 @@
    - **Nhận diện khách hàng & Tích điểm:** Tra cứu nhanh qua Số điện thoại (^0[35789]\d{8}$); tự động tính chiết khấu theo 4 hạng thành viên (**Đồng**, **Bạc**, **Vàng**, **Kim Cương**).
    - **Đổi điểm thanh toán:** Cho phép quy đổi điểm tích lũy (1 điểm = 1.000 VNĐ) giảm trừ trực tiếp trên hóa đơn.
    - **Tính tiền thối tự động:** Bắt sự kiện thời gian thực (`KeyAdapter`), tự động tính tiền thừa realtime khi nhập tiền khách đưa, kiểm soát ngoại lệ nhập liệu.
-   - **Giao dịch toàn vẹn ACID (JDBC Transaction):** Lưu bảng `HoaDon` (13 cột tài chính), lưu `ChiTietHoaDon`, trừ kho `ChiTietGiay` có điều kiện (`WHERE soLuongTon >= ?`), đồng bộ điểm tích lũy khách hàng và xuất hộp thoại hóa đơn nhiệt K80 (`JDialog`).
+   - **Giao dịch toàn vẹn ACID (JDBC Transaction):** Lưu bảng `HoaDon` (13 cột tài chính), lưu `ChiTietHoaDon`, trừ kho `ChiTietGiay` có điều kiện (`WHERE soLuongTon >= ?`), đồng bộ điểm tích lũy khách hàng.
+   - **In & Xuất Hóa Đơn K80:** Hộp thoại xem trước `JDialog` tích hợp nút **"🖨 In Hóa Đơn"** (gửi trực tiếp tới máy in qua `java.awt.print.PrinterJob`) và nút **"📄 Xuất File Hóa Đơn"** (tự động ghi tệp text UTF-8 tại `hoadon/HDxxxxxx.txt`).
 
 2. **Quản Lý Mẫu Giày & Biến Thể SKU (`QuanLySanPham_GUI` [F2]):**
    - Đầy đủ chu trình nghiệp vụ: Thêm mẫu mới, Cập nhật thông tin, Xóa mềm, Tìm kiếm nhanh, Xóa trắng form.
+   - **Tìm kiếm nâng cao đa tiêu chí:** Hộp thoại lọc đồng thời theo Thương hiệu, Phân loại, Khoảng giá bán (từ - đến) và Tình trạng tồn kho.
    - Tự động sinh mã SKU biến thể mặc định khi tạo mới mẫu giày.
    - Kiểm soát giá bán nghiêm ngặt: Ràng buộc `giaBan >= giaNhap > 0`.
    - Cơ chế **Xóa mềm (Soft-Delete)**: Cập nhật `trangThai = 0` trong bảng `SanPham`, ngừng kinh doanh an toàn tại quầy nhưng bảo toàn 100% lịch sử chứng từ hóa đơn cũ.
 
 3. **Chăm Sóc Khách Hàng Thân Thiết (`QuanLyKhachHang_GUI` [F3]):**
    - Quản lý danh sách khách hàng, điểm tích lũy và phân hạng thành viên.
+   - **Tìm kiếm nâng cao:** Bộ lọc đa tiêu chí theo Hạng thành viên, Khoảng điểm tích lũy và Giới tính.
    - Biểu thức chính quy kiểm tra Số điện thoại chuẩn 10 chữ số nhà mạng Việt Nam (`^0[35789]\d{8}$`).
    - Cột Điểm tích lũy và Hạng thành viên được khóa chỉ đọc (Read-only) chống gian lận, chỉ tự động cập nhật khi giao dịch thanh toán thành công.
 
@@ -48,16 +51,19 @@
    - **Bảo mật mật khẩu:** Băm một chiều bằng thuật toán SHA-256 (chuỗi hex 64 ký tự), tuyệt đối không lưu văn bản rõ.
    - Vô hiệu hóa tài khoản khi nghỉ việc (`trangThai = 0`), khóa đăng nhập nhưng bảo toàn mã nhân viên trên hóa đơn.
 
-5. **Phân Hệ Báo Cáo Thống Kê (`ThongKe_GUI` - Khung định hướng mở rộng):**
-   - Thiết kế sẵn giao diện Dashboard 4 thẻ KPI (Tổng doanh thu, Tổng đơn hàng, Số lượng bán ra, Tổng khách hàng).
-   - Bộ lọc thời gian (Tất cả, Hôm nay, Tháng này, Năm nay).
-   - *Ghi chú trung thực:* Phân hệ hiện đang trong giai đoạn hoàn thiện, chưa liên kết vào thanh Tab của `ManHinhChinh_GUI` để tập trung toàn lực kiểm thử 4 phân hệ chính.
+5. **Phân Hệ Báo Cáo Thống Kê & Hiệu Suất Bán Hàng (`ThongKe_GUI` [F5]):**
+   - Phân quyền Quản trị: Chỉ mở cho tài khoản có vai trò Quản lý cửa hàng.
+   - **Dashboard 4 thẻ Bento KPI:** Tổng doanh thu, Số hóa đơn đã lập, Sản phẩm bán ra thực tế (tính chính xác từ `ChiTietHoaDon`), Tổng khách hàng thành viên.
+   - **Bộ lọc kỳ thời gian:** Lọc và tự động tái tính toán số liệu theo Toàn bộ thời gian, Hôm nay, Tháng này, Năm nay.
+   - **Bảng Top 5 sản phẩm bán chạy nhất:** Truy vấn trực tiếp từ CSDL theo số lượng bán ra giảm dần.
+   - **Hiệu năng cao:** Tải dữ liệu bất đồng bộ bằng `SwingWorker` ngoài luồng EDT, bảo đảm giao diện 60 FPS mượt mà.
 
 6. **Hệ Thống Phím Tắt Toàn Cục (Ergonomic Hotkeys):**
    - `[F1]`: Chuyển nhanh đến Tab Bán hàng POS
    - `[F2]`: Chuyển nhanh đến Tab Quản lý mẫu giày
    - `[F3]`: Chuyển nhanh đến Tab Khách hàng & Tích điểm
    - `[F4]`: Chuyển nhanh đến Tab Quản lý nhân sự (yêu cầu quyền Quản lý)
+   - `[F5]`: Chuyển nhanh đến Tab Thống kê doanh thu (yêu cầu quyền Quản lý)
    - `[F10]`: Thực hiện thanh toán đơn hàng tại quầy POS
    - `[Delete]`: Xóa dòng sản phẩm đang chọn trong giỏ hàng
    - `[ESC]`: Mở hộp thoại xác nhận đăng xuất khỏi hệ thống

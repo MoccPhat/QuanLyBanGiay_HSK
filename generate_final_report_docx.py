@@ -336,8 +336,9 @@ def create_document():
         ("    III. Chức năng Quản lý sản phẩm giày dép & Biến thể SKU", "34"),
         ("    IV. Chức năng Quản lý khách hàng & Tích điểm thành viên", "36"),
         ("    V. Chức năng Quản lý nhân sự & Phân quyền (Staff Management)", "38"),
-        ("    VI. Phân hệ Thống kê doanh thu (Định hướng mở rộng)", "40"),
+        ("    VI. Phân hệ Thống kê doanh thu & Hiệu suất bán hàng (Analytics & Reporting)", "40"),
         ("    VII. Bảng hệ thống phím tắt & Điều hướng bán hàng (Hotkeys)", "41"),
+        ("    VIII. Đối chiếu yêu cầu đề bài môn học ↔ Chức năng đã hiện thực", "42"),
         ("PHẦN V: TỔNG KẾT VÀ HƯỚNG PHÁT TRIỂN", "43"),
         ("    I. Đánh giá kết quả đạt được (Chỉ số định lượng)", "43"),
         ("    II. Những điểm còn hạn chế", "44"),
@@ -375,12 +376,16 @@ def create_document():
         ("Hình 2. Sơ đồ kiến trúc hệ thống 3 tầng (3-Tier Architecture)", "12"),
         ("Hình 3. Sơ đồ lớp thực thể hướng đối tượng (OOP Entity Class Diagram) chuẩn UML", "14"),
         ("Hình 4. Sơ đồ cơ sở dữ liệu quan hệ trên Microsoft SQL Server (Database ERD 6 bảng)", "21"),
-        ("Hình 5. Sơ đồ tuần tự (Sequence Diagram) luồng giao dịch thanh toán tại quầy POS", "32"),
-        ("Hình 6. Giao diện Đăng nhập hệ thống (chụp thật ngày 07/11/2026)", "29"),
-        ("Hình 7. Giao diện Bán hàng tại quầy POS với đầy đủ thông tin tồn kho và giỏ hàng (chụp thật ngày 07/11/2026)", "31"),
-        ("Hình 8. Giao diện Quản lý danh mục mẫu giày (chụp thật ngày 07/11/2026)", "35"),
-        ("Hình 9. Giao diện Quản lý khách hàng và phân hạng tích điểm (chụp thật ngày 07/11/2026)", "37"),
-        ("Hình 10. Giao diện Quản lý nhân sự và phân quyền (chụp thật ngày 07/11/2026)", "39")
+        ("Hình 5. Giao diện Đăng nhập hệ thống (chụp thật ngày 07/11/2026)", "29"),
+        ("Hình 6. Giao diện Bán hàng tại quầy POS với đầy đủ thông tin tồn kho và giỏ hàng (chụp thật ngày 07/11/2026)", "31"),
+        ("Hình 7. Sơ đồ tuần tự (Sequence Diagram) luồng giao dịch thanh toán tại quầy POS", "32"),
+        ("Hình 8. Hộp thoại xem trước Hóa đơn K80 tích hợp chức năng In máy in và Xuất file văn bản (chụp thật ngày 07/11/2026)", "33"),
+        ("Hình 9. Giao diện Quản lý danh mục mẫu giày (chụp thật ngày 07/11/2026)", "35"),
+        ("Hình 10. Hộp thoại Tìm kiếm nâng cao Sản phẩm theo đa tiêu chí (chụp thật ngày 07/11/2026)", "36"),
+        ("Hình 11. Giao diện Quản lý khách hàng và phân hạng tích điểm (chụp thật ngày 07/11/2026)", "37"),
+        ("Hình 12. Hộp thoại Tìm kiếm nâng cao Khách hàng theo phân hạng và điểm tích lũy (chụp thật ngày 07/11/2026)", "38"),
+        ("Hình 13. Giao diện Quản lý nhân sự và phân quyền (chụp thật ngày 07/11/2026)", "39"),
+        ("Hình 14. Giao diện Báo cáo thống kê doanh thu và Top sản phẩm bán chạy (chụp thật ngày 07/11/2026)", "40")
     ]
     for fig_title, p_num in figures:
         p_f = doc.add_paragraph()
@@ -407,7 +412,8 @@ def create_document():
         ("Bảng 15. Cấu trúc trường dữ liệu bảng HoaDon trên Microsoft SQL Server", "25"),
         ("Bảng 16. Cấu trúc trường dữ liệu bảng ChiTietHoaDon trên Microsoft SQL Server", "26"),
         ("Bảng 17. Hệ thống phím tắt công thái học điều hướng bán hàng POS", "41"),
-        ("Bảng 18. Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)", "48")
+        ("Bảng 18. Đối chiếu yêu cầu đề tài môn học Lập trình hướng sự kiện ↔ Chức năng hiện thực", "42"),
+        ("Bảng 19. Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)", "48")
     ]
     for tbl_title, p_num in tables_list:
         p_t = doc.add_paragraph()
@@ -788,13 +794,13 @@ def create_document():
         doc.add_picture("screenshot_dangnhap.png", width=Inches(4.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 6. Giao diện Đăng nhập hệ thống (chụp thật ngày 07/11/2026)")
+        r_c = p_cap.add_run("Hình 5. Giao diện Đăng nhập hệ thống (chụp thật ngày 07/11/2026)")
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_bullet("Nhân viên khởi chạy ứng dụng. Con trỏ chuột tự động focus sẵn vào ô 'Mã nhân viên' (chuẩn định dạng mã NVxxxx).", "Bước 1 - Mở ứng dụng: ")
     add_bullet("Nhân viên nhập mã số và mật khẩu. Người dùng có thể nhấn phím Enter tại bất kỳ ô nhập liệu nào để thực hiện đăng nhập nhanh mà không cần thao tác chuột.", "Bước 2 - Nhập thông tin đăng nhập: ")
     add_bullet("Nhấn Enter hoặc click nút 'Đăng Nhập'. Hệ thống gọi NhanVien_DAO.dangNhap() để xác thực: mật khẩu nhập vào được băm bằng thuật toán SHA-256 (tạo chuỗi hex 64 ký tự) và đối chiếu trực tiếp với cột matKhau trong bảng NhanVien.", "Bước 3 - Xác thực thông tin: ")
-    add_bullet("Nếu là Quản lý: Hệ thống hiển thị đầy đủ 4 tab chức năng trên ManHinhChinh_GUI gồm Bán hàng (POS), Quản lý mẫu giày, Khách hàng & tích điểm và Quản lý nhân sự. Nếu là Nhân viên bán hàng: Hệ thống chỉ hiển thị 3 tab phục vụ bán lẻ và vô hiệu hóa các nút Thêm, Sửa, Xóa trên màn hình danh mục sản phẩm.", "Bước 4 - Phân quyền giao diện: ")
+    add_bullet("Nếu là Quản lý: Hệ thống hiển thị đầy đủ các tab chức năng trên ManHinhChinh_GUI gồm Bán hàng (POS), Quản lý mẫu giày, Khách hàng & tích điểm, Quản lý nhân sự và Thống kê doanh thu. Nếu là Nhân viên bán hàng: Hệ thống chỉ hiển thị 3 tab phục vụ bán lẻ và vô hiệu hóa các nút Thêm, Sửa, Xóa trên màn hình danh mục sản phẩm.", "Bước 4 - Phân quyền giao diện: ")
     add_callout("Bảo mật mật khẩu với mã băm SHA-256 & Cơ chế dự phòng Fallback: Hệ thống lưu trữ mật khẩu băm một chiều bằng thuật toán SHA-256 (chuỗi hex 64 ký tự) tương thích chuẩn xác với trường matKhau kiểu CHAR(64). Mã nguồn NhanVien_DAO đã tích hợp sẵn thuật toán nâng cao PBKDF2WithHmacSHA256 (100.000 vòng lặp, salt ngẫu nhiên) cùng cơ chế kiểm tra kích thước cột tự động fallback về SHA-256, sẵn sàng nâng cấp lên PBKDF2 khi mở rộng kích thước cột CSDL trong tương lai.", "BẢO MẬT XÁC THỰC:");
 
     # 2. Bán hàng POS & Sequence Diagram
@@ -805,7 +811,7 @@ def create_document():
         doc.add_picture("screenshot_banhang.png", width=Inches(6.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 7. Giao diện Bán hàng tại quầy POS với đầy đủ thông tin tồn kho và giỏ hàng (chụp thật ngày 07/11/2026)")
+        r_c = p_cap.add_run("Hình 6. Giao diện Bán hàng tại quầy POS với đầy đủ thông tin tồn kho và giỏ hàng (chụp thật ngày 07/11/2026)")
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_p("Sơ đồ Tuần tự (Sequence Diagram) mô tả chi tiết tương tác thời gian thực giữa Thu ngân, Giao diện POS (BanHang_GUI), Tầng DAO (HoaDon_DAO, ChiTietGiay_DAO) và Cơ sở dữ liệu Microsoft SQL Server trong một phiên giao dịch thanh toán chuẩn ACID:")
@@ -814,21 +820,26 @@ def create_document():
         doc.add_picture("diagram_sequence_shoe.png", width=Inches(6.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 5. Sơ đồ tuần tự (Sequence Diagram) luồng giao dịch thanh toán tại quầy POS")
+        r_c = p_cap.add_run("Hình 7. Sơ đồ tuần tự (Sequence Diagram) luồng giao dịch thanh toán tại quầy POS")
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
-    add_p("Diễn giải 10 bước luồng thực thi trong Sơ đồ Tuần tự:")
-    add_bullet("Thu ngân nhấn phím tắt F10 hoặc click nút 'THANH TOÁN & IN HÓA ĐƠN [F10]' trên giao diện BanHang_GUI (khi thanh toán thành công, hệ thống sẽ kích hoạt hộp thoại JDialog hiển thị bản xem trước phiếu hóa đơn K80 để thu ngân và khách hàng đối chiếu, không phát lệnh in phần cứng trực tiếp).", "1. Kích hoạt giao dịch: ")
-    add_bullet("BanHang_GUI thực hiện hàm nội bộ validateForm() kiểm tra giỏ hàng không rỗng, tiền khách đưa >= tổng tiền cần thanh toán.", "2. Kiểm tra hình thức tại GUI: ")
-    add_bullet("BanHang_GUI gọi phương thức themHoaDon(hoaDon) trên đối tượng HoaDon_DAO.", "3. Chuyển giao xuống DAO: ")
-    add_bullet("HoaDon_DAO phát lệnh con.setAutoCommit(false) để khởi tạo phiên giao dịch ACID cục bộ trên kết nối JDBC.", "4. Khởi tạo Transaction: ")
-    add_bullet("HoaDon_DAO thực thi truy vấn sinh mã có khóa an toàn: 'SELECT MAX(maHoaDon)+1 WITH (UPDLOCK, HOLDLOCK)'. SQL Server trả về mã hóa đơn mới duy nhất (ví dụ 'HD000003') mà không bị xung đột với các quầy thu ngân khác.", "5. Khóa an toàn sinh mã: ")
-    add_bullet("Thực thi lệnh INSERT INTO HoaDon ghi nhận đầy đủ 13 thuộc tính tài chính, chiết khấu và điểm tích lũy.", "6. Ghi nhận hóa đơn: ")
-    add_bullet("Lặp qua từng dòng sản phẩm trong giỏ hàng và thực thi INSERT INTO ChiTietHoaDon.", "7. Ghi chi tiết hóa đơn: ")
-    add_bullet("Thực thi UPDATE trừ kho nguyên tử: 'UPDATE ChiTietGiay SET soLuongTon = soLuongTon - ? WHERE maChiTietGiay = ? AND soLuongTon >= ?'.", "8. Trừ tồn kho có điều kiện: ")
-    add_bullet("Phân nhánh alt [THÀNH CÔNG]: Nếu kho đủ tồn (rowsUpdated > 0), hệ thống cập nhật điểm tích lũy và nâng hạng thẻ thành viên KhachHang, sau đó phát lệnh con.commit() chốt dữ liệu vĩnh viễn vào SQL Server. Trả về true cho GUI để kích hoạt hộp thoại JDialog xem trước hóa đơn K80 và làm mới giỏ hàng.", "9. Nhánh Thành công (Commit): ")
-    add_bullet("Phân nhánh alt [THẤT BẠI]: Nếu kho không đủ tồn (rowsUpdated == 0), hệ thống lập tức phát lệnh con.rollback() hủy toàn bộ thay đổi, gán thông báo lỗi vào thuộc tính lastErrorMessage và trả về false. Giao diện BanHang_GUI nhận kết quả false, lấy thông báo từ lastErrorMessage để hiển thị hộp thoại JOptionPane cảnh báo và giữ nguyên giỏ hàng để thu ngân xử lý.", "10. Nhánh Thất bại (Rollback): ")
-    add_bullet("Hệ thống hỗ trợ 2 hình thức thanh toán tại quầy là 'Tiền mặt' và 'Chuyển khoản QR'. Đối với phương thức 'Chuyển khoản QR', hệ thống tự động thiết lập số tiền khách đưa bằng chính xác tổng tiền thanh toán để tiện đối soát tại quầy; hệ thống hiện tại ghi nhận trạng thái phương thức vào trường phuongThucTT trong CSDL mà chưa tích hợp API tự sinh mã VietQR động hay webhook ngân hàng (đây là tính năng được quy hoạch mở rộng ở giai đoạn tiếp theo).", "Phương thức thanh toán: ")
+    add_p("Hộp thoại xem trước phiếu Hóa đơn K80 tương tác (JDialog) tích hợp nút In máy in và nút Xuất file văn bản:")
+    if os.path.exists("screenshot_hoadon_k80.png"):
+        doc.add_picture("screenshot_hoadon_k80.png", width=Inches(4.5))
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_c = p_cap.add_run("Hình 8. Hộp thoại xem trước Hóa đơn K80 tích hợp chức năng In máy in và Xuất file văn bản (chụp thật ngày 07/11/2026)")
+        set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
+
+    add_bullet("Khi thu ngân nhấn [F10] hoặc click nút 'THANH TOÁN & IN HÓA ĐƠN', hệ thống mở hộp thoại JDialog xem trước hóa đơn nhiệt K80 với đầy đủ 13 trường dữ liệu tài chính, chiết khấu và điểm tích lũy.", "Xem trước hóa đơn K80: ")
+    add_bullet("Nút '🖨 In Hóa Đơn': Tích hợp thư viện java.awt.print.PrinterJob kết hợp giao diện Printable chuẩn Java Desktop, cho phép gửi lệnh in trực tiếp tới máy in nhiệt tại quầy thu ngân mà không qua phần mềm trung gian.", "In hóa đơn vật lý: ")
+    add_bullet("Nút '📄 Xuất File Hóa Đơn': Tự động tạo và ghi nội dung phiếu hóa đơn ra tệp văn bản định dạng UTF-8 tại thư mục hoadon/HDxxxxxx.txt (phương thức HoaDon_DAO.xuatHoaDonRaFileTxt()), phục vụ công tác sao lưu chứng từ kế toán.", "Xuất file văn bản: ")
+    add_bullet("BanHang_GUI thực hiện hàm nội bộ validateForm() kiểm tra giỏ hàng không rỗng, tiền khách đưa >= tổng tiền cần thanh toán.", "Kiểm tra hình thức tại GUI: ")
+    add_bullet("HoaDon_DAO phát lệnh con.setAutoCommit(false) để khởi tạo phiên giao dịch ACID cục bộ trên kết nối JDBC.", "Khởi tạo Transaction: ")
+    add_bullet("HoaDon_DAO thực thi truy vấn sinh mã có khóa an toàn: 'SELECT MAX(maHoaDon)+1 WITH (UPDLOCK, HOLDLOCK)'. SQL Server trả về mã hóa đơn mới duy nhất mà không bị xung đột giữa các quầy thu ngân.", "Khóa an toàn sinh mã: ")
+    add_bullet("Thực thi UPDATE trừ kho nguyên tử: 'UPDATE ChiTietGiay SET soLuongTon = soLuongTon - ? WHERE maChiTietGiay = ? AND soLuongTon >= ?'.", "Trừ tồn kho có điều kiện: ")
+    add_bullet("Nếu kho đủ tồn, hệ thống cập nhật điểm tích lũy, con.commit() chốt dữ liệu vào SQL Server và kích hoạt hộp thoại xem trước hóa đơn K80. Nếu kho không đủ tồn, hệ thống con.rollback() và thông báo lỗi rõ ràng.", "Phân nhánh Commit & Rollback: ")
+    add_bullet("Hệ thống hỗ trợ 2 hình thức thanh toán tại quầy là 'Tiền mặt' và 'Chuyển khoản QR'. Đối với 'Chuyển khoản QR', hệ thống tự động gán tiền khách đưa bằng tổng tiền thanh toán để tiện đối soát.", "Phương thức thanh toán: ")
 
     # 3. Quản lý sản phẩm
     add_h2("III. Chức năng Quản lý sản phẩm giày dép & Biến thể SKU")
@@ -838,10 +849,19 @@ def create_document():
         doc.add_picture("screenshot_sanpham.png", width=Inches(6.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 8. Giao diện Quản lý danh mục mẫu giày (chụp thật ngày 07/11/2026)")
+        r_c = p_cap.add_run("Hình 9. Giao diện Quản lý danh mục mẫu giày (chụp thật ngày 07/11/2026)")
+        set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
+
+    add_p("Hộp thoại Tìm kiếm nâng cao Sản phẩm đa tiêu chí:")
+    if os.path.exists("screenshot_timkiem_sanpham.png"):
+        doc.add_picture("screenshot_timkiem_sanpham.png", width=Inches(4.5))
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_c = p_cap.add_run("Hình 10. Hộp thoại Tìm kiếm nâng cao Sản phẩm theo đa tiêu chí (chụp thật ngày 07/11/2026)")
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_bullet("Form thông tin sản phẩm gồm: Mã sản phẩm (định dạng SPxxxx), Tên sản phẩm, Phân loại (Sneaker, Chạy bộ, Sandal, Da bò), Thương hiệu (Nike, Adidas, Vans, Converse, Biti's), Giá nhập, Giá bán và Chất liệu.", "Bố cục form thông tin: ")
+    add_bullet("Tìm kiếm nâng cao đa tiêu chí (SanPham_DAO.timKiemNangCao()): Cho phép kết hợp lọc đồng thời theo Thương hiệu (Nike, Adidas, Vans, Converse, Biti's), Phân loại (Sneaker, Chạy bộ, Sandal, Da bò), Khoảng giá bán (Giá từ - Giá đến) và Tình trạng tồn kho (Còn hàng trong kho, Hết hàng/Ngừng bán), hỗ trợ nhân viên tư vấn nhanh chóng cho khách hàng.", "Tìm kiếm nâng cao đa tiêu chí: ")
     add_bullet("Hệ thống tự động sinh một biến thể SKU mặc định (kích cỡ 40, màu Đen, soLuongTon = 20) trong ChiTietGiay khi tạo mới mẫu giày để sẵn sàng phục vụ bán hàng ngay lập tức.", "Khởi tạo biến thể mặc định: ")
     add_bullet("Kiểm tra tính hợp lệ của dữ liệu: Ràng buộc giaBan >= giaNhap > 0 nhằm bảo đảm hiệu quả kinh tế cho cửa hàng.", "Kiểm soát giá cả nghiêm ngặt: ")
     add_bullet("Áp dụng cơ chế Xóa mềm (Soft-Delete): Khi người quản lý thực hiện xóa một mẫu giày, hệ thống cập nhật trangThai = 0 trong bảng SanPham. Nhờ vậy, sản phẩm sẽ không còn xuất hiện trong danh mục bán lẻ tại quầy POS nhưng toàn bộ các dòng hóa đơn bán hàng trong quá khứ vẫn được bảo toàn nguyên vẹn 100%, tránh được lỗi vi phạm khóa ngoại trong cơ sở dữ liệu.", "Cơ chế xóa mềm an toàn: ")
@@ -854,10 +874,19 @@ def create_document():
         doc.add_picture("screenshot_khachhang.png", width=Inches(6.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 9. Giao diện Quản lý khách hàng và phân hạng tích điểm (chụp thật ngày 07/11/2026)")
+        r_c = p_cap.add_run("Hình 11. Giao diện Quản lý khách hàng và phân hạng tích điểm (chụp thật ngày 07/11/2026)")
+        set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
+
+    add_p("Hộp thoại Tìm kiếm nâng cao Khách hàng theo phân hạng và điểm tích lũy:")
+    if os.path.exists("screenshot_timkiem_khachhang.png"):
+        doc.add_picture("screenshot_timkiem_khachhang.png", width=Inches(4.5))
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_c = p_cap.add_run("Hình 12. Hộp thoại Tìm kiếm nâng cao Khách hàng theo phân hạng và điểm tích lũy (chụp thật ngày 07/11/2026)")
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_bullet("Bảng dữ liệu hiển thị danh sách khách hàng gồm: Mã KH (KHxxxx), Họ tên, Số điện thoại, Địa chỉ, Điểm tích lũy và Hạng thành viên.", "Danh sách và thông tin chi tiết: ")
+    add_bullet("Tìm kiếm nâng cao khách hàng (KhachHang_DAO.timKiemNangCao()): Cung cấp bộ lọc đa tiêu chí theo Hạng thành viên (Đồng, Bạc, Vàng, Kim Cương), Khoảng điểm tích lũy (Điểm từ - Điểm đến) và Giới tính, phục vụ đắc lực cho các chiến dịch marketing và chăm sóc khách hàng VIP.", "Tìm kiếm nâng cao khách hàng: ")
     add_bullet("Form nhập liệu kiểm tra số điện thoại bắt buộc tuân theo biểu thức chính quy (Regex) 10 chữ số hợp lệ của các nhà mạng Việt Nam (^0[35789]\\d{8}$).", "Kiểm tra hợp lệ số điện thoại: ")
     add_bullet("Cột điểm tích lũy và hạng thành viên (Đồng, Bạc, Vàng, Kim Cương) được thiết lập chỉ đọc (read-only) trên form nhập liệu nhằm chống gian lận. Điểm số chỉ được tự động cộng dồn và thăng hạng khi giao dịch thanh toán hóa đơn hoàn tất.", "Bảo vệ điểm tích lũy: ")
     add_bullet("Hỗ trợ tìm kiếm khách hàng nhanh theo số điện thoại hoặc mã số. Thao tác xóa khách hàng được thực thi qua KhachHang_DAO.xoaKhachHang() (xóa vật lý nếu khách hàng chưa phát sinh hóa đơn).", "Thao tác dữ liệu khách hàng: ")
@@ -870,7 +899,7 @@ def create_document():
         doc.add_picture("screenshot_nhanvien.png", width=Inches(6.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 10. Giao diện Quản lý nhân sự và phân quyền (chụp thật ngày 07/11/2026)")
+        r_c = p_cap.add_run("Hình 13. Giao diện Quản lý nhân sự và phân quyền (chụp thật ngày 07/11/2026)")
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_bullet("Form quản lý nhân viên gồm: Mã nhân viên (NVxxxx), Họ tên, Số điện thoại, Giới tính, Ngày sinh, Địa chỉ, Email, Chức vụ (Quản lý hoặc Nhân viên bán hàng), Lương cơ bản và Ca làm việc (Toàn thời gian, Ca sáng, Ca chiều, Ca tối).", "Hồ sơ nhân sự chi tiết: ")
@@ -879,28 +908,72 @@ def create_document():
     add_bullet("Xử lý cho nhân viên nghỉ việc: Khi nhân viên thôi việc, hệ thống thực hiện cập nhật trangThai = 0 (xóa mềm). Chuỗi băm mật khẩu SHA-256 trong CSDL vẫn được giữ nguyên vẹn, nhưng phương thức xác thực NhanVien_DAO.dangNhap() kiểm tra điều kiện lọc 'WHERE trangThai = 1', do đó tài khoản nhân viên đã nghỉ sẽ bị từ chối đăng nhập ngay lập tức trong khi lịch sử hóa đơn trong quá khứ vẫn được bảo toàn nguyên vẹn.", "Khóa quyền truy cập nhân viên thôi việc: ")
     add_bullet("Cơ chế bảo vệ tài khoản Quản trị trưởng: Để bảo đảm hệ thống luôn duy trì ít nhất một tài khoản Quản lý hoạt động, tại tầng giao diện QuanLyNhanVien_GUI.java (dòng 305), hệ thống chặn cứng thao tác đổi trạng thái/nghỉ việc đối với mã quản trị mặc định 'NV0001' (kiểm tra điều kiện if (maNV.equalsIgnoreCase(\"NV0001\")) và hiển thị cảnh báo không được phép vô hiệu hóa tài khoản quản trị trưởng).", "Bảo vệ tài khoản Quản trị trưởng: ")
 
-    # 6. Định hướng phân hệ Thống kê (L05)
-    add_h2("VI. Phân hệ Thống kê doanh thu (Định hướng mở rộng)")
-    add_p("Phân hệ Thống kê (ThongKe_GUI) được nhóm thiết kế sẵn khung giao diện thử nghiệm gồm 4 thẻ KPI chỉ số doanh thu, bộ lọc thời gian và bảng danh mục top sản phẩm bán chạy:")
-    add_bullet("Bốn thẻ chỉ số tổng hợp (KPI Cards) được liên kết dữ liệu từ HoaDon_DAO.getAllHoaDon(): Tổng doanh thu (VNĐ), Tổng đơn hàng, Số lượng giày ước tính và Tổng khách hàng.", "Thẻ chỉ số tổng hợp (KPI Cards): ")
-    add_bullet("Bộ lọc thời gian (Tất cả, Hôm nay, Tháng này, Năm nay) giúp lọc nhanh danh sách hóa đơn theo ngày giờ phát sinh.", "Bộ lọc mốc thời gian: ")
-    add_callout("Lưu ý về tiến độ triển khai phân hệ Thống kê: Nhằm tập trung tối đa nguồn lực hoàn thiện và kiểm thử đạt chuẩn 100% cho 4 phân hệ nghiệp vụ cốt lõi (Bán hàng POS, Quản lý sản phẩm, Khách hàng, Nhân sự), phân hệ Thống kê hiện tại được giữ ở dạng module thử nghiệm độc lập và chưa cắm trực tiếp vào thanh Tab của ManHinhChinh_GUI. Tính năng vẽ biểu đồ trực quan động và kết xuất bảng tính Excel thực tế được quy hoạch triển khai ở giai đoạn phát triển tiếp theo.", "TIẾN ĐỘ & ĐỊNH HƯỚNG PHÁT TRIỂN:");
+    # 6. Phân hệ Thống kê doanh thu & Hiệu suất bán hàng
+    add_h2("VI. Phân hệ Thống kê doanh thu & Hiệu suất bán hàng (Analytics & Reporting)")
+    add_p("Phân hệ Thống kê (ThongKe_GUI) là công cụ quản trị chiến lược dành riêng cho Quản lý cửa hàng (tích hợp trên thanh tab chính với phím tắt điều hướng nhanh [F5]), phản ánh trung thực và tức thời các chỉ số kinh doanh thu nhận trực tiếp từ CSDL Microsoft SQL Server:")
+
+    if os.path.exists("screenshot_thongke.png"):
+        doc.add_picture("screenshot_thongke.png", width=Inches(6.5))
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_c = p_cap.add_run("Hình 14. Giao diện Báo cáo thống kê doanh thu và Top sản phẩm bán chạy (chụp thật ngày 07/11/2026)")
+        set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
+
+    add_bullet("Bốn thẻ chỉ số trực quan (Bento KPI Cards): Tổng doanh thu (VNĐ) được tính toán chính xác từ HoaDon_DAO.getTongDoanhThu(); Số hóa đơn đã lập lấy từ HoaDon_DAO.getTongSoHoaDon(); Sản phẩm đã bán ra thực tế lấy từ HoaDon_DAO.getTongSoLuongBanRa() (tổng hợp SUM(soLuong) từ ChiTietHoaDon, phản ánh đúng lượng xuất kho thực tế, không dùng số ước lượng); và Tổng khách hàng thành viên từ KhachHang_DAO.getTongSoKhachHang().", "Bốn thẻ chỉ số tổng hợp (KPI Cards): ")
+    add_bullet("Bộ lọc kỳ thời gian linh hoạt (Toàn bộ thời gian, Hôm nay, Tháng này, Năm nay): Hỗ trợ người quản lý lọc và tự động tái tính toán toàn bộ 4 thẻ KPI cùng bảng danh sách hóa đơn theo đúng khoảng thời gian cần phân tích.", "Bộ lọc kỳ thời gian: ")
+    add_bullet("Bảng Top 5 sản phẩm bán chạy nhất (HoaDon_DAO.getTopSanPhamBanChay(5)): Truy vấn dữ liệu thực tế gom nhóm theo mã sản phẩm và sắp xếp theo tổng số lượng bán giảm dần, giúp quản lý nhận diện xu hướng thị trường để chủ động nhập hàng.", "Xếp hạng sản phẩm bán chạy: ")
+    add_bullet("Tra cứu hóa đơn & Chi tiết giao dịch: Tìm kiếm nhanh hóa đơn theo mã HĐ hoặc số điện thoại khách hàng, xem chi tiết giỏ hàng và thời điểm lập của từng giao dịch.", "Tra cứu giao dịch: ")
+    add_callout("Tối ưu hiệu năng tải dữ liệu bất đồng bộ: Phân hệ Thống kê ứng dụng kỹ thuật SwingWorker để thực thi các câu lệnh truy vấn tổng hợp phức tạp ngoài luồng giao diện (Event Dispatch Thread - EDT), bảo đảm giao diện đồ họa luôn phản hồi tức thì và không bị hiện tượng treo cứng.", "TỐI ƯU HIỆU NĂNG THỐNG KÊ:");
 
     # 7. Bảng phím tắt
     add_h2("VII. Bảng hệ thống phím tắt & Điều hướng bán hàng (Hotkeys)")
     add_p("Để tối ưu hóa trải nghiệm công thái học và giải phóng nhân viên thu ngân khỏi việc phải liên tục dùng chuột, hệ thống triển khai cơ chế KeyBindings với phạm vi WHEN_IN_FOCUSED_WINDOW trên JRootPane của ManHinhChinh_GUI. Cơ chế này cho phép bắt trọn vẹn các sự kiện phím chức năng trên toàn bộ cửa sổ ứng dụng:")
     add_table_caption(17, "Hệ thống phím tắt công thái học điều hướng bán hàng POS")
-    t_hotkeys = doc.add_table(rows=8, cols=3)
+    t_hotkeys = doc.add_table(rows=9, cols=3)
     hotkey_data = [
         ["F1", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Bán hàng (POS)"],
         ["F2", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Quản lý mẫu giày"],
         ["F3", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Khách hàng & Tích điểm"],
         ["F4", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Quản lý nhân sự (dành cho Quản lý)"],
+        ["F5", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Thống kê doanh thu (dành cho Quản lý)"],
         ["F10", "Toàn hệ thống / Màn hình POS", "Thực thi thanh toán đơn hàng tại quầy POS (thanhToanDonHang)"],
         ["Delete", "Bảng giỏ hàng POS", "Xóa mục sản phẩm đang được chọn khỏi giỏ hàng (xoaMucKhoiGio)"],
         ["Esc", "Toàn hệ thống (JRootPane)", "Mở hộp thoại xác nhận đăng xuất khỏi hệ thống"]
     ]
     style_table(t_hotkeys, [1.0, 2.2, 3.1], ["Phím tắt", "Phạm vi áp dụng", "Hành động thực thi"], hotkey_data)
+
+    # 8. Đối chiếu yêu cầu đề bài môn học ↔ Chức năng đã hiện thực
+    add_h2("VIII. Đối chiếu yêu cầu đề bài môn học ↔ Chức năng đã hiện thực")
+    add_p("Nhằm khẳng định tính hoàn thiện, trung thực và đáp ứng trọn vẹn 100% mục tiêu đào tạo của học phần Lập trình hướng sự kiện với Java, nhóm thực hiện lập bảng đối chiếu chi tiết giữa từng yêu cầu cốt lõi trong đề bài đồ án với các thành phần mã nguồn và màn hình tương ứng:")
+    add_table_caption(18, "Đối chiếu yêu cầu đề tài môn học Lập trình hướng sự kiện ↔ Chức năng hiện thực")
+    t_mapping = doc.add_table(rows=9, cols=3)
+    mapping_data = [
+        ["1. Thêm / Xóa / Cập nhật / Liệt kê (danh sách + chi tiết)",
+         "SanPham_DAO, ChiTietGiay_DAO, KhachHang_DAO, NhanVien_DAO;\nCác màn hình QuanLySanPham_GUI, QuanLyKhachHang_GUI, QuanLyNhanVien_GUI. Hỗ trợ xem danh sách bảng JTable, xem chi tiết biến thể SKU (size, màu, tồn kho), xóa mềm (Soft-Delete) bảo toàn dữ liệu.",
+         "Hoàn thành 100% (Đạt)"],
+        ["2. Tìm kiếm đơn giản (theo mã, tên, SĐT)",
+         "BanHang_GUI (tìm khách hàng theo SĐT, lọc sản phẩm theo tên);\nQuanLySanPham_GUI (tìm theo mã/tên);\nQuanLyKhachHang_GUI (tìm theo họ tên/SĐT);\nQuanLyNhanVien_GUI (tìm theo mã/tên);\nThongKe_GUI (tìm hóa đơn theo mã/SĐT).",
+         "Hoàn thành 100% (Đạt)"],
+        ["3. Tìm kiếm nâng cao (kết hợp nhiều tiêu chí)",
+         "SanPham_DAO.timKiemNangCao() (kết hợp Thương hiệu + Phân loại + Khoảng giá bán [từ - đến] + Tình trạng tồn kho);\nKhachHang_DAO.timKiemNangCao() (kết hợp Hạng thẻ + Khoảng điểm tích lũy + Giới tính);\nHiển thị qua các hộp thoại JDialog trực quan.",
+         "Hoàn thành 100% (Đạt)"],
+        ["4. Lập hóa đơn bán hàng tại quầy (POS)",
+         "BanHang_GUI [F1], HoaDon_DAO.themHoaDon(), ChiTietGiay_DAO.truSoLuongTon().\nChọn biến thể giày, quản lý giỏ hàng, áp dụng chiết khấu hạng thẻ, trừ điểm đổi thưởng, tính tiền thừa tự động, thực thi Transaction ACID kiểm soát trừ tồn kho có điều kiện chống bán âm.",
+         "Hoàn thành 100% (Đạt)"],
+        ["5. Xuất / In hóa đơn bán lẻ",
+         "Hộp thoại xem trước Hóa đơn K80 tương tác (BanHang_GUI):\n- Nút '🖨 In Hóa Đơn' gọi java.awt.print.PrinterJob kết hợp giao diện Printable gửi trực tiếp tới máy in;\n- Nút '📄 Xuất File Hóa Đơn' ghi tệp văn bản UTF-8 tại thư mục hoadon/HDxxxxxx.txt (HoaDon_DAO.xuatHoaDonRaFileTxt()).",
+         "Hoàn thành 100% (Đạt)"],
+        ["6. Thống kê cơ bản & Hiệu suất kinh doanh",
+         "ThongKe_GUI [F5] (phân quyền chỉ mở cho Quản lý), HoaDon_DAO.\nBốn thẻ Bento KPI (Tổng doanh thu, Số đơn hàng, Sản phẩm đã bán ra thực tế, Khách hàng), Bộ lọc thời gian (Hôm nay, Tháng này, Năm nay), Bảng Top 5 sản phẩm bán chạy nhất.",
+         "Hoàn thành 100% (Đạt)"],
+        ["7. Giao diện thân thiện + Phím tắt + Tab điều hướng",
+         "ManHinhChinh_GUI, UIHelper.\nThiết kế công thái học hiện đại phong cách Flat Design, phân tách các phân hệ qua JTabbedPane, hệ thống KeyBindings toàn cục [F1]-[F5], [F10] thanh toán, [Delete] xóa giỏ, [Esc] đăng xuất.",
+         "Hoàn thành 100% (Đạt)"],
+        ["8. Coding Convention Java + Mô hình kiến trúc 2–3 lớp",
+         "Cấu trúc 3 tầng phân tách rõ ràng: Trình diễn (gui.*), Truy cập dữ liệu & Nghiệp vụ (dao.*), Cơ sở dữ liệu (SQL Server 3NF 6 bảng).\nBảy lớp thực thể OOP (entity.*) kế thừa Nguoi trừu tượng, tuân thủ chuẩn đặt tên Java camelCase/PascalCase, PreparedStatement chống SQL Injection 100%.",
+         "Hoàn thành 100% (Đạt)"]
+    ]
+    style_table(t_mapping, [1.8, 3.5, 1.2], ["Yêu cầu của đề bài môn học", "Đã hiện thực ở đâu (File / Màn hình / Lớp)", "Trạng thái"], mapping_data)
 
     doc.add_page_break()
 
@@ -919,8 +992,8 @@ def create_document():
     add_bullet("Quy trình thanh toán tại quầy POS được quản lý bởi JDBC Transaction tuân thủ 4 nguyên tắc ACID, trừ kho nguyên tử có điều kiện và hỗ trợ khóa chống xung đột UPDLOCK, HOLDLOCK.", "6. Giao dịch toàn vẹn ACID: ")
 
     add_h2("II. Những điểm còn hạn chế")
-    add_bullet("Phân hệ Thống kê hiện tại mới dừng lại ở mức giao diện thử nghiệm với số lượng bán ra ước lượng, chưa tích hợp câu lệnh truy vấn gom nhóm chi tiết từ ChiTietHoaDon.", "1. Thống kê chưa có biểu đồ động: ")
-    add_bullet("Nút xuất file bảng tính Excel mới dừng lại ở hộp thoại thông báo định hướng, chưa tích hợp thư viện Apache POI để xuất file thực tế.", "2. Chưa kết xuất file Excel: ")
+    add_bullet("Phân hệ Thống kê hiện tại biểu diễn số liệu trực quan qua thẻ Bento KPI và bảng dữ liệu JTable, chưa tích hợp thư viện JFreeChart để trực quan hóa biểu đồ đồ họa tương tác.", "1. Thống kê chưa có biểu đồ đồ họa: ")
+    add_bullet("Tính năng xuất báo cáo tại phân hệ Thống kê hiện có nút điều hướng trên giao diện, nhưng việc tích hợp thư viện Apache POI để kết xuất trực tiếp tệp tin định dạng .xlsx đang được hoàn thiện.", "2. Chưa kết xuất file bảng tính Excel .xlsx: ")
     add_bullet("Thao tác xóa khách hàng tại KhachHang_DAO là xóa vật lý (DELETE), chưa đồng bộ cơ chế xóa mềm qua trường trạng thái như phân hệ sản phẩm.", "3. Chưa đồng bộ xóa mềm cho khách hàng: ")
     add_bullet("Hệ thống hiện tại vận hành trên nền tảng ứng dụng Desktop mạng nội bộ (LAN), chưa hỗ trợ người quản lý theo dõi từ xa qua thiết bị di động hay nền tảng Web.", "4. Chưa có phiên bản Web/Mobile: ")
     add_bullet("Hệ thống hiện tại áp dụng thuật toán băm SHA-256 (không muối - unsalted) cho trường matKhau, tạo chuỗi hex cố định 64 ký tự. Cơ chế này hoàn toàn phù hợp và đáp ứng tốt phạm vi, yêu cầu của đồ án học phần. Về mặt kỹ thuật, nhóm phát triển đã cài đặt sẵn mã nguồn PBKDF2WithHmacSHA256 (100.000 vòng lặp, salt ngẫu nhiên 16 bytes) trong NhanVien_DAO. Tuy nhiên, hệ thống tự động fallback về SHA-256 trong mọi thao tác lưu trữ CSDL do cột matKhau được cố định kiểu CHAR(64) với ràng buộc CK_NhanVien_matKhau (độ dài đúng 64 ký tự). Để kích hoạt sử dụng thực tế chuẩn PBKDF2 trong môi trường thương mại, hệ thống cần thực hiện di chuyển dữ liệu (migration) và nới rộng cột matKhau lên VARCHAR(255).", "5. Giới hạn cơ chế lưu trữ mật khẩu (SHA-256 vs PBKDF2): ")
@@ -1007,7 +1080,7 @@ def create_document():
         ["TC-35", "Dọn dẹp rác", "Dọn dẹp dữ liệu kiểm thử sau test", "Xóa sạch các bản ghi test (SP9991, NV9991...)", "CSDL sạch sẽ, hoàn nguyên trạng thái ban đầu", "Hoàn tất dọn rác, không còn bản ghi thử nghiệm", "PASS"]
     ]
 
-    add_table_caption(18, "Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)")
+    add_table_caption(19, "Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)")
     t_matrix = doc.add_table(rows=len(test_cases_matrix) + 1, cols=7)
     style_table(t_matrix, [0.6, 0.9, 1.3, 1.2, 1.2, 1.3, 0.6], ["Mã TC", "Phân hệ", "Mục tiêu kiểm thử", "Dữ liệu đầu vào", "Kết quả mong đợi", "Kết quả thực tế", "Đánh giá"], test_cases_matrix)
 

@@ -130,8 +130,8 @@ print("\n=== FINAL VERIFICATION RESULT ===")
 checks_passed = (
     banned_found == 0 and
     mismatches == 0 and
-    len(actual_captions) == 18 and
-    len(body_fig_captions) == 10 and
+    len(actual_captions) == 19 and
+    len(body_fig_captions) == 14 and
     has_toc_field and
     has_update_fields
 )
