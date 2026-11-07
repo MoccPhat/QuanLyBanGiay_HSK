@@ -5,6 +5,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 import os
+import shutil
 
 def create_document():
     doc = docx.Document()
@@ -794,7 +795,7 @@ def create_document():
     add_bullet("Nhân viên nhập mã số và mật khẩu. Người dùng có thể nhấn phím Enter tại bất kỳ ô nhập liệu nào để thực hiện đăng nhập nhanh mà không cần thao tác chuột.", "Bước 2 - Nhập thông tin đăng nhập: ")
     add_bullet("Nhấn Enter hoặc click nút 'Đăng Nhập'. Hệ thống gọi NhanVien_DAO.dangNhap() để xác thực: mật khẩu nhập vào được băm bằng thuật toán SHA-256 (tạo chuỗi hex 64 ký tự) và đối chiếu trực tiếp với cột matKhau trong bảng NhanVien.", "Bước 3 - Xác thực thông tin: ")
     add_bullet("Nếu là Quản lý: Hệ thống hiển thị đầy đủ 4 tab chức năng trên ManHinhChinh_GUI gồm Bán hàng (POS), Quản lý mẫu giày, Khách hàng & tích điểm và Quản lý nhân sự. Nếu là Nhân viên bán hàng: Hệ thống chỉ hiển thị 3 tab phục vụ bán lẻ và vô hiệu hóa các nút Thêm, Sửa, Xóa trên màn hình danh mục sản phẩm.", "Bước 4 - Phân quyền giao diện: ")
-    add_callout("Bảo mật mật khẩu với mã băm SHA-256: Hệ thống không lưu trữ mật khẩu ở dạng văn bản rõ mà mã hóa một chiều qua thuật toán SHA-256 thành chuỗi cố định 64 ký tự hex. Quá trình kiểm tra quyền hạn được xử lý tập trung trong NhanVien_DAO, bảo đảm an toàn dữ liệu và tối ưu tốc độ xử lý.", "BẢO MẬT XÁC THỰC:");
+    add_callout("Bảo mật mật khẩu với mã băm SHA-256 & Cơ chế dự phòng Fallback: Hệ thống lưu trữ mật khẩu băm một chiều bằng thuật toán SHA-256 (chuỗi hex 64 ký tự) tương thích chuẩn xác với trường matKhau kiểu CHAR(64). Mã nguồn NhanVien_DAO đã tích hợp sẵn thuật toán nâng cao PBKDF2WithHmacSHA256 (100.000 vòng lặp, salt ngẫu nhiên) cùng cơ chế kiểm tra kích thước cột tự động fallback về SHA-256, sẵn sàng nâng cấp lên PBKDF2 khi mở rộng kích thước cột CSDL trong tương lai.", "BẢO MẬT XÁC THỰC:");
 
     # 2. Bán hàng POS & Sequence Diagram
     add_h2("II. Chức năng Bán hàng tại quầy (POS) & Sơ đồ tuần tự Sequence")
@@ -922,12 +923,14 @@ def create_document():
     add_bullet("Nút xuất file bảng tính Excel mới dừng lại ở hộp thoại thông báo định hướng, chưa tích hợp thư viện Apache POI để xuất file thực tế.", "2. Chưa kết xuất file Excel: ")
     add_bullet("Thao tác xóa khách hàng tại KhachHang_DAO là xóa vật lý (DELETE), chưa đồng bộ cơ chế xóa mềm qua trường trạng thái như phân hệ sản phẩm.", "3. Chưa đồng bộ xóa mềm cho khách hàng: ")
     add_bullet("Hệ thống hiện tại vận hành trên nền tảng ứng dụng Desktop mạng nội bộ (LAN), chưa hỗ trợ người quản lý theo dõi từ xa qua thiết bị di động hay nền tảng Web.", "4. Chưa có phiên bản Web/Mobile: ")
+    add_bullet("Hệ thống hiện tại áp dụng thuật toán băm SHA-256 (không muối - unsalted) cho trường matKhau, tạo chuỗi hex cố định 64 ký tự. Cơ chế này hoàn toàn phù hợp và đáp ứng tốt phạm vi, yêu cầu của đồ án học phần. Về mặt kỹ thuật, nhóm phát triển đã cài đặt sẵn mã nguồn PBKDF2WithHmacSHA256 (100.000 vòng lặp, salt ngẫu nhiên 16 bytes) trong NhanVien_DAO. Tuy nhiên, hệ thống tự động fallback về SHA-256 trong mọi thao tác lưu trữ CSDL do cột matKhau được cố định kiểu CHAR(64) với ràng buộc CK_NhanVien_matKhau (độ dài đúng 64 ký tự). Để kích hoạt sử dụng thực tế chuẩn PBKDF2 trong môi trường thương mại, hệ thống cần thực hiện di chuyển dữ liệu (migration) và nới rộng cột matKhau lên VARCHAR(255).", "5. Giới hạn cơ chế lưu trữ mật khẩu (SHA-256 vs PBKDF2): ")
 
     add_h2("III. Hướng phát triển trong tương lai")
     add_bullet("Tích hợp thư viện Apache POI và JFreeChart để hoàn thiện phân hệ Thống kê với biểu đồ doanh thu tương tác động và xuất file Excel kế toán.", "1. Nâng cấp phân hệ thống kê & báo cáo: ")
     add_bullet("Bổ sung cột trangThai vào bảng KhachHang và hoàn thiện cơ chế xóa mềm đồng bộ cho toàn bộ các thực thể trong hệ thống.", "2. Đồng bộ giải pháp xóa mềm cho khách hàng: ")
     add_bullet("Tự động tạo mã VietQR động chứa sẵn số tiền và mã hóa đơn, kết nối Webhook ngân hàng để xác nhận giao dịch thanh toán tự động.", "3. Tích hợp thanh toán QR Code động: ")
     add_bullet("Xây dựng hệ thống Backend API bằng Spring Boot và phát triển ứng dụng di động hỗ trợ nhân viên dùng camera quét mã vạch kiểm kê kho.", "4. Mở rộng kiến trúc Web & Mobile: ")
+    add_bullet("Thực hiện di chuyển lược đồ CSDL (nới rộng cột matKhau lên VARCHAR(255)) để kích hoạt trọn vẹn thuật toán băm PBKDF2WithHmacSHA256 đã có sẵn trong mã nguồn, loại bỏ hoàn toàn cơ chế fallback về SHA-256 nhằm tối đa hóa khả năng chống tấn công dò bảng cầu vồng (Rainbow Table).", "5. Kích hoạt chuẩn mã băm PBKDF2 trên CSDL: ")
 
     add_h2("IV. Lời kết")
     add_p("Đề tài 'Hệ thống Quản lý Bán hàng tại Cửa hàng Giày dép Thời trang (StepUp Footwear)' đã hoàn thành trọn vẹn các mục tiêu nghiên cứu và thực nghiệm đề ra trong học phần Lập trình hướng sự kiện với Java. Đề tài phản ánh đúng đắn mô hình kiến trúc 3 tầng: Tầng Trình diễn (Java Swing kết hợp UIHelper), Tầng Truy cập dữ liệu (DAO với JDBC Transaction ACID), và Tầng Thực thể nghiệp vụ (Entity OOP). Nhóm sinh viên chúng em đã tích lũy được nhiều kinh nghiệm thực tiễn quý giá về thiết kế giao diện công thái học, xử lý giao dịch cơ sở dữ liệu toàn vẹn và giải quyết bài toán quản lý ma trận biến thể giày dép trong môi trường bán lẻ thực tế.")
@@ -1036,10 +1039,12 @@ def create_document():
         r = p_ref.add_run(ref)
         set_font(r, size=11, color_rgb=(30, 41, 59))
 
-    # Save document (Single authoritative source - L31)
+    # Save document (Authoritative report + backup copy)
     output_filename = "BaoCao_QuanLyBanGiay_HSK.docx"
     doc.save(output_filename)
-    print(f"Document saved successfully as: {output_filename}")
+    copy_filename = "QuanLyBanGiay_HSK.docx"
+    shutil.copyfile(output_filename, copy_filename)
+    print(f"Document saved successfully as: {output_filename} and copy: {copy_filename}")
 
 if __name__ == '__main__':
     create_document()

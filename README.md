@@ -208,6 +208,11 @@ java -cp "bin;lib/*" test.VerifyAllScenarios
 ```
 **Kết quả kiểm thử:** `AUDIT SUMMARY: 35 PASSED, 0 FAILED across all 7 scenarios (100% PASS)`.
 
+### 6. Cơ Chế Bảo Mật Mật Khẩu (Password Security)
+- **Chuẩn băm hiện hành (SHA-256):** Hệ thống mã hóa một chiều mật khẩu nhân sự bằng thuật toán SHA-256 (không muối - unsalted) tạo chuỗi hex cố định 64 ký tự, lưu trữ an toàn trong trường `matKhau` kiểu `CHAR(64)` có ràng buộc `CHECK (LEN(matKhau) = 64)`. Cơ chế này đáp ứng đầy đủ và chuẩn mực yêu cầu bảo mật trong phạm vi đồ án môn học.
+- **Mã nguồn PBKDF2 sẵn sàng & Cơ chế Fallback:** Tầng truy cập dữ liệu (`NhanVien_DAO.java`) đã được cài đặt sẵn thuật toán băm tăng cường `PBKDF2WithHmacSHA256` (100.000 vòng lặp, salt ngẫu nhiên 16 bytes). Khi thực thi, hệ thống sẽ tự động kiểm tra kích thước trường dữ liệu (`isColumnLargeEnoughForPBKDF2()`); do lược đồ CSDL hiện tại giới hạn trường `matKhau` đúng 64 ký tự, hệ thống sẽ **tự động fallback về SHA-256** để đảm bảo an toàn tuyệt đối cho các giao dịch INSERT/UPDATE.
+- **Hướng nâng cấp:** Khi triển khai trong môi trường thương mại rộng lớn, hệ thống sẵn sàng kích hoạt trọn vẹn chuẩn PBKDF2 bằng cách thực hiện kịch bản migration CSDL nới rộng cột `matKhau` lên `VARCHAR(255)`.
+
 ---
 
 ## 📜 THÔNG TIN HỌC PHẦN & BẢN QUYỀN
