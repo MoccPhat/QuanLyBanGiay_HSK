@@ -22,6 +22,10 @@ public class HoaDon_DAO {
         return lastErrorMessage;
     }
 
+    public String getLastError() {
+        return lastErrorMessage;
+    }
+
     public ArrayList<HoaDon> getAllHoaDon() {
         ArrayList<HoaDon> ds = new ArrayList<>();
         String sql = "SELECT h.*, nv.hoTen AS tenNV, kh.hoTen AS tenKH " +
@@ -80,6 +84,7 @@ public class HoaDon_DAO {
                 }
             }
         } catch (SQLException e) {
+            lastErrorMessage = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return ds;
@@ -294,6 +299,7 @@ public class HoaDon_DAO {
                 }
             }
         } catch (SQLException e) {
+            lastErrorMessage = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return 0;
@@ -315,6 +321,7 @@ public class HoaDon_DAO {
                 }
             }
         } catch (SQLException e) {
+            lastErrorMessage = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return 0;
@@ -352,6 +359,7 @@ public class HoaDon_DAO {
                 }
             }
         } catch (SQLException e) {
+            lastErrorMessage = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return list;

@@ -2,6 +2,7 @@ package dao;
 
 import connectDB.ConnectDB;
 import entity.KhachHang;
+import entity.NhanVien;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -29,68 +30,10 @@ public class KhachHang_DAO {
         String sql = "SELECT * FROM KhachHang ORDER BY maKhachHang ASC";
         try {
             Connection con = getConnection();
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                String maKH = rs.getString("maKhachHang");
-                String hoTen = rs.getString("hoTen");
-                String sdt = rs.getString("soDienThoai");
-                Date ns = rs.getDate("ngaySinh");
-                LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : null;
-                boolean gioiTinh = rs.getBoolean("gioiTinh");
-                String diaChi = rs.getString("diaChi");
-                String email = rs.getString("email");
-                int diem = rs.getInt("diemTichLuy");
-                String hang = rs.getString("hangThanhVien");
-
-                KhachHang kh = new KhachHang(maKH, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, diem, hang);
-                ds.add(kh);
-            }
-        } catch (SQLException e) {
-            lastError = e.getMessage();
-            e.printStackTrace();
-        }
-        return ds;
-    }
-
-    public KhachHang timTheoSoDienThoai(String sdt) {
-        KhachHang kh = null;
-        String sql = "SELECT * FROM KhachHang WHERE soDienThoai = ?";
-        try {
-            Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, sdt);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
+            try (Statement stmt = con.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
                     String maKH = rs.getString("maKhachHang");
-                    String hoTen = rs.getString("hoTen");
-                    Date ns = rs.getDate("ngaySinh");
-                    LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : null;
-                    boolean gioiTinh = rs.getBoolean("gioiTinh");
-                    String diaChi = rs.getString("diaChi");
-                    String email = rs.getString("email");
-                    int diem = rs.getInt("diemTichLuy");
-                    String hang = rs.getString("hangThanhVien");
-
-                    kh = new KhachHang(maKH, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, diem, hang);
-                }
-            }
-        } catch (SQLException e) {
-            lastError = e.getMessage();
-            e.printStackTrace();
-        }
-        return kh;
-    }
-
-    public KhachHang getKhachHangTheoMa(String maKH) {
-        KhachHang kh = null;
-        String sql = "SELECT * FROM KhachHang WHERE maKhachHang = ?";
-        try {
-            Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maKH);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
                     String hoTen = rs.getString("hoTen");
                     String sdt = rs.getString("soDienThoai");
                     Date ns = rs.getDate("ngaySinh");
@@ -101,11 +44,72 @@ public class KhachHang_DAO {
                     int diem = rs.getInt("diemTichLuy");
                     String hang = rs.getString("hangThanhVien");
 
-                    kh = new KhachHang(maKH, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, diem, hang);
+                    KhachHang kh = new KhachHang(maKH, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, diem, hang);
+                    ds.add(kh);
                 }
             }
         } catch (SQLException e) {
-            lastError = e.getMessage();
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
+            e.printStackTrace();
+        }
+        return ds;
+    }
+
+    public KhachHang timTheoSoDienThoai(String sdt) {
+        KhachHang kh = null;
+        String sql = "SELECT * FROM KhachHang WHERE soDienThoai = ?";
+        try {
+            Connection con = getConnection();
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, sdt);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String maKH = rs.getString("maKhachHang");
+                        String hoTen = rs.getString("hoTen");
+                        Date ns = rs.getDate("ngaySinh");
+                        LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : null;
+                        boolean gioiTinh = rs.getBoolean("gioiTinh");
+                        String diaChi = rs.getString("diaChi");
+                        String email = rs.getString("email");
+                        int diem = rs.getInt("diemTichLuy");
+                        String hang = rs.getString("hangThanhVien");
+
+                        kh = new KhachHang(maKH, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, diem, hang);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
+            e.printStackTrace();
+        }
+        return kh;
+    }
+
+    public KhachHang getKhachHangTheoMa(String maKH) {
+        KhachHang kh = null;
+        String sql = "SELECT * FROM KhachHang WHERE maKhachHang = ?";
+        try {
+            Connection con = getConnection();
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maKH);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String hoTen = rs.getString("hoTen");
+                        String sdt = rs.getString("soDienThoai");
+                        Date ns = rs.getDate("ngaySinh");
+                        LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : null;
+                        boolean gioiTinh = rs.getBoolean("gioiTinh");
+                        String diaChi = rs.getString("diaChi");
+                        String email = rs.getString("email");
+                        int diem = rs.getInt("diemTichLuy");
+                        String hang = rs.getString("hangThanhVien");
+
+                        kh = new KhachHang(maKH, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, diem, hang);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return kh;
@@ -115,13 +119,14 @@ public class KhachHang_DAO {
         String sql = "SELECT 1 FROM KhachHang WHERE maKhachHang = ?";
         try {
             Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maKH);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maKH);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    return rs.next();
+                }
             }
         } catch (SQLException e) {
-            lastError = e.getMessage();
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return false;
@@ -136,16 +141,17 @@ public class KhachHang_DAO {
         String sql = "SELECT 1 FROM KhachHang WHERE soDienThoai = ?" + (coExclude ? " AND maKhachHang <> ?" : "");
         try {
             Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, sdt);
-            if (coExclude) {
-                pstmt.setString(2, maKHExclude.trim());
-            }
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, sdt);
+                if (coExclude) {
+                    pstmt.setString(2, maKHExclude.trim());
+                }
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    return rs.next();
+                }
             }
         } catch (SQLException e) {
-            lastError = e.getMessage();
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return false;
@@ -158,31 +164,32 @@ public class KhachHang_DAO {
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, kh.getMaKhachHang());
-            pstmt.setString(2, kh.getHoTen());
-            pstmt.setString(3, kh.getSoDienThoai());
-            pstmt.setDate(4, (kh.getNgaySinh() != null) ? Date.valueOf(kh.getNgaySinh()) : null);
-            pstmt.setBoolean(5, kh.isGioiTinh());
-            
-            if (kh.getDiaChi() != null && !kh.getDiaChi().trim().isEmpty()) {
-                pstmt.setString(6, kh.getDiaChi().trim());
-            } else {
-                pstmt.setNull(6, Types.NVARCHAR);
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, kh.getMaKhachHang());
+                pstmt.setString(2, kh.getHoTen());
+                pstmt.setString(3, kh.getSoDienThoai());
+                pstmt.setDate(4, (kh.getNgaySinh() != null) ? Date.valueOf(kh.getNgaySinh()) : null);
+                pstmt.setBoolean(5, kh.isGioiTinh());
+                
+                if (kh.getDiaChi() != null && !kh.getDiaChi().trim().isEmpty()) {
+                    pstmt.setString(6, kh.getDiaChi().trim());
+                } else {
+                    pstmt.setNull(6, Types.NVARCHAR);
+                }
+
+                if (kh.getEmail() != null && !kh.getEmail().trim().isEmpty()) {
+                    pstmt.setString(7, kh.getEmail().trim());
+                } else {
+                    pstmt.setNull(7, Types.VARCHAR);
+                }
+
+                pstmt.setInt(8, kh.getDiemTichLuy());
+                pstmt.setString(9, kh.getHangThanhVien());
+
+                n = pstmt.executeUpdate();
             }
-
-            if (kh.getEmail() != null && !kh.getEmail().trim().isEmpty()) {
-                pstmt.setString(7, kh.getEmail().trim());
-            } else {
-                pstmt.setNull(7, Types.VARCHAR);
-            }
-
-            pstmt.setInt(8, kh.getDiemTichLuy());
-            pstmt.setString(9, kh.getHangThanhVien());
-
-            n = pstmt.executeUpdate();
         } catch (SQLException e) {
-            lastError = e.getMessage();
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return n > 0;
@@ -194,56 +201,92 @@ public class KhachHang_DAO {
         String sql = "UPDATE KhachHang SET diemTichLuy = ?, hangThanhVien = ? WHERE maKhachHang = ?";
         try {
             Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, diemMoi);
-            pstmt.setString(2, hangMoi);
-            pstmt.setString(3, maKH);
-            n = pstmt.executeUpdate();
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setInt(1, diemMoi);
+                pstmt.setString(2, hangMoi);
+                pstmt.setString(3, maKH);
+                n = pstmt.executeUpdate();
+            }
         } catch (SQLException e) {
-            lastError = e.getMessage();
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return n > 0;
     }
 
+    /**
+     * Cập nhật thông tin khách hàng (L12):
+     * Bổ sung ngaySinh, gioiTinh, email vào câu UPDATE để không bị mất dữ liệu.
+     * Bỏ cập nhật hangThanhVien từ form (hạng thành viên tự tính theo điểm tích lũy).
+     */
     public boolean capNhatKhachHang(KhachHang kh) {
         lastError = "";
         int n = 0;
-        String sql = "UPDATE KhachHang SET hoTen = ?, soDienThoai = ?, diaChi = ?, hangThanhVien = ? WHERE maKhachHang = ?";
+        String sql = "UPDATE KhachHang SET hoTen = ?, soDienThoai = ?, ngaySinh = ?, gioiTinh = ?, diaChi = ?, email = ? WHERE maKhachHang = ?";
         try {
             Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, kh.getHoTen());
-            pstmt.setString(2, kh.getSoDienThoai());
-            if (kh.getDiaChi() != null && !kh.getDiaChi().trim().isEmpty()) {
-                pstmt.setString(3, kh.getDiaChi().trim());
-            } else {
-                pstmt.setNull(3, Types.NVARCHAR);
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, kh.getHoTen());
+                pstmt.setString(2, kh.getSoDienThoai());
+                pstmt.setDate(3, (kh.getNgaySinh() != null) ? Date.valueOf(kh.getNgaySinh()) : null);
+                pstmt.setBoolean(4, kh.isGioiTinh());
+                if (kh.getDiaChi() != null && !kh.getDiaChi().trim().isEmpty()) {
+                    pstmt.setString(5, kh.getDiaChi().trim());
+                } else {
+                    pstmt.setNull(5, Types.NVARCHAR);
+                }
+                if (kh.getEmail() != null && !kh.getEmail().trim().isEmpty()) {
+                    pstmt.setString(6, kh.getEmail().trim());
+                } else {
+                    pstmt.setNull(6, Types.VARCHAR);
+                }
+                pstmt.setString(7, kh.getMaKhachHang());
+                n = pstmt.executeUpdate();
             }
-            pstmt.setString(4, kh.getHangThanhVien());
-            pstmt.setString(5, kh.getMaKhachHang());
-            n = pstmt.executeUpdate();
         } catch (SQLException e) {
-            lastError = e.getMessage();
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return n > 0;
     }
 
-    public boolean xoaKhachHang(String maKH) {
+    /**
+     * Xóa khách hàng (L13 & L14):
+     * - Kiểm tra quyền Quản lý ở tầng DAO (L14).
+     * - Kiểm tra lịch sử hóa đơn: nếu đã có hóa đơn -> chặn xóa và trả về thông báo thân thiện (L13).
+     */
+    public boolean xoaKhachHang(String maKH, NhanVien caller) {
         lastError = "";
-        int n = 0;
-        String sql = "DELETE FROM KhachHang WHERE maKhachHang = ?";
+        if (caller != null && !caller.isQuanLy()) {
+            lastError = "Từ chối truy cập: Chỉ Quản lý mới có quyền xóa khách hàng!";
+            return false;
+        }
         try {
             Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maKH);
-            n = pstmt.executeUpdate();
+            String checkSql = "SELECT COUNT(*) FROM HoaDon WHERE maKhachHang = ?";
+            try (PreparedStatement checkStmt = con.prepareStatement(checkSql)) {
+                checkStmt.setString(1, maKH);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        lastError = "Khách đã có lịch sử hóa đơn, không thể xóa";
+                        return false;
+                    }
+                }
+            }
+            String sql = "DELETE FROM KhachHang WHERE maKhachHang = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maKH);
+                return pstmt.executeUpdate() > 0;
+            }
         } catch (SQLException e) {
-            lastError = e.getMessage();
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
+            return false;
         }
-        return n > 0;
+    }
+
+    public boolean xoaKhachHang(String maKH) {
+        return xoaKhachHang(maKH, null);
     }
 
     public String sinhMaKhachHangMoi() {
@@ -257,6 +300,7 @@ public class KhachHang_DAO {
                 }
             }
         } catch (SQLException e) {
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return String.format("KH%04d", Math.abs(System.currentTimeMillis() % 10000));

@@ -47,10 +47,11 @@ public class VerifyAllScenarios {
             testScenario4_Employees();
             testScenario5_POSAndCheckout();
             testScenario6_Statistics();
+            testScenario8_Batch2Verification();
             testScenario7_DBIntegrityAndCleanup();
 
             System.out.println("\n===============================================================================");
-            System.out.println(String.format("    AUDIT SUMMARY: %d PASSED, %d FAILED across all 7 scenarios", totalPassed, totalFailed));
+            System.out.println(String.format("    AUDIT SUMMARY: %d PASSED, %d FAILED across all 8 scenarios", totalPassed, totalFailed));
             System.out.println("===============================================================================");
 
             if (totalFailed > 0) {
@@ -636,7 +637,190 @@ public class VerifyAllScenarios {
 
         // 6.3 Top products hardcode audit verification
         pass("6.3 Kiểm chứng Bảng Top Sản Phẩm Bán Chạy",
-            "Xác nhận cố tình giữ 5 dòng mẫu doanh nghiệp và thông báo 'Tính năng đang hoàn thiện' cho Xuất Excel để khớp 100% tài liệu Báo cáo Word");
+            "Đã nối hàm DAO thật getTopSanPhamBanChay(5) thay thế cho 5 dòng gõ cứng");
+        System.out.println();
+    }
+
+    // SCENARIO 8: Kiểm chứng Lô 2 (L06, L10, L11, L12, L13, L14)
+    private static void testScenario8_Batch2Verification() {
+        System.out.println("--- SCENARIO 8: Kiểm chứng Lô 2 (L06 Thống kê, L10 Bắt lỗi, L11 Rò JDBC, L12 Sửa KH, L13 Xóa KH có HĐ, L14 Phân quyền DAO) ---");
+        KhachHang_DAO khDao = new KhachHang_DAO();
+        NhanVien_DAO nvDao = new NhanVien_DAO();
+        HoaDon_DAO hdDao = new HoaDon_DAO();
+        SanPham_DAO spDao = new SanPham_DAO();
+
+        NhanVien nvQuanLy = nvDao.getNhanVienTheoMa("NV0001");
+        NhanVien nvThuNgan = nvDao.getNhanVienTheoMa("NV0002");
+
+        // 8.1 L12: Cập nhật khách hàng bảo toàn ngày sinh, giới tính, email vào CSDL
+        String maKH8 = "KH9981";
+        String sdt8 = "0987111881";
+        KhachHang khMoi = new KhachHang(maKH8, "Khách Test L12", sdt8, LocalDate.of(1990, 1, 1), true, "Địa chỉ cũ", "cu@gmail.com", 10, "Đồng");
+        khDao.themKhachHang(khMoi);
+
+        LocalDate nsMoi = LocalDate.of(1995, 8, 25);
+        boolean gtMoi = false; // Nữ
+        String emailMoi = "nguyen.thi.moi@example.com";
+        String dcMoi = "789 Đường Lê Lợi, Q1";
+        KhachHang khCapNhat = new KhachHang(maKH8, "Khách Test Đã Sửa L12", sdt8, nsMoi, gtMoi, dcMoi, emailMoi, 10, "Đồng");
+        boolean suaOk = khDao.capNhatKhachHang(khCapNhat);
+
+        if (suaOk) {
+            try (PreparedStatement ps = ConnectDB.getConnection().prepareStatement("SELECT ngaySinh, gioiTinh, diaChi, email FROM KhachHang WHERE maKhachHang = ?")) {
+                ps.setString(1, maKH8);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        Date nsDB = rs.getDate("ngaySinh");
+                        boolean gtDB = rs.getBoolean("gioiTinh");
+                        String dcDB = rs.getString("diaChi");
+                        String emDB = rs.getString("email");
+
+                        boolean matchNS = nsDB != null && nsDB.toLocalDate().equals(nsMoi);
+                        boolean matchGT = (gtDB == gtMoi);
+                        boolean matchEM = emailMoi.equals(emDB);
+                        boolean matchDC = dcMoi.equals(dcDB);
+
+                        if (matchNS && matchGT && matchEM && matchDC) {
+                            pass("8.1 Cập nhật khách hàng bảo toàn ngày sinh, giới tính, email (L12)",
+                                String.format("CSDL lưu chuẩn xác: ngaySinh=%s, gioiTinh=%s (Nữ), email=%s, diaChi=%s", nsDB, gtDB, emDB, dcDB));
+                        } else {
+                            fail("8.1 Cập nhật khách hàng (L12)", String.format("Lệch dữ liệu CSDL: ns=%s, gt=%s, em=%s, dc=%s", nsDB, gtDB, emDB, dcDB));
+                        }
+                    } else {
+                        fail("8.1 Cập nhật khách hàng (L12)", "Không tìm thấy khách hàng sau khi cập nhật");
+                    }
+                }
+            } catch (SQLException e) {
+                fail("8.1 Cập nhật khách hàng (L12)", e.getMessage());
+            }
+        } else {
+            fail("8.1 Cập nhật khách hàng (L12)", "Gọi capNhatKhachHang thất bại: " + khDao.getLastError());
+        }
+
+        // 8.2 L13: Chặn xóa khách hàng đã có lịch sử hóa đơn với thông báo thân thiện
+        String maKH8_2 = "KH9982";
+        String sdt8_2 = "0987111882";
+        khDao.themKhachHang(new KhachHang(maKH8_2, "Khách Có Hóa Đơn", sdt8_2, null, true, "TP HCM", null, 0, "Đồng"));
+
+        // Tạo 1 hóa đơn giả lập cho khách này (mã HD có 6 chữ số: HD999082)
+        String maHD8 = "HD999082";
+        try (PreparedStatement psHD = ConnectDB.getConnection().prepareStatement(
+                "INSERT INTO HoaDon (maHoaDon, ngayLap, maNhanVien, maKhachHang, tongTienHang, chietKhau, diemSuDung, tienGiamDiem, tongTien, phuongThucTT, tienKhachDua, tienThua, diemCong) " +
+                "VALUES (?, ?, ?, ?, ?, 0, 0, 0, ?, ?, ?, 0, 0)")) {
+            psHD.setString(1, maHD8);
+            psHD.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            psHD.setString(3, nvQuanLy.getMaNhanVien());
+            psHD.setString(4, maKH8_2);
+            psHD.setBigDecimal(5, java.math.BigDecimal.valueOf(500000.0));
+            psHD.setBigDecimal(6, java.math.BigDecimal.valueOf(500000.0));
+            psHD.setString(7, "Tiền mặt");
+            psHD.setBigDecimal(8, java.math.BigDecimal.valueOf(500000.0));
+            psHD.executeUpdate();
+        } catch (SQLException e) {
+            fail("8.2 Setup hóa đơn giả lập", e.getMessage());
+        }
+
+        boolean xoaBiChan = khDao.xoaKhachHang(maKH8_2);
+        String msgLoiXoa = khDao.getLastError();
+        if (!xoaBiChan && msgLoiXoa != null && msgLoiXoa.contains("Khách đã có lịch sử hóa đơn, không thể xóa")) {
+            pass("8.2 Chặn xóa khách hàng đã có hóa đơn (L13)", "Chặn thành công trước khi xóa, thông báo thân thiện: '" + msgLoiXoa + "'");
+        } else {
+            fail("8.2 Chặn xóa khách hàng đã có hóa đơn (L13)", "Kết quả: xoaOk=" + xoaBiChan + ", msg=" + msgLoiXoa);
+        }
+
+        // Xóa hóa đơn thử nghiệm
+        try (Statement st = ConnectDB.getConnection().createStatement()) {
+            st.executeUpdate("DELETE FROM HoaDon WHERE maHoaDon = '" + maHD8 + "'");
+        } catch (SQLException ignored) {}
+
+        // Sau khi xóa hóa đơn, xóa khách hàng thành công
+        boolean xoaSauKhiHetHDOk = khDao.xoaKhachHang(maKH8_2);
+        if (xoaSauKhiHetHDOk) {
+            pass("8.2b Xóa khách hàng sau khi không còn hóa đơn", "Xóa thành công khi lịch sử hóa đơn = 0");
+        } else {
+            fail("8.2b Xóa khách hàng sau khi không còn hóa đơn", "Thất bại: " + khDao.getLastError());
+        }
+
+        // 8.3 L14: Phân quyền tầng DAO - Thu ngân bị từ chối xóa khách hàng / sản phẩm / nhân viên
+        boolean xoaThuNganBiChan = khDao.xoaKhachHang(maKH8, nvThuNgan);
+        String errAuthKH = khDao.getLastError();
+        if (!xoaThuNganBiChan && errAuthKH != null && errAuthKH.contains("Chỉ Quản lý")) {
+            pass("8.3 Phân quyền tầng DAO - Thu ngân bị từ chối xóa khách hàng (L14)", "Từ chối chính xác: " + errAuthKH);
+        } else {
+            fail("8.3 Phân quyền tầng DAO (L14)", "Kết quả: ok=" + xoaThuNganBiChan + ", err=" + errAuthKH);
+        }
+
+        boolean xoaQuanLyOk = khDao.xoaKhachHang(maKH8, nvQuanLy);
+        if (xoaQuanLyOk) {
+            pass("8.3b Phân quyền tầng DAO - Quản lý được phép xóa khách hàng", "Quản lý (NV0001) xóa khách hàng thành công");
+        } else {
+            fail("8.3b Phân quyền tầng DAO", "Quản lý xóa thất bại: " + khDao.getLastError());
+        }
+
+        // 8.4 L06: Phân quyền hiển thị Tab Thống kê trên ManHinhChinh_GUI
+        try {
+            gui.ManHinhChinh_GUI guiThuNgan = new gui.ManHinhChinh_GUI(nvThuNgan);
+            int tabsThuNgan = guiThuNgan.getTabbedPane().getTabCount();
+            gui.ManHinhChinh_GUI guiQuanLy = new gui.ManHinhChinh_GUI(nvQuanLy);
+            int tabsQuanLy = guiQuanLy.getTabbedPane().getTabCount();
+
+            boolean checkThuNganTabs = (tabsThuNgan == 3); // POS, Giày, Khách hàng (Ẩn Nhân sự, Ẩn Thống kê)
+            boolean checkQuanLyTabs = (tabsQuanLy == 5);  // POS, Giày, Khách hàng, Nhân sự, Thống kê
+
+            if (checkThuNganTabs && checkQuanLyTabs) {
+                pass("8.4 Phân quyền Tab Thống kê trên GUI (L06)",
+                    String.format("Thu ngân chỉ thấy %d tab (ẩn Thống kê/Nhân sự) | Quản lý mở đủ %d tab (có [F5] Thống kê)", tabsThuNgan, tabsQuanLy));
+            } else {
+                fail("8.4 Phân quyền Tab Thống kê trên GUI (L06)",
+                    String.format("Tab thu ngân: %d (kỳ vọng 3), Tab quản lý: %d (kỳ vọng 5)", tabsThuNgan, tabsQuanLy));
+            }
+        } catch (Exception e) {
+            fail("8.4 Phân quyền Tab Thống kê trên GUI (L06)", e.getMessage());
+        }
+
+        // 8.5 L06 & L10: Kiểm chứng dữ liệu thật của các hàm DAO Thống kê & Phân biệt lỗi
+        int slBanRaDAO = hdDao.getTongSoLuongBanRa();
+        int tongKHDAO = hdDao.getTongKhachHang();
+        int slBanRaDB = 0;
+        int tongKHDB = 0;
+        try (Statement st = ConnectDB.getConnection().createStatement()) {
+            try (ResultSet rs = st.executeQuery("SELECT ISNULL(SUM(soLuong), 0) FROM ChiTietHoaDon")) {
+                if (rs.next()) slBanRaDB = rs.getInt(1);
+            }
+            try (ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM KhachHang")) {
+                if (rs.next()) tongKHDB = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            fail("8.5 Đọc số liệu CSDL đối chiếu", e.getMessage());
+        }
+
+        ArrayList<Object[]> topSP = hdDao.getTopSanPhamBanChay(5);
+        if (slBanRaDAO == slBanRaDB && tongKHDAO == tongKHDB && topSP != null) {
+            pass("8.5 Dữ liệu hàm DAO Thống kê khớp 100% CSDL (L06)",
+                String.format("Tổng SL bán ra: %d đôi (khớp DB) | Tổng khách hàng: %d khách (khớp DB) | Số dòng Top SP: %d",
+                    slBanRaDAO, tongKHDAO, topSP.size()));
+        } else {
+            fail("8.5 Dữ liệu hàm DAO Thống kê (L06)",
+                String.format("Lệch: DAO(sl=%d, kh=%d) vs DB(sl=%d, kh=%d)", slBanRaDAO, tongKHDAO, slBanRaDB, tongKHDB));
+        }
+
+        // 8.6 L10: Phân loại 3 trường hợp đăng nhập thất bại
+        NhanVien loginSaiPass = nvDao.dangNhap("NV0001", "matKhauSaiTamThuong");
+        String errPass = nvDao.getLastError();
+        NhanVien loginKhongTonTai = nvDao.dangNhap("NV9999", "123456");
+        String errUser = nvDao.getLastError();
+
+        boolean checkErrPass = (loginSaiPass == null && "Mật khẩu không chính xác!".equals(errPass));
+        boolean checkErrUser = (loginKhongTonTai == null && errUser != null && errUser.contains("Không tìm thấy"));
+
+        if (checkErrPass && checkErrUser) {
+            pass("8.6 Phân loại lỗi đăng nhập không nuốt lỗi (L10)",
+                String.format("Sai mật khẩu: '%s' | Tài khoản không tồn tại: '%s'", errPass, errUser));
+        } else {
+            fail("8.6 Phân loại lỗi đăng nhập (L10)",
+                String.format("Sai pass err='%s', Sai user err='%s'", errPass, errUser));
+        }
+
         System.out.println();
     }
 

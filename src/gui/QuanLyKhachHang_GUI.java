@@ -32,8 +32,14 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
     private JTable tableKH;
     private DefaultTableModel modelKH;
     private KhachHang_DAO kh_dao;
+    private entity.NhanVien nhanVienDangNhap;
 
     public QuanLyKhachHang_GUI() {
+        this(null);
+    }
+
+    public QuanLyKhachHang_GUI(entity.NhanVien nhanVien) {
+        this.nhanVienDangNhap = nhanVien;
         kh_dao = new KhachHang_DAO();
 
         setLayout(new BorderLayout(10, 10));
@@ -105,6 +111,12 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         pnlButtons.add(lblTraCuu);
         pnlButtons.add(txtTimSDT);
         pnlButtons.add(btnTim);
+
+        // L14: Phân quyền - Thu ngân không được phép xóa khách hàng
+        if (nhanVienDangNhap != null && !nhanVienDangNhap.isQuanLy()) {
+            btnXoa.setEnabled(false);
+            btnXoa.setToolTipText("Chỉ Quản lý mới có quyền xóa khách hàng!");
+        }
 
         JPanel pnlTop = new JPanel(new BorderLayout());
         pnlTop.add(pnlForm, BorderLayout.CENTER);
@@ -226,17 +238,13 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
             }
             int opt = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa khách hàng " + ma + "?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
             if (opt == JOptionPane.YES_OPTION) {
-                if (kh_dao.xoaKhachHang(ma)) {
+                if (kh_dao.xoaKhachHang(ma, nhanVienDangNhap)) {
                     JOptionPane.showMessageDialog(this, "Đã xóa khách hàng thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                     docDuLieuVaoTable();
                     xoaTrang();
                 } else {
                     String errMsg = kh_dao.getLastError();
-                    if (errMsg != null && (errMsg.contains("FK_HoaDon_KhachHang") || errMsg.contains("REFERENCE constraint"))) {
-                        JOptionPane.showMessageDialog(this, "Không thể xóa khách hàng đã có lịch sử hóa đơn trong hệ thống!", "Lỗi ràng buộc", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Xóa thất bại: " + (errMsg == null || errMsg.isEmpty() ? "Lỗi hệ thống!" : errMsg), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    }
+                    JOptionPane.showMessageDialog(this, "Không thể xóa: " + (errMsg == null || errMsg.isEmpty() ? "Lỗi hệ thống!" : errMsg), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         } else if (o.equals(btnSua)) {
@@ -274,7 +282,13 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
                 diem = 0;
             }
 
-            KhachHang kh = new KhachHang(ma, ten, sdt, null, true, dc.isEmpty() ? null : dc, null, diem, "Đồng");
+            // L12: Bảo toàn ngaySinh, gioiTinh, email khi cập nhật từ giao diện
+            KhachHang khCu = kh_dao.getKhachHangTheoMa(ma);
+            java.time.LocalDate ns = (khCu != null) ? khCu.getNgaySinh() : null;
+            boolean gt = (khCu != null) ? khCu.isGioiTinh() : true;
+            String em = (khCu != null) ? khCu.getEmail() : null;
+
+            KhachHang kh = new KhachHang(ma, ten, sdt, ns, gt, dc.isEmpty() ? null : dc, em, diem, "Đồng");
             kh.capNhatHang(); // Tự động đồng bộ hạng thẻ theo điểm tích lũy, không cho phép can thiệp thủ công
             cboHang.setSelectedItem(kh.getHangThanhVien());
             cboHang.setEnabled(false);

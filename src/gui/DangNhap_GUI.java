@@ -142,7 +142,12 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
                 this.dispose();
                 new ManHinhChinh_GUI(nv).setVisible(true);
             } else {
-                JOptionPane.showMessageDialog(this, "Sai Mã nhân viên hoặc Mật khẩu!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+                String err = nv_dao.getLastError();
+                if (err == null || err.isEmpty()) {
+                    err = "Sai Mã nhân viên hoặc Mật khẩu!";
+                }
+                String title = err.startsWith("Không kết nối") ? "Lỗi kết nối cơ sở dữ liệu" : "Lỗi đăng nhập";
+                JOptionPane.showMessageDialog(this, err, title, JOptionPane.ERROR_MESSAGE);
             }
         }
     }

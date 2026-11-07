@@ -47,7 +47,7 @@ public class NhanVien_DAO {
                 lastError = "Dữ liệu không thỏa mãn ràng buộc CSDL: " + msg;
             }
         } else {
-            lastError = "Lỗi CSDL (" + code + "): " + msg;
+            lastError = "Không kết nối được CSDL (" + code + "): " + msg;
         }
     }
 
@@ -66,25 +66,26 @@ public class NhanVien_DAO {
         try {
             Connection con = getConnection();
             String sql = "SELECT * FROM NhanVien WHERE trangThai = 1 ORDER BY maNhanVien ASC";
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                String maNV = rs.getString("maNhanVien");
-                String hoTen = rs.getString("hoTen");
-                String sdt = rs.getString("soDienThoai");
-                Date ns = rs.getDate("ngaySinh");
-                LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : LocalDate.of(2000, 1, 1);
-                boolean gioiTinh = rs.getBoolean("gioiTinh");
-                String diaChi = rs.getString("diaChi");
-                String email = rs.getString("email");
-                String chucVu = rs.getString("chucVu");
-                double luong = rs.getDouble("luongCoBan");
-                String ca = rs.getString("caLamViec");
-                String matKhau = rs.getString("matKhau");
-                boolean trangThai = rs.getBoolean("trangThai");
+            try (Statement stmt = con.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    String maNV = rs.getString("maNhanVien");
+                    String hoTen = rs.getString("hoTen");
+                    String sdt = rs.getString("soDienThoai");
+                    Date ns = rs.getDate("ngaySinh");
+                    LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : LocalDate.of(2000, 1, 1);
+                    boolean gioiTinh = rs.getBoolean("gioiTinh");
+                    String diaChi = rs.getString("diaChi");
+                    String email = rs.getString("email");
+                    String chucVu = rs.getString("chucVu");
+                    double luong = rs.getDouble("luongCoBan");
+                    String ca = rs.getString("caLamViec");
+                    String matKhau = rs.getString("matKhau");
+                    boolean trangThai = rs.getBoolean("trangThai");
 
-                NhanVien nv = new NhanVien(maNV, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, chucVu, luong, ca, matKhau, trangThai);
-                ds.add(nv);
+                    NhanVien nv = new NhanVien(maNV, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, chucVu, luong, ca, matKhau, trangThai);
+                    ds.add(nv);
+                }
             }
         } catch (SQLException e) {
             handleSQLException(e);
@@ -109,36 +110,56 @@ public class NhanVien_DAO {
         }
     }
 
+    /**
+     * Xác thực đăng nhập (L10):
+     * Phân biệt rõ ràng 3 trường hợp khi thất bại:
+     * 1. Không tìm thấy mã nhân viên (hoặc tài khoản bị ngừng hoạt động).
+     * 2. Mật khẩu không chính xác.
+     * 3. Lỗi kết nối CSDL hoặc ngoại lệ hệ thống.
+     */
     public NhanVien dangNhap(String maNV, String matKhau) {
+        lastError = "";
         NhanVien nv = null;
         try {
             Connection con = getConnection();
-            String sql = "SELECT * FROM NhanVien WHERE maNhanVien = ? AND trangThai = 1";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maNV);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                String dbHash = rs.getString("matKhau");
-                String inputHash = hashSHA256(matKhau);
+            String sql = "SELECT * FROM NhanVien WHERE maNhanVien = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maNV);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        boolean trangThai = rs.getBoolean("trangThai");
+                        if (!trangThai) {
+                            lastError = "Tài khoản nhân viên '" + maNV + "' đã bị vô hiệu hóa hoặc ngừng hoạt động!";
+                            return null;
+                        }
+                        String dbHash = rs.getString("matKhau");
+                        String inputHash = hashSHA256(matKhau);
 
-                if (inputHash.equalsIgnoreCase(dbHash)) {
-                    String hoTen = rs.getString("hoTen");
-                    String sdt = rs.getString("soDienThoai");
-                    Date ns = rs.getDate("ngaySinh");
-                    LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : LocalDate.of(2000, 1, 1);
-                    boolean gioiTinh = rs.getBoolean("gioiTinh");
-                    String diaChi = rs.getString("diaChi");
-                    String email = rs.getString("email");
-                    String chucVu = rs.getString("chucVu");
-                    double luong = rs.getDouble("luongCoBan");
-                    String ca = rs.getString("caLamViec");
-                    boolean trangThai = rs.getBoolean("trangThai");
+                        if (inputHash.equalsIgnoreCase(dbHash)) {
+                            String hoTen = rs.getString("hoTen");
+                            String sdt = rs.getString("soDienThoai");
+                            Date ns = rs.getDate("ngaySinh");
+                            LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : LocalDate.of(2000, 1, 1);
+                            boolean gioiTinh = rs.getBoolean("gioiTinh");
+                            String diaChi = rs.getString("diaChi");
+                            String email = rs.getString("email");
+                            String chucVu = rs.getString("chucVu");
+                            double luong = rs.getDouble("luongCoBan");
+                            String ca = rs.getString("caLamViec");
 
-                    nv = new NhanVien(maNV, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, chucVu, luong, ca, dbHash, trangThai);
+                            nv = new NhanVien(maNV, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, chucVu, luong, ca, dbHash, trangThai);
+                        } else {
+                            lastError = "Mật khẩu không chính xác!";
+                            return null;
+                        }
+                    } else {
+                        lastError = "Không tìm thấy tài khoản nhân viên '" + maNV + "'!";
+                        return null;
+                    }
                 }
             }
         } catch (SQLException e) {
-            handleSQLException(e);
+            lastError = "Không kết nối được CSDL: " + e.getMessage();
             e.printStackTrace();
         }
         return nv;
@@ -149,24 +170,26 @@ public class NhanVien_DAO {
         try {
             Connection con = getConnection();
             String sql = "SELECT * FROM NhanVien WHERE maNhanVien = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maNV);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                String hoTen = rs.getString("hoTen");
-                String sdt = rs.getString("soDienThoai");
-                Date ns = rs.getDate("ngaySinh");
-                LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : LocalDate.of(2000, 1, 1);
-                boolean gioiTinh = rs.getBoolean("gioiTinh");
-                String diaChi = rs.getString("diaChi");
-                String email = rs.getString("email");
-                String chucVu = rs.getString("chucVu");
-                double luong = rs.getDouble("luongCoBan");
-                String ca = rs.getString("caLamViec");
-                String matKhau = rs.getString("matKhau");
-                boolean trangThai = rs.getBoolean("trangThai");
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maNV);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String hoTen = rs.getString("hoTen");
+                        String sdt = rs.getString("soDienThoai");
+                        Date ns = rs.getDate("ngaySinh");
+                        LocalDate ngaySinh = (ns != null) ? ns.toLocalDate() : LocalDate.of(2000, 1, 1);
+                        boolean gioiTinh = rs.getBoolean("gioiTinh");
+                        String diaChi = rs.getString("diaChi");
+                        String email = rs.getString("email");
+                        String chucVu = rs.getString("chucVu");
+                        double luong = rs.getDouble("luongCoBan");
+                        String ca = rs.getString("caLamViec");
+                        String matKhau = rs.getString("matKhau");
+                        boolean trangThai = rs.getBoolean("trangThai");
 
-                nv = new NhanVien(maNV, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, chucVu, luong, ca, matKhau, trangThai);
+                        nv = new NhanVien(maNV, hoTen, sdt, ngaySinh, gioiTinh, diaChi, email, chucVu, luong, ca, matKhau, trangThai);
+                    }
+                }
             }
         } catch (SQLException e) {
             handleSQLException(e);
@@ -213,8 +236,12 @@ public class NhanVien_DAO {
         return false;
     }
 
-    public boolean themNhanVien(NhanVien nv) {
+    public boolean themNhanVien(NhanVien nv, NhanVien caller) {
         lastError = "";
+        if (caller != null && !caller.isQuanLy()) {
+            lastError = "Từ chối truy cập: Chỉ Quản lý mới có quyền thêm nhân viên!";
+            return false;
+        }
         if (nv.getNgaySinh() != null) {
             int age = java.time.Period.between(nv.getNgaySinh(), LocalDate.now()).getYears();
             if (age < 18) {
@@ -227,43 +254,43 @@ public class NhanVien_DAO {
             Connection con = getConnection();
             String sql = "INSERT INTO NhanVien (maNhanVien, hoTen, soDienThoai, ngaySinh, gioiTinh, diaChi, email, chucVu, luongCoBan, caLamViec, matKhau, trangThai) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, nv.getMaNhanVien());
-            pstmt.setString(2, nv.getHoTen());
-            pstmt.setString(3, nv.getSoDienThoai());
-            pstmt.setDate(4, (nv.getNgaySinh() != null) ? Date.valueOf(nv.getNgaySinh()) : Date.valueOf(LocalDate.of(2000, 1, 1)));
-            pstmt.setBoolean(5, nv.isGioiTinh());
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, nv.getMaNhanVien());
+                pstmt.setString(2, nv.getHoTen());
+                pstmt.setString(3, nv.getSoDienThoai());
+                pstmt.setDate(4, (nv.getNgaySinh() != null) ? Date.valueOf(nv.getNgaySinh()) : Date.valueOf(LocalDate.of(2000, 1, 1)));
+                pstmt.setBoolean(5, nv.isGioiTinh());
 
-            if (nv.getDiaChi() == null || nv.getDiaChi().trim().isEmpty()) {
-                pstmt.setNull(6, Types.NVARCHAR);
-            } else {
-                pstmt.setString(6, nv.getDiaChi().trim());
+                if (nv.getDiaChi() == null || nv.getDiaChi().trim().isEmpty()) {
+                    pstmt.setNull(6, Types.NVARCHAR);
+                } else {
+                    pstmt.setString(6, nv.getDiaChi().trim());
+                }
+
+                if (nv.getEmail() == null || nv.getEmail().trim().isEmpty()) {
+                    pstmt.setNull(7, Types.VARCHAR);
+                } else {
+                    pstmt.setString(7, nv.getEmail().trim());
+                }
+
+                pstmt.setString(8, nv.getChucVu());
+                pstmt.setDouble(9, nv.getLuongCoBan());
+
+                if (nv.getCaLamViec() == null || nv.getCaLamViec().trim().isEmpty()) {
+                    pstmt.setNull(10, Types.NVARCHAR);
+                } else {
+                    pstmt.setString(10, nv.getCaLamViec().trim());
+                }
+
+                String pwd = nv.getMatKhau();
+                if (pwd == null || pwd.length() != 64) {
+                    pwd = hashSHA256(pwd != null ? pwd : "123456");
+                }
+                pstmt.setString(11, pwd);
+                pstmt.setBoolean(12, nv.isTrangThai());
+
+                n = pstmt.executeUpdate();
             }
-
-            if (nv.getEmail() == null || nv.getEmail().trim().isEmpty()) {
-                pstmt.setNull(7, Types.VARCHAR);
-            } else {
-                pstmt.setString(7, nv.getEmail().trim());
-            }
-
-            pstmt.setString(8, nv.getChucVu());
-            pstmt.setDouble(9, nv.getLuongCoBan());
-
-            if (nv.getCaLamViec() == null || nv.getCaLamViec().trim().isEmpty()) {
-                pstmt.setNull(10, Types.NVARCHAR);
-            } else {
-                pstmt.setString(10, nv.getCaLamViec().trim());
-            }
-
-            String pwd = nv.getMatKhau();
-            if (pwd == null || pwd.length() != 64) {
-                pwd = hashSHA256(pwd != null ? pwd : "123456");
-            }
-            pstmt.setString(11, pwd);
-            pstmt.setBoolean(12, nv.isTrangThai());
-
-            n = pstmt.executeUpdate();
-            pstmt.close();
         } catch (SQLException e) {
             handleSQLException(e);
             e.printStackTrace();
@@ -271,8 +298,16 @@ public class NhanVien_DAO {
         return n > 0;
     }
 
-    public boolean capNhatNhanVien(NhanVien nv) {
+    public boolean themNhanVien(NhanVien nv) {
+        return themNhanVien(nv, null);
+    }
+
+    public boolean capNhatNhanVien(NhanVien nv, NhanVien caller) {
         lastError = "";
+        if (caller != null && !caller.isQuanLy()) {
+            lastError = "Từ chối truy cập: Chỉ Quản lý mới có quyền cập nhật nhân viên!";
+            return false;
+        }
         if (nv.getNgaySinh() != null) {
             int age = java.time.Period.between(nv.getNgaySinh(), LocalDate.now()).getYears();
             if (age < 18) {
@@ -284,36 +319,61 @@ public class NhanVien_DAO {
         try {
             Connection con = getConnection();
             String sql = "UPDATE NhanVien SET hoTen = ?, soDienThoai = ?, ngaySinh = ?, gioiTinh = ?, diaChi = ?, email = ?, chucVu = ?, luongCoBan = ?, caLamViec = ? WHERE maNhanVien = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, nv.getHoTen());
-            pstmt.setString(2, nv.getSoDienThoai());
-            pstmt.setDate(3, (nv.getNgaySinh() != null) ? Date.valueOf(nv.getNgaySinh()) : Date.valueOf(LocalDate.of(2000, 1, 1)));
-            pstmt.setBoolean(4, nv.isGioiTinh());
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, nv.getHoTen());
+                pstmt.setString(2, nv.getSoDienThoai());
+                pstmt.setDate(3, (nv.getNgaySinh() != null) ? Date.valueOf(nv.getNgaySinh()) : Date.valueOf(LocalDate.of(2000, 1, 1)));
+                pstmt.setBoolean(4, nv.isGioiTinh());
 
-            if (nv.getDiaChi() == null || nv.getDiaChi().trim().isEmpty()) {
-                pstmt.setNull(5, Types.NVARCHAR);
-            } else {
-                pstmt.setString(5, nv.getDiaChi().trim());
+                if (nv.getDiaChi() == null || nv.getDiaChi().trim().isEmpty()) {
+                    pstmt.setNull(5, Types.NVARCHAR);
+                } else {
+                    pstmt.setString(5, nv.getDiaChi().trim());
+                }
+
+                if (nv.getEmail() == null || nv.getEmail().trim().isEmpty()) {
+                    pstmt.setNull(6, Types.VARCHAR);
+                } else {
+                    pstmt.setString(6, nv.getEmail().trim());
+                }
+
+                pstmt.setString(7, nv.getChucVu());
+                pstmt.setDouble(8, nv.getLuongCoBan());
+
+                if (nv.getCaLamViec() == null || nv.getCaLamViec().trim().isEmpty()) {
+                    pstmt.setNull(9, Types.NVARCHAR);
+                } else {
+                    pstmt.setString(9, nv.getCaLamViec().trim());
+                }
+
+                pstmt.setString(10, nv.getMaNhanVien());
+                n = pstmt.executeUpdate();
             }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
 
-            if (nv.getEmail() == null || nv.getEmail().trim().isEmpty()) {
-                pstmt.setNull(6, Types.VARCHAR);
-            } else {
-                pstmt.setString(6, nv.getEmail().trim());
+    public boolean capNhatNhanVien(NhanVien nv) {
+        return capNhatNhanVien(nv, null);
+    }
+
+    public boolean xoaNhanVien(String maNV, NhanVien caller) {
+        lastError = "";
+        if (caller != null && !caller.isQuanLy()) {
+            lastError = "Từ chối truy cập: Chỉ Quản lý mới có quyền xóa nhân viên!";
+            return false;
+        }
+        int n = 0;
+        try {
+            Connection con = getConnection();
+            String sql = "UPDATE NhanVien SET trangThai = 0 WHERE maNhanVien = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maNV);
+                n = pstmt.executeUpdate();
             }
-
-            pstmt.setString(7, nv.getChucVu());
-            pstmt.setDouble(8, nv.getLuongCoBan());
-
-            if (nv.getCaLamViec() == null || nv.getCaLamViec().trim().isEmpty()) {
-                pstmt.setNull(9, Types.NVARCHAR);
-            } else {
-                pstmt.setString(9, nv.getCaLamViec().trim());
-            }
-
-            pstmt.setString(10, nv.getMaNhanVien());
-            n = pstmt.executeUpdate();
-            pstmt.close();
         } catch (SQLException e) {
             handleSQLException(e);
             e.printStackTrace();
@@ -322,18 +382,6 @@ public class NhanVien_DAO {
     }
 
     public boolean xoaNhanVien(String maNV) {
-        lastError = "";
-        int n = 0;
-        try {
-            Connection con = getConnection();
-            String sql = "UPDATE NhanVien SET trangThai = 0 WHERE maNhanVien = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maNV);
-            n = pstmt.executeUpdate();
-        } catch (SQLException e) {
-            handleSQLException(e);
-            e.printStackTrace();
-        }
-        return n > 0;
+        return xoaNhanVien(maNV, null);
     }
 }

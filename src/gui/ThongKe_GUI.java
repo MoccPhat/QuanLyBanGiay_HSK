@@ -210,21 +210,29 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
 
             lblTongDoanhThuVal.setText(df.format(tongDoanhThu));
             lblTongDonHangVal.setText(countDon + " đơn");
-            lblTongSoLuongVal.setText((countDon * 2) + " đôi"); // Ước tính trung bình 2 đôi/đơn
+            int tongSL = hd_dao.getTongSoLuongBanRa();
+            lblTongSoLuongVal.setText(tongSL + " đôi");
         } else {
             lblTongDoanhThuVal.setText("0 VNĐ");
             lblTongDonHangVal.setText("0 đơn");
             lblTongSoLuongVal.setText("0 đôi");
         }
 
-        lblKhachHangVal.setText("4 khách");
+        int tongKH = hd_dao.getTongKhachHang();
+        lblKhachHangVal.setText(tongKH + " khách");
 
-        // Bảng Top Sản Phẩm Bán Chạy (Mẫu thống kê doanh nghiệp - hạn chế theo báo cáo)
-        modelTopSP.addRow(new Object[]{"#1", "SP0001", "Nike Air Force 1 07 Low", "Nike", 12, "31,200,000 VNĐ", "38.5%"});
-        modelTopSP.addRow(new Object[]{"#2", "SP0002", "Adidas Ultraboost Light 23", "Adidas", 8, "28,000,000 VNĐ", "34.6%"});
-        modelTopSP.addRow(new Object[]{"#3", "SP0004", "Converse Chuck Taylor All Star", "Converse", 6, "9,000,000 VNĐ", "11.1%"});
-        modelTopSP.addRow(new Object[]{"#4", "SP0003", "Vans Old Skool Classic Black", "Vans", 5, "8,750,000 VNĐ", "10.8%"});
-        modelTopSP.addRow(new Object[]{"#5", "SP0005", "Biti's Hunter X 2K23 Nitro", "Biti's", 3, "4,050,000 VNĐ", "5.0%"});
+        // L06: Bảng Top Sản Phẩm Bán Chạy từ CSDL thật (HoaDon_DAO.getTopSanPhamBanChay)
+        ArrayList<Object[]> topList = hd_dao.getTopSanPhamBanChay(5);
+        if (topList != null && !topList.isEmpty()) {
+            for (Object[] row : topList) {
+                int sl = (row[4] instanceof Number) ? ((Number) row[4]).intValue() : 0;
+                double dt = (row[5] instanceof Number) ? ((Number) row[5]).doubleValue() : 0.0;
+                String tyLe = (tongDoanhThu > 0) ? String.format(java.util.Locale.US, "%.1f%%", (dt / tongDoanhThu) * 100) : "0.0%";
+                modelTopSP.addRow(new Object[]{
+                    row[0], row[1], row[2], row[3], sl, df.format(dt), tyLe
+                });
+            }
+        }
     }
 
     @Override

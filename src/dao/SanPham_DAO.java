@@ -1,6 +1,7 @@
 package dao;
 
 import connectDB.ConnectDB;
+import entity.NhanVien;
 import entity.SanPham;
 
 import java.sql.*;
@@ -32,7 +33,7 @@ public class SanPham_DAO {
                 lastError = "Dữ liệu không thỏa mãn ràng buộc CSDL: " + msg;
             }
         } else {
-            lastError = "Lỗi CSDL (" + code + "): " + msg;
+            lastError = "Không kết nối được CSDL (" + code + "): " + msg;
         }
     }
 
@@ -51,20 +52,21 @@ public class SanPham_DAO {
         try {
             Connection con = getConnection();
             String sql = "SELECT * FROM SanPham WHERE trangThai = 1 ORDER BY maSanPham ASC";
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                String maSP = rs.getString("maSanPham");
-                String tenSP = rs.getString("tenSanPham");
-                String loai = rs.getString("loaiGiay");
-                String hang = rs.getString("thuongHieu");
-                double giaNhap = rs.getDouble("giaNhap");
-                double giaBan = rs.getDouble("giaBan");
-                String chatLieu = rs.getString("chatLieu");
-                boolean trangThai = rs.getBoolean("trangThai");
+            try (Statement stmt = con.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    String maSP = rs.getString("maSanPham");
+                    String tenSP = rs.getString("tenSanPham");
+                    String loai = rs.getString("loaiGiay");
+                    String hang = rs.getString("thuongHieu");
+                    double giaNhap = rs.getDouble("giaNhap");
+                    double giaBan = rs.getDouble("giaBan");
+                    String chatLieu = rs.getString("chatLieu");
+                    boolean trangThai = rs.getBoolean("trangThai");
 
-                SanPham sp = new SanPham(maSP, tenSP, loai, hang, giaNhap, giaBan, chatLieu, trangThai);
-                ds.add(sp);
+                    SanPham sp = new SanPham(maSP, tenSP, loai, hang, giaNhap, giaBan, chatLieu, trangThai);
+                    ds.add(sp);
+                }
             }
         } catch (SQLException e) {
             handleSQLException(e);
@@ -78,19 +80,21 @@ public class SanPham_DAO {
         try {
             Connection con = getConnection();
             String sql = "SELECT * FROM SanPham WHERE maSanPham = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maSP);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                String tenSP = rs.getString("tenSanPham");
-                String loai = rs.getString("loaiGiay");
-                String hang = rs.getString("thuongHieu");
-                double giaNhap = rs.getDouble("giaNhap");
-                double giaBan = rs.getDouble("giaBan");
-                String chatLieu = rs.getString("chatLieu");
-                boolean trangThai = rs.getBoolean("trangThai");
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maSP);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String tenSP = rs.getString("tenSanPham");
+                        String loai = rs.getString("loaiGiay");
+                        String hang = rs.getString("thuongHieu");
+                        double giaNhap = rs.getDouble("giaNhap");
+                        double giaBan = rs.getDouble("giaBan");
+                        String chatLieu = rs.getString("chatLieu");
+                        boolean trangThai = rs.getBoolean("trangThai");
 
-                sp = new SanPham(maSP, tenSP, loai, hang, giaNhap, giaBan, chatLieu, trangThai);
+                        sp = new SanPham(maSP, tenSP, loai, hang, giaNhap, giaBan, chatLieu, trangThai);
+                    }
+                }
             }
         } catch (SQLException e) {
             handleSQLException(e);
@@ -116,30 +120,71 @@ public class SanPham_DAO {
         return false;
     }
 
-    public boolean themSanPham(SanPham sp) {
+    public boolean themSanPham(SanPham sp, NhanVien caller) {
         lastError = "";
+        if (caller != null && !caller.isQuanLy()) {
+            lastError = "Từ chối truy cập: Chỉ Quản lý mới có quyền thêm sản phẩm!";
+            return false;
+        }
         int n = 0;
         try {
             Connection con = getConnection();
             String sql = "INSERT INTO SanPham (maSanPham, tenSanPham, loaiGiay, thuongHieu, giaNhap, giaBan, chatLieu, trangThai) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, sp.getMaSanPham());
-            pstmt.setString(2, sp.getTenSanPham());
-            pstmt.setString(3, sp.getLoaiGiay());
-            pstmt.setString(4, sp.getThuongHieu());
-            pstmt.setDouble(5, sp.getGiaNhap());
-            pstmt.setDouble(6, sp.getGiaBan());
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, sp.getMaSanPham());
+                pstmt.setString(2, sp.getTenSanPham());
+                pstmt.setString(3, sp.getLoaiGiay());
+                pstmt.setString(4, sp.getThuongHieu());
+                pstmt.setDouble(5, sp.getGiaNhap());
+                pstmt.setDouble(6, sp.getGiaBan());
 
-            if (sp.getChatLieu() == null || sp.getChatLieu().trim().isEmpty()) {
-                pstmt.setNull(7, Types.NVARCHAR);
-            } else {
-                pstmt.setString(7, sp.getChatLieu().trim());
+                if (sp.getChatLieu() == null || sp.getChatLieu().trim().isEmpty()) {
+                    pstmt.setNull(7, Types.NVARCHAR);
+                } else {
+                    pstmt.setString(7, sp.getChatLieu().trim());
+                }
+
+                pstmt.setBoolean(8, sp.isTrangThai());
+                n = pstmt.executeUpdate();
             }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
 
-            pstmt.setBoolean(8, sp.isTrangThai());
+    public boolean themSanPham(SanPham sp) {
+        return themSanPham(sp, null);
+    }
 
-            n = pstmt.executeUpdate();
+    public boolean capNhatSanPham(SanPham sp, NhanVien caller) {
+        lastError = "";
+        if (caller != null && !caller.isQuanLy()) {
+            lastError = "Từ chối truy cập: Chỉ Quản lý mới có quyền cập nhật sản phẩm!";
+            return false;
+        }
+        int n = 0;
+        try {
+            Connection con = getConnection();
+            String sql = "UPDATE SanPham SET tenSanPham = ?, loaiGiay = ?, thuongHieu = ?, giaNhap = ?, giaBan = ?, chatLieu = ? WHERE maSanPham = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, sp.getTenSanPham());
+                pstmt.setString(2, sp.getLoaiGiay());
+                pstmt.setString(3, sp.getThuongHieu());
+                pstmt.setDouble(4, sp.getGiaNhap());
+                pstmt.setDouble(5, sp.getGiaBan());
+
+                if (sp.getChatLieu() == null || sp.getChatLieu().trim().isEmpty()) {
+                    pstmt.setNull(6, Types.NVARCHAR);
+                } else {
+                    pstmt.setString(6, sp.getChatLieu().trim());
+                }
+
+                pstmt.setString(7, sp.getMaSanPham());
+                n = pstmt.executeUpdate();
+            }
         } catch (SQLException e) {
             handleSQLException(e);
             e.printStackTrace();
@@ -148,27 +193,24 @@ public class SanPham_DAO {
     }
 
     public boolean capNhatSanPham(SanPham sp) {
+        return capNhatSanPham(sp, null);
+    }
+
+    public boolean xoaSanPham(String maSP, NhanVien caller) {
         lastError = "";
+        if (caller != null && !caller.isQuanLy()) {
+            lastError = "Từ chối truy cập: Chỉ Quản lý mới có quyền xóa sản phẩm!";
+            return false;
+        }
         int n = 0;
         try {
             Connection con = getConnection();
-            String sql = "UPDATE SanPham SET tenSanPham = ?, loaiGiay = ?, thuongHieu = ?, giaNhap = ?, giaBan = ?, chatLieu = ? WHERE maSanPham = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, sp.getTenSanPham());
-            pstmt.setString(2, sp.getLoaiGiay());
-            pstmt.setString(3, sp.getThuongHieu());
-            pstmt.setDouble(4, sp.getGiaNhap());
-            pstmt.setDouble(5, sp.getGiaBan());
-
-            if (sp.getChatLieu() == null || sp.getChatLieu().trim().isEmpty()) {
-                pstmt.setNull(6, Types.NVARCHAR);
-            } else {
-                pstmt.setString(6, sp.getChatLieu().trim());
+            // Xóa mềm: Chuyển trangThai = 0
+            String sql = "UPDATE SanPham SET trangThai = 0 WHERE maSanPham = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                pstmt.setString(1, maSP);
+                n = pstmt.executeUpdate();
             }
-
-            pstmt.setString(7, sp.getMaSanPham());
-
-            n = pstmt.executeUpdate();
         } catch (SQLException e) {
             handleSQLException(e);
             e.printStackTrace();
@@ -177,19 +219,6 @@ public class SanPham_DAO {
     }
 
     public boolean xoaSanPham(String maSP) {
-        lastError = "";
-        int n = 0;
-        try {
-            Connection con = getConnection();
-            // Xóa mềm: Chuyển trangThai = 0
-            String sql = "UPDATE SanPham SET trangThai = 0 WHERE maSanPham = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, maSP);
-            n = pstmt.executeUpdate();
-        } catch (SQLException e) {
-            handleSQLException(e);
-            e.printStackTrace();
-        }
-        return n > 0;
+        return xoaSanPham(maSP, null);
     }
 }

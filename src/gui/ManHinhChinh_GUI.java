@@ -47,11 +47,12 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         tabbedPane.addTab("👟 QUẢN LÝ MẪU GIÀY [F2]", new QuanLySanPham_GUI(nhanVien));
 
         // Phân hệ 3: Khách hàng
-        tabbedPane.addTab("👥 KHÁCH HÀNG & TÍCH ĐIỂM [F3]", new QuanLyKhachHang_GUI());
+        tabbedPane.addTab("👥 KHÁCH HÀNG & TÍCH ĐIỂM [F3]", new QuanLyKhachHang_GUI(nhanVien));
 
-        // Phân hệ 4: Nhân sự (Chỉ mở nếu là Quản lý)
+        // Phân hệ 4 & 5: Nhân sự & Thống kê (Chỉ mở nếu là Quản lý - L06)
         if (nhanVien != null && nhanVien.isQuanLy()) {
             tabbedPane.addTab("👔 QUẢN LÝ NHÂN SỰ [F4]", new QuanLyNhanVien_GUI());
+            tabbedPane.addTab("📊 THỐNG KÊ DOANH THU [F5]", new ThongKe_GUI());
         }
 
         // C7: Khi chuyển tab về Bán hàng (tab 0), tự động đồng bộ lại danh sách sản phẩm mới
@@ -72,7 +73,7 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         // 4. Footer dưới cùng
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 4));
         pnlFooter.setBackground(new Color(241, 245, 249));
-        JLabel lblHotkeys = new JLabel("Phím tắt: [F1] Bán hàng | [F2] Mẫu giày | [F10] Thanh toán đơn | [ESC] Thoát | [Del] Xóa dòng giỏ");
+        JLabel lblHotkeys = new JLabel("Phím tắt: [F1] Bán hàng | [F2] Mẫu giày | [F3] Khách hàng | [F4] Nhân sự | [F5] Thống kê | [F10] Thanh toán | [Del] Xóa giỏ");
         lblHotkeys.setFont(new Font("Arial", Font.ITALIC, 11));
         lblHotkeys.setForeground(new Color(100, 116, 139));
         pnlFooter.add(lblHotkeys);
@@ -168,6 +169,15 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (tabbedPane.getTabCount() > 3) tabbedPane.setSelectedIndex(3);
+            }
+        });
+
+        // F5: Chuyển sang Tab Thống kê (nếu có quyền Quản lý)
+        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0), "KEY_F5");
+        am.put("KEY_F5", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (tabbedPane.getTabCount() > 4) tabbedPane.setSelectedIndex(4);
             }
         });
 
