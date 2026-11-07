@@ -128,7 +128,7 @@ Quan hệ: `Nguoi ◁── NhanVien`, `Nguoi ◁── KhachHang` (kế thừa)
 - **Phím tắt thật** (`registerKeyBindings`, `WHEN_IN_FOCUSED_WINDOW` trên JRootPane): F1/F2/F3/F4 chuyển tab, F10 → `BanHang_GUI.thanhToanDonHang()`, ESC → hộp thoại đăng xuất, DELETE → `BanHang_GUI.xoaMucKhoiGio()`. **Không có F8, Ctrl+N, Ctrl+S, Ctrl+E.**
 - **Bán hàng** (`BanHang_GUI`): chọn mẫu/size/màu, hiện tồn kho, thêm vào giỏ, tìm khách theo SĐT, checkbox dùng điểm (1 điểm = 1.000đ), ô tiền khách đưa tính tiền thừa realtime (bắt `NumberFormatException`), thanh toán → transaction → hộp thoại hóa đơn K80 (JDialog, không in ra máy in thật). Không có tìm kiếm Live Search, không có quét Barcode, không có popup chọn size.
 - **Quản lý mẫu giày** (`QuanLySanPham_GUI`): CRUD + validate giá (`giaNhap > 0`, `giaBan >= giaNhap`), tự sinh 1 biến thể SKU mặc định (size 40, màu Đen, tồn 20); chặn thao tác nếu không phải Quản lý; xóa = xóa mềm.
-- **Khách hàng** (`QuanLyKhachHang_GUI`): CRUD, validate SĐT regex `^0\d{9}$`, điểm chỉ đọc trên form.
+- **Khách hàng** (`QuanLyKhachHang_GUI`): CRUD, validate SĐT regex `^0[35789]\d{8}$`, điểm chỉ đọc trên form.
 - **Nhân sự** (`QuanLyNhanVien_GUI`): CRUD, băm SHA-256 mật khẩu.
 - **Thống kê** (`ThongKe_GUI`): KPI tính từ danh sách hóa đơn (`tongDoanhThu`, số đơn, "số đôi" = số đơn × 2 là **ước lượng**, không query ChiTietHoaDon); bảng Top sản phẩm **hardcode 5 dòng**; nút "Xuất Báo Cáo [Excel]" chỉ hiện `JOptionPane` thông báo, **không tạo file, không dùng Apache POI**; không có JFreeChart, không có biểu đồ, không có bộ lọc ngày thật (`cboThoiGian` chỉ đổi nhãn). Hình "biểu đồ" trong báo cáo là ảnh minh họa `diagram_chart_shoe.png`, không phải ảnh chụp ứng dụng.
 

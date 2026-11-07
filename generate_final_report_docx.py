@@ -231,7 +231,7 @@ def create_document():
     members_data = [
         ["1", "24704381", "Nguyễn Trọng Vinh", "Nhóm trưởng, Thiết kế CSDL & Tầng DAO", "100%"],
         ["2", "24718221", "Nhiêu Minh Kỳ", "Xây dựng Báo cáo Thống kê & Soạn thảo tài liệu", "100%"],
-        ["3", "24695041", "Trần Tấn Kiệt", "Phân tích nghiệp vụ, Tầng BUS & Bắt lỗi Regex", "100%"],
+        ["3", "24695041", "Trần Tấn Kiệt", "Phân tích nghiệp vụ, Xử lý ràng buộc & Bắt lỗi Regex", "100%"],
         ["4", "24638311", "Trần Mộc Tấn Phát", "Thiết kế Giao diện POS & Xử lý sự kiện Swing", "100%"]
     ]
     style_table(t_members, [0.5, 1.2, 1.8, 2.2, 0.6], ["STT", "MSSV", "Họ và tên", "Nhiệm vụ phân công", "Đánh giá"], members_data)
@@ -278,7 +278,7 @@ def create_document():
         ("PHẦN III: SƠ ĐỒ CƠ SỞ DỮ LIỆU (DATABASE DIAGRAM)", "17"),
         ("    I. Sơ đồ thực thể liên kết trên HQTCSDL SQL Server", "17"),
         ("    II. Mô tả chi tiết cấu trúc các bảng dữ liệu", "18"),
-        ("    III. Cơ chế xử lý toàn vẹn dữ liệu nâng cao (Trigger & Transaction)", "22"),
+        ("    III. Cơ chế xử lý toàn vẹn dữ liệu nâng cao (Ràng buộc CHECK & JDBC Transaction)", "22"),
         ("PHẦN IV: HIỆN THỰC VÀ MÔ TẢ GIAO DIỆN CHƯƠNG TRÌNH", "24"),
         ("    I. Chức năng Đăng nhập & Phân quyền", "24"),
         ("    II. Chức năng Bán hàng tại quầy (POS - Nghiệp vụ trọng tâm)", "25"),
@@ -313,12 +313,7 @@ def create_document():
     figures = [
         ("Hình 1. Sơ đồ lớp hướng đối tượng (UML Class Diagram) hệ thống quản lý bán giày", "11"),
         ("Hình 2. Sơ đồ cơ sở dữ liệu quan hệ trên Microsoft SQL Server (Database ERD)", "17"),
-        ("Hình 3. Minh họa thống kê doanh thu và phân tích top sản phẩm bán chạy", "32"),
-        ("Hình 4. Giao diện Đăng nhập hệ thống và phân quyền vai trò (Login & RBAC)", "24"),
-        ("Hình 5. Giao diện Bán hàng tại quầy POS (Tra cứu biến thể Size và Màu sắc)", "26"),
-        ("Hình 6. Hóa đơn thanh toán bán lẻ nhiệt khổ K80 in trực tiếp từ hệ thống", "27"),
-        ("Hình 7. Giao diện Quản lý danh mục sản phẩm và biến thể kích cỡ", "29"),
-        ("Hình 8. Giao diện Quản lý khách hàng thân thiết và tích lũy điểm thưởng", "30")
+        ("Hình 3. Minh họa thống kê doanh thu và phân tích top sản phẩm bán chạy", "32")
     ]
     for fig_title, p_num in figures:
         p_f = doc.add_paragraph()
@@ -349,10 +344,10 @@ def create_document():
 
     add_h2("II. Thu thập yêu cầu nghiệp vụ thực tế")
     add_h3("1. Nghiệp vụ của nhân viên quầy thu ngân (POS)")
-    add_bullet("Cần một màn hình POS trực quan, tốc độ xử lý tức thì, hỗ trợ tối đa việc dùng phím tắt (F10 thanh toán, F2 tìm kiếm, F3 nhập SĐT khách hàng) để thu ngân không cần rời tay khỏi bàn phím.", "Tốc độ và công thái học: ")
-    add_bullet("Gõ tên hoặc quét mã là hệ thống hiển thị ngay danh sách các size (36-44) kèm màu sắc và số lượng tồn thực tế trong kho.", "Tra cứu biến thể theo size: ")
+    add_bullet("Cần một màn hình POS trực quan, tốc độ xử lý tức thì, hỗ trợ tối đa việc dùng phím tắt (F1-F4 chuyển nhanh các tab, F10 thanh toán, Delete xóa dòng giỏ hàng, Esc hủy thao tác) để thu ngân không cần rời tay khỏi bàn phím.", "Tốc độ và công thái học: ")
+    add_bullet("Gõ tên hoặc chọn mẫu giày là hệ thống hiển thị ngay danh sách các size (35-45) kèm màu sắc và số lượng tồn thực tế trong kho.", "Tra cứu biến thể theo size: ")
     add_bullet("Nhập số điện thoại là hệ thống tự hiển thị tên khách, hạng thẻ thành viên và số điểm tích lũy. Cho phép dùng điểm để trừ tiền trực tiếp trên đơn hàng hiện tại.", "Tích điểm và chăm sóc khách hàng: ")
-    add_bullet("Tự động tính tổng tiền hàng, tiền khách đưa, tiền thừa phải thối lại; tự động trừ tồn kho theo đúng size/màu và in hóa đơn bán lẻ rõ ràng.", "Thanh toán và in hóa đơn: ")
+    add_bullet("Tính tổng tiền hàng, tiền khách đưa, tiền thừa phải thối lại; trừ tồn kho qua JDBC Transaction tại tầng DAO theo đúng size/màu và in hóa đơn bán lẻ rõ ràng.", "Thanh toán và in hóa đơn: ")
     add_bullet("Hỗ trợ tra cứu lại hóa đơn cũ khi khách hàng mang giày đến đổi size trong thời hạn quy định (chính sách đổi hàng trong 7 ngày).", "Nghiệp vụ đổi trả hàng: ")
 
     add_h3("2. Nghiệp vụ của người quản lý cửa hàng (Store Manager)")
@@ -374,16 +369,16 @@ def create_document():
     add_h3("1. Yêu cầu chức năng")
     add_p("Hệ thống phân rã thành các phân hệ chức năng rõ ràng:")
     add_bullet("Xác thực thông tin tài khoản và điều hướng giao diện phù hợp với vai trò (Admin hoặc Staff).", "Phân hệ Đăng nhập: ")
-    add_bullet("Tìm kiếm sản phẩm theo tên hoặc quét mã, chọn biến thể size/màu, hiển thị tồn kho, thêm vào giỏ, áp dụng tích điểm thành viên, tính tiền thừa, thanh toán và in hóa đơn K80.", "Phân hệ Bán hàng (POS): ")
+    add_bullet("Tìm kiếm sản phẩm theo tên hoặc chọn từ danh mục, chọn biến thể size/màu, hiển thị SoLuongTon tức thì, thêm vào giỏ, áp dụng tích điểm thành viên, tính tiền thừa, thanh toán và in hóa đơn K80.", "Phân hệ Bán hàng (POS): ")
     add_bullet("Thêm, sửa, tìm kiếm nâng cao, lọc theo loại/hãng/size, cập nhật số lượng tồn kho theo biến thể, ngừng kinh doanh sản phẩm.", "Phân hệ Quản lý sản phẩm: ")
     add_bullet("Quản lý danh sách thành viên, cập nhật thông tin cá nhân, tra cứu lịch sử mua hàng và quản lý điểm thưởng tích lũy.", "Phân hệ Quản lý khách hàng: ")
     add_bullet("Quản lý danh sách nhân viên, thông tin lương cơ bản, cấp phát và khóa tài khoản đăng nhập.", "Phân hệ Quản lý nhân viên: ")
-    add_bullet("Báo cáo doanh thu theo mốc thời gian, thống kê số lượng giày đã bán ra, vẽ biểu đồ Top sản phẩm và xuất file Excel.", "Phân hệ Thống kê: ")
+    add_bullet("Báo cáo doanh thu theo mốc thời gian, thống kê số lượng giày đã bán ra, tổng hợp các chỉ số kinh doanh và danh mục sản phẩm tiêu biểu.", "Phân hệ Thống kê: ")
 
     add_h3("2. Yêu cầu phi chức năng")
     add_bullet("Thời gian phản hồi tìm kiếm tức thì dưới 0.5 giây; thời gian thực thi giao dịch thanh toán và in hóa đơn dưới 1 giây.", "Hiệu năng xử lý: ")
     add_bullet("Áp dụng JDBC Transaction để đảm bảo tính toàn vẹn (ACID): thêm hóa đơn, thêm chi tiết và trừ tồn kho phải thành công đồng thời, nếu một bước lỗi thì rollback toàn bộ.", "An toàn dữ liệu & Concurrency: ")
-    add_bullet("Giao diện đồ họa Swing FlatLaf hiện đại, trực quan, hỗ trợ 100% thao tác bàn phím thông qua các phím tắt chuyên dụng.", "Tính dễ dùng & Công thái học: ")
+    add_bullet("Giao diện đồ họa Java Swing kết hợp UIHelper trực quan, hiện đại, hỗ trợ thao tác nhanh thông qua các phím tắt công thái học.", "Tính dễ dùng & Công thái học: ")
 
     add_callout("Quy trình bán hàng chuẩn 6 bước: [1] Tiếp nhận mẫu giày -> [2] Tra cứu tồn kho theo size/màu -> [3] Thêm vào giỏ hàng -> [4] Nhập SĐT tích điểm -> [5] Nhập tiền khách đưa & kiểm tra tiền thừa -> [6] Nhấn F10 thanh toán, trừ kho và in hóa đơn K80.", "CHUỖI HÀNH ĐỘNG CỐT LÕI TẠI QUẦY:")
 
@@ -412,7 +407,7 @@ def create_document():
     add_h2("II. Phân tích 4 đặc trưng Hướng đối tượng (OOP) áp dụng trong hệ thống")
     add_bullet("Hệ thống xây dựng lớp cơ sở trừu tượng Nguoi (Person) gom chung các thuộc tính nhân thân (hoTen, soDienThoai, ngaySinh, gioiTinh, diaChi, email). Cả NhanVien và KhachHang đều kế thừa từ Nguoi thông qua mối quan hệ Tổng quát hóa (Generalization ──▷). Điều này giúp tái sử dụng mã nguồn tối đa và phản ánh đúng bản chất thế giới thực.", "1. Tính Kế thừa (Inheritance): ")
     add_bullet("Toàn bộ thuộc tính trong các lớp đều được đặt ở mức truy cập Private (-). Việc đọc và ghi dữ liệu ra bên ngoài bắt buộc phải thông qua các phương thức Getter/Setter công khai (+), kèm theo các logic kiểm tra tính hợp lệ (Validation) như kiểm tra số điện thoại đúng đầu số mạng Việt Nam, kiểm tra tuổi lao động >= 18, kiểm tra tồn kho không âm.", "2. Tính Đóng gói (Encapsulation): ")
-    add_bullet("Lớp Nguoi là lớp trừu tượng (abstract class) khai báo phương thức trừu tượng getThongTin(). Cả hai lớp con NhanVien và KhachHang bắt buộc phải Override (ghi đè) phương thức này để xuất ra thông tin tóm tắt tương ứng với vai trò của mình. Ngoài ra, các hàm toString(), equals(), hashCode() cũng được cài đặt đa hình.", "3. Tính Trừu tượng & Đa hình (Abstraction & Polymorphism): ")
+    add_bullet("Lớp Nguoi là lớp trừu tượng (abstract class) khai báo phương thức trừu tượng getThongTin() và cài đặt phương thức toString() dùng chung. Cả hai lớp con NhanVien và KhachHang bắt buộc phải Override (ghi đè) getThongTin() để xuất ra thông tin tóm tắt tương ứng với vai trò của mình, đồng thời tự cài đặt equals() và hashCode() độc lập dựa trên mã định danh duy nhất (maNhanVien, maKhachHang) của từng thực thể.", "3. Tính Trừu tượng & Đa hình (Abstraction & Polymorphism): ")
     add_bullet("Hệ thống thể hiện rõ sự khác biệt giữa hai cấp độ sở hữu: Quan hệ Tổng thành chặt chẽ (Composition ◆──) được áp dụng giữa SanPham ◆── ChiTietGiay (Một mẫu giày sở hữu các biến thể size/màu) và HoaDon ◆── ChiTietHoaDon (Hóa đơn sở hữu các dòng hàng). Khi đối tượng cha bị hủy thì các đối tượng con thành phần không tồn tại độc lập. Trong khi đó, quan hệ giữa NhanVien, KhachHang và HoaDon là quan hệ Liên kết (Association ──).", "4. Quan hệ Tổng thành (Composition) & Liên kết (Association): ")
 
     add_callout("Chiến lược ánh xạ giữa OOP và CSDL SQL Server: Ở tầng ứng dụng Java, NhanVien và KhachHang kế thừa lớp Nguoi. Khi lưu xuống CSDL quan hệ, nhóm áp dụng chiến lược 'Table per Concrete Class' (tạo 2 bảng vật lý độc lập là NhanVien và KhachHang) để tối ưu hóa tốc độ truy vấn SELECT/JOIN khi bán hàng tại quầy POS mà không cần JOIN qua bảng trung gian.", "LƯU Ý VỀ ÁNH XẠ KIẾN TRÚC:");
@@ -425,7 +420,7 @@ def create_document():
     t_ng = doc.add_table(rows=7, cols=5)
     ng_data = [
         ["1", "hoTen", "String", "Không rỗng, Độ dài từ 3 - 50 ký tự", "Họ và tên đầy đủ theo tiếng Việt"],
-        ["2", "soDienThoai", "String", "Không rỗng, Chuẩn 10 số (03/05/07/08/09)", "Số điện thoại liên lạc chính"],
+        ["2", "soDienThoai", "String", "Không rỗng, Chuẩn 10 số, Regex: ^0[35789][0-9]{8}$", "Số điện thoại liên lạc chính"],
         ["3", "ngaySinh", "LocalDate", "Không rỗng, Phải trước ngày hiện tại", "Ngày tháng năm sinh"],
         ["4", "gioiTinh", "boolean", "Không rỗng, True: Nam, False: Nữ", "Giới tính sinh học"],
         ["5", "diaChi", "String", "Có thể rỗng, Tối đa 200 ký tự", "Địa chỉ cư trú hoặc thường trú"],
@@ -436,40 +431,40 @@ def create_document():
     # Table 2: NhanVien (extends Nguoi)
     add_h3("2. Lớp NhanVien (Nhân sự - Kế thừa từ Nguoi)")
     add_p("Lớp kế thừa lớp Nguoi, bổ sung các thuộc tính và hành vi nghiệp vụ dành riêng cho nhân viên thu ngân và quản lý cửa hàng.")
-    t_nv = doc.add_table(rows=6, cols=5)
+    t_nv = doc.add_table(rows=7, cols=5)
     nv_data = [
         ["1", "maNhanVien", "String", "PK, Không rỗng, Regex: ^NV[0-9]{4}$", "Mã định danh nhân viên (NV0001, NV0002...)"],
         ["2", "chucVu", "String", "Không rỗng, {'Quản lý', 'Nhân viên bán hàng'}", "Vị trí công tác tại cửa hàng"],
-        ["3", "luongCoBan", "double", "Không rỗng, Giá trị >= 3.000.000 VNĐ", "Mức lương cơ bản thỏa thuận"],
-        ["4", "caLamViec", "String", "Không rỗng, {'Ca sáng', 'Ca chiều', 'Ca tối'}", "Ca trực bán hàng trong ngày"],
-        ["5", "trangThai", "boolean", "Không rỗng, True: Đang làm, False: Đã nghỉ", "Trạng thái lao động tại shop"]
+        ["3", "luongCoBan", "double", "Không rỗng, Giá trị > 0", "Mức lương cơ bản thỏa thuận"],
+        ["4", "caLamViec", "String", "Có thể rỗng, {'Toàn thời gian', 'Ca sáng', 'Ca chiều', 'Ca tối'}", "Ca trực làm việc trong ngày"],
+        ["5", "matKhau", "String", "Không rỗng, Chuỗi hex SHA-256 (độ dài 64 ký tự)", "Mật khẩu băm bảo mật SHA-256"],
+        ["6", "trangThai", "boolean", "Không rỗng, Mặc định true (True: Đang làm, False: Đã nghỉ)", "Trạng thái công tác nhân sự"]
     ]
     style_table(t_nv, [0.5, 1.2, 0.9, 2.3, 1.4], ["STT", "Thuộc tính", "Kiểu dữ liệu", "Ràng buộc kiểm tra", "Ghi chú nghiệp vụ"], nv_data)
 
     # Table 3: KhachHang (extends Nguoi)
     add_h3("3. Lớp KhachHang (Khách hàng thân thiết - Kế thừa từ Nguoi)")
     add_p("Lớp kế thừa lớp Nguoi, quản lý thông tin tích điểm, xếp hạng thành viên và tính toán mức chiết khấu ưu đãi.")
-    t_kh = doc.add_table(rows=5, cols=5)
+    t_kh = doc.add_table(rows=4, cols=5)
     kh_data = [
         ["1", "maKhachHang", "String", "PK, Không rỗng, Regex: ^KH[0-9]{4}$", "Mã khách hàng thành viên (KH0001...)"],
-        ["2", "diemTichLuy", "int", "Không rỗng, Giá trị >= 0, Mặc định 0", "Điểm thưởng (1 điểm quy đổi = 1.000 VNĐ)"],
-        ["3", "hangThanhVien", "String", "Không rỗng, {'Đồng', 'Bạc', 'Vàng', 'Kim Cương'}", "Hạng thẻ tính theo tổng tiền mua sắm"],
-        ["4", "ngayDangKy", "LocalDate", "Không rỗng, Mặc định ngày hiện tại", "Ngày đăng ký làm thẻ thành viên"]
+        ["2", "diemTichLuy", "int", "Không rỗng, Giá trị >= 0, Mặc định 0", "Điểm thưởng tích lũy (1 điểm quy đổi = 1.000 VNĐ)"],
+        ["3", "hangThanhVien", "String", "Không rỗng, {'Đồng', 'Bạc', 'Vàng', 'Kim Cương'}", "Hạng thẻ tính theo tổng tiền mua sắm và điểm tích lũy"]
     ]
     style_table(t_kh, [0.5, 1.2, 0.9, 2.3, 1.4], ["STT", "Thuộc tính", "Kiểu dữ liệu", "Ràng buộc kiểm tra", "Ghi chú nghiệp vụ"], kh_data)
 
     # Table 4: SanPham
     add_h3("4. Lớp SanPham (Thông tin mẫu giày thời trang)")
-    add_p("Lớp cha tổng quát đại diện cho một model/mẫu giày thời trang trước khi phân tách kích cỡ.")
+    add_p("Lớp thực thể tổng quát đại diện cho một model/mẫu giày thời trang trước khi phân tách kích cỡ và màu sắc.")
     t_sp = doc.add_table(rows=9, cols=5)
     sp_data = [
         ["1", "maSanPham", "String", "PK, Không rỗng, Regex: ^SP[0-9]{4}$", "Mã định danh mẫu giày (SP0001...)"],
-        ["2", "tenSanPham", "String", "Không rỗng, Độ dài từ 5 - 150 ký tự", "Tên thương mại của đôi giày"],
-        ["3", "loaiGiay", "String", "Không rỗng, {'Sneaker', 'Sandal', 'Giày Da'}", "Phân loại phong cách giày"],
-        ["4", "thuongHieu", "String", "Không rỗng, Tối đa 50 ký tự", "Nhãn hàng sản xuất (Nike, Adidas, Biti's...)"],
+        ["2", "tenSanPham", "String", "Không rỗng, Độ dài từ 3 - 100 ký tự", "Tên thương mại của mẫu giày"],
+        ["3", "loaiGiay", "String", "Không rỗng, Chuỗi phân loại kiểu dáng", "Dòng phong cách thiết kế giày"],
+        ["4", "thuongHieu", "String", "Không rỗng, Chuỗi nhãn hiệu sản xuất", "Hãng sản xuất thời trang (Nike, Adidas, Biti's...)"],
         ["5", "giaNhap", "double", "Không rỗng, Giá trị > 0", "Giá nhập sỉ từ nhà sản xuất"],
-        ["6", "giaBan", "double", "Không rỗng, giaBan >= giaNhap * 1.1", "Giá bán lẻ niêm yết tại quầy"],
-        ["7", "chatLieu", "String", "Có thể rỗng, Tối đa 100 ký tự", "Chất liệu (Da thật, Vải lưới Canvas, Cao su)"],
+        ["6", "giaBan", "double", "Không rỗng, Ràng buộc giaBan >= giaNhap", "Giá bán lẻ niêm yết tại quầy"],
+        ["7", "chatLieu", "String", "Có thể rỗng, Tối đa 50 ký tự", "Chất liệu (Da thật, Vải lưới Canvas, Cao su...)"],
         ["8", "trangThai", "boolean", "Không rỗng, Mặc định true", "True: Đang bán, False: Ngừng kinh doanh"]
     ]
     style_table(t_sp, [0.5, 1.2, 0.9, 2.3, 1.4], ["STT", "Thuộc tính", "Kiểu dữ liệu", "Ràng buộc kiểm tra", "Ghi chú nghiệp vụ"], sp_data)
@@ -479,12 +474,12 @@ def create_document():
     add_p("Lớp cốt lõi giải quyết bài toán nghiệp vụ giày dép: mỗi mẫu giày có nhiều size và màu sắc với số lượng tồn kho riêng biệt.")
     t_ctg = doc.add_table(rows=7, cols=5)
     ctg_data = [
-        ["1", "maChiTietGiay", "String", "PK, Không rỗng, Regex: ^CTG[0-9]{5}$", "Mã SKU chi tiết (CTG00001...)"],
+        ["1", "maChiTietGiay", "String", "PK, Không rỗng, Regex: ^CTG[0-9]{4}$", "Mã SKU chi tiết biến thể (CTG0001...)"],
         ["2", "sanPham", "SanPham", "FK, Không rỗng, Quan hệ Composition", "Mẫu giày cha sở hữu biến thể này"],
         ["3", "kichThuoc", "int", "Không rỗng, Thuộc đoạn [35, 45]", "Kích cỡ giày chuẩn EU"],
         ["4", "mauSac", "String", "Không rỗng, Độ dài 2 - 30 ký tự", "Màu sắc (Trắng, Đen, Xám, Đỏ, Phối màu)"],
-        ["5", "soLuongTon", "int", "Không rỗng, Giá trị >= 0, Mặc định 0", "Số lượng đôi giày còn lại trong kho"],
-        ["6", "hinhAnh", "String", "Có thể rỗng, Đường dẫn ảnh hợp lệ", "Ảnh chụp thực tế góc cạnh đôi giày"]
+        ["5", "soLuongTon", "int", "Không rỗng, Giá trị >= 0, Mặc định 0", "Số lượng tồn kho (SoLuongTon) của biến thể giày"],
+        ["6", "hinhAnh", "String", "Có thể rỗng, Tối đa 200 ký tự", "Ảnh chụp thực tế góc cạnh đôi giày"]
     ]
     style_table(t_ctg, [0.5, 1.2, 0.9, 2.3, 1.4], ["STT", "Thuộc tính", "Kiểu dữ liệu", "Ràng buộc kiểm tra", "Ghi chú nghiệp vụ"], ctg_data)
     add_callout("Ràng buộc duy nhất (Unique Constraint): Cặp thuộc tính (sanPham, kichThuoc, mauSac) là duy nhất nhằm bảo đảm không bao giờ xảy ra tình trạng tạo trùng 2 biến thể cùng size và màu cho một mẫu giày.", "RÀNG BUỘC BIẾN THỂ:");
@@ -492,17 +487,22 @@ def create_document():
     # Table 6: HoaDon
     add_h3("6. Lớp HoaDon (Phiếu bán hàng POS)")
     add_p("Lớp quản lý giao dịch thanh toán mua bán giày tại quầy thu ngân.")
-    t_hd = doc.add_table(rows=10, cols=5)
+    t_hd = doc.add_table(rows=15, cols=5)
     hd_data = [
         ["1", "maHoaDon", "String", "PK, Không rỗng, Regex: ^HD[0-9]{6}$", "Mã hóa đơn duy nhất (HD000001...)"],
         ["2", "ngayLap", "LocalDateTime", "Không rỗng, <= Thời điểm hiện tại", "Thời gian chính xác xuất đơn hàng"],
         ["3", "nhanVien", "NhanVien", "FK, Không rỗng, Nhân viên lập phiếu", "Thu ngân phụ trách ca bán"],
-        ["4", "khachHang", "KhachHang", "FK, Có thể rỗng (Khách vãng lai)", "Khách hàng mua (để tích điểm)"],
-        ["5", "tongTien", "double", "Không rỗng, Giá trị >= 0", "Tổng số tiền thực khách cần thanh toán"],
-        ["6", "phuongThucTT", "String", "Không rỗng, {'Tiền mặt', 'Chuyển khoản'}", "Hình thức giao dịch"],
-        ["7", "tienKhachDua", "double", "Không rỗng, tienKhachDua >= tongTien", "Số tiền mặt khách đưa tại quầy"],
-        ["8", "tienThua", "double", "Không rỗng, tienThua = tienKhachDua - tongTien", "Tiền thừa thối lại cho khách"],
-        ["9", "danhSachChiTiet", "List<ChiTietHoaDon>", "Không rỗng khi hoàn tất thanh toán", "Danh sách các đôi giày đã bán (Composition)"]
+        ["4", "khachHang", "KhachHang", "FK, Có thể rỗng (Khách vãng lai)", "Khách hàng mua (để tích điểm và hưởng ưu đãi)"],
+        ["5", "tongTienHang", "double", "Không rỗng, Giá trị >= 0", "Tổng tiền hàng trước khi giảm giá"],
+        ["6", "chietKhau", "double", "Không rỗng, Giá trị >= 0", "Số tiền chiết khấu giảm theo hạng thẻ thành viên"],
+        ["7", "diemSuDung", "int", "Không rỗng, Giá trị >= 0", "Số điểm thưởng khách hàng sử dụng"],
+        ["8", "tienGiamDiem", "double", "Không rỗng, = diemSuDung * 1.000 VNĐ", "Số tiền giảm tương ứng điểm tích lũy quy đổi"],
+        ["9", "tongTien", "double", "Không rỗng, tongTien = tongTienHang - chietKhau - tienGiamDiem", "Tổng số tiền thực khách cần thanh toán"],
+        ["10", "phuongThucTT", "String", "Không rỗng, {'Tiền mặt', 'Chuyển khoản QR'}", "Hình thức giao dịch thanh toán tại quầy"],
+        ["11", "tienKhachDua", "double", "Không rỗng, tienKhachDua >= tongTien", "Số tiền mặt khách đưa tại quầy"],
+        ["12", "tienThua", "double", "Không rỗng, tienThua = tienKhachDua - tongTien", "Tiền thừa thối lại cho khách mua hàng"],
+        ["13", "diemCong", "int", "Không rỗng, Giá trị >= 0", "Số điểm thưởng tích lũy được cộng mới"],
+        ["14", "danhSachChiTiet", "List<ChiTietHoaDon>", "Không rỗng khi hoàn tất thanh toán", "Danh sách các đôi giày đã bán (Composition)"]
     ]
     style_table(t_hd, [0.5, 1.2, 0.9, 2.3, 1.4], ["STT", "Thuộc tính", "Kiểu dữ liệu", "Ràng buộc kiểm tra", "Ghi chú nghiệp vụ"], hd_data)
 
@@ -516,7 +516,7 @@ def create_document():
         ["3", "soLuong", "int", "Không rỗng, 0 < soLuong <= soLuongTon", "Số lượng bán (kiểm tra tồn kho trước khi lưu)"],
         ["4", "donGia", "double", "Không rỗng, Giá trị > 0", "Đơn giá niêm yết tại thời điểm bán"],
         ["5", "giamGia", "double", "Không rỗng, Giá trị >= 0", "Tiền giảm trừ trực tiếp hoặc chiết khấu thẻ"],
-        ["6", "thanhTien", "double", "thanhTien = (soLuong * donGia) - giamGia", "Thành tiền thực tế của dòng hàng"]
+        ["6", "thanhTien", "double", "thanhTien = Math.max(0, soLuong * donGia - giamGia)", "Thành tiền thực tế của dòng hàng"]
     ]
     style_table(t_cthd, [0.5, 1.2, 0.9, 2.3, 1.4], ["STT", "Thuộc tính", "Kiểu dữ liệu", "Ràng buộc kiểm tra", "Ghi chú nghiệp vụ"], cthd_data)
 
@@ -527,7 +527,7 @@ def create_document():
     # ==========================================
     add_h1("PHẦN III: SƠ ĐỒ CƠ SỞ DỮ LIỆU (DATABASE DIAGRAM)")
     add_h2("I. Sơ đồ thực thể liên kết trên HQTCSDL Microsoft SQL Server")
-    add_p("Cơ sở dữ liệu được thiết kế đạt chuẩn chuẩn hóa 3NF (Third Normal Form), đảm bảo không dư thừa dữ liệu, duy trì tính toàn vẹn tham chiếu thông qua các ràng buộc Khóa chính (Primary Key), Khóa ngoại (Foreign Key) và các ràng buộc toàn vẹn CHECK.")
+    add_p("Cơ sở dữ liệu được thiết kế đạt chuẩn chuẩn hóa 3NF (Third Normal Form), đảm bảo không dư thừa dữ liệu, duy trì tính toàn vẹn tham chiếu thông qua các ràng buộc Khóa chính (Primary Key), Khóa ngoại (Foreign Key) và các ràng buộc toàn vẹn CHECK nghiệp vụ chặt chẽ.")
     
     if os.path.exists("diagram_erd_shoe.png"):
         doc.add_picture("diagram_erd_shoe.png", width=Inches(6.2))
@@ -537,88 +537,75 @@ def create_document():
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_h2("II. Mô tả chi tiết cấu trúc các bảng dữ liệu (Data Dictionary)")
-    add_p("Chi tiết 9 bảng vật lý được cài đặt trên hệ quản trị Microsoft SQL Server:")
+    add_p("Hệ thống cơ sở dữ liệu quan hệ gồm 6 bảng vật lý chuẩn hóa 3NF được cài đặt trên hệ quản trị Microsoft SQL Server phục vụ quản lý bán hàng:")
 
     # Tables in DB
     tables_db = [
-        ("Bảng LoaiGiay", [
-            ["MaLoai", "VARCHAR(10)", "PK", "No", "Mã phân loại giày (LG001...)"],
-            ["TenLoai", "NVARCHAR(50)", "None", "No", "Tên loại giày (UNIQUE)"],
-            ["MoTa", "NVARCHAR(255)", "None", "Yes", "Ghi chú đặc điểm loại giày"]
+        ("1. Bảng NhanVien (Nhân sự và Phân quyền)", [
+            ["maNhanVien", "VARCHAR(10)", "PK", "No", "Mã nhân viên (NV0001...), CHECK (maNhanVien LIKE 'NV[0-9][0-9][0-9][0-9]') [CK_NhanVien_ma]"],
+            ["hoTen", "NVARCHAR(50)", "None", "No", "Họ và tên nhân viên"],
+            ["soDienThoai", "VARCHAR(10)", "UQ", "No", "UNIQUE (UQ_NhanVien_soDienThoai), CHECK (soDienThoai LIKE '0[35789]........') [CK_NhanVien_sdt]"],
+            ["ngaySinh", "DATE", "None", "No", "CHECK (ngaySinh <= DATEADD(YEAR, -18, GETDATE())) [CK_NhanVien_tuoi], nhân viên đủ 18 tuổi"],
+            ["gioiTinh", "BIT", "None", "No", "Giới tính (1: Nam, 0: Nữ)"],
+            ["diaChi", "NVARCHAR(200)", "None", "Yes", "Địa chỉ thường trú liên lạc"],
+            ["email", "VARCHAR(50)", "None", "Yes", "CHECK (email IS NULL OR email LIKE '%_@_%._%') [CK_NhanVien_email]"],
+            ["chucVu", "NVARCHAR(30)", "None", "No", "CHECK (chucVu IN (N'Quản lý', N'Nhân viên bán hàng')) [CK_NhanVien_chucVu]"],
+            ["luongCoBan", "DECIMAL(18,0)", "None", "No", "Lương cơ bản hàng tháng, CHECK (luongCoBan > 0) [CK_NhanVien_luong]"],
+            ["caLamViec", "NVARCHAR(20)", "None", "Yes", "CHECK (caLamViec IS NULL OR caLamViec IN (N'Ca sáng', N'Ca chiều', N'Ca tối', N'Toàn thời gian')) [CK_NhanVien_ca]"],
+            ["matKhau", "CHAR(64)", "None", "No", "Chuỗi băm mật khẩu SHA-256 hex (64 ký tự), CHECK (LEN(matKhau) = 64) [CK_NhanVien_matKhau]"],
+            ["trangThai", "BIT", "None", "No", "DEFAULT 1 [DF_NhanVien_trangThai] (1: Đang làm việc, 0: Đã nghỉ việc)"]
         ]),
-        ("Bảng ThuongHieu", [
-            ["MaThuongHieu", "VARCHAR(10)", "PK", "No", "Mã thương hiệu (TH001...)"],
-            ["TenThuongHieu", "NVARCHAR(50)", "None", "No", "Tên thương hiệu (UNIQUE)"],
-            ["QuocGia", "NVARCHAR(50)", "None", "Yes", "Quốc gia xuất xứ nhãn hàng"],
-            ["Website", "VARCHAR(100)", "None", "Yes", "Website chính hãng"]
+        ("2. Bảng KhachHang (Khách hàng thành viên và Tích điểm)", [
+            ["maKhachHang", "VARCHAR(10)", "PK", "No", "Mã khách hàng (KH0001...), CHECK (maKhachHang LIKE 'KH[0-9][0-9][0-9][0-9]') [CK_KhachHang_ma]"],
+            ["hoTen", "NVARCHAR(50)", "None", "No", "Họ và tên khách hàng"],
+            ["soDienThoai", "VARCHAR(10)", "UQ", "No", "UNIQUE (UQ_KhachHang_soDienThoai), CHECK (soDienThoai LIKE '0[35789]........') [CK_KhachHang_sdt]"],
+            ["ngaySinh", "DATE", "None", "Yes", "Ngày tháng năm sinh của khách hàng"],
+            ["gioiTinh", "BIT", "None", "Yes", "Giới tính (1: Nam, 0: Nữ), DEFAULT 1 [DF_KhachHang_gioiTinh]"],
+            ["diaChi", "NVARCHAR(200)", "None", "Yes", "Địa chỉ liên lạc của khách hàng"],
+            ["email", "VARCHAR(50)", "None", "Yes", "CHECK (email IS NULL OR email LIKE '%_@_%._%') [CK_KhachHang_email]"],
+            ["diemTichLuy", "INT", "None", "No", "Điểm tích lũy, DEFAULT 0 [DF_KhachHang_diem], CHECK (diemTichLuy >= 0) [CK_KhachHang_diem]"],
+            ["hangThanhVien", "NVARCHAR(20)", "None", "No", "Hạng thẻ, DEFAULT N'Đồng' [DF_KhachHang_hang], CHECK (hangThanhVien IN (N'Đồng', N'Bạc', N'Vàng', N'Kim Cương')) [CK_KhachHang_hang]"]
         ]),
-        ("Bảng SanPham", [
-            ["MaSanPham", "VARCHAR(10)", "PK", "No", "Mã mẫu giày cha (SP0001...)"],
-            ["TenSanPham", "NVARCHAR(100)", "None", "No", "Tên mẫu giày thời trang"],
-            ["MaLoai", "VARCHAR(10)", "FK", "No", "Tham chiếu LoaiGiay(MaLoai)"],
-            ["MaThuongHieu", "VARCHAR(10)", "FK", "No", "Tham chiếu ThuongHieu(MaThuongHieu)"],
-            ["XuatXu", "NVARCHAR(50)", "None", "Yes", "Nước sản xuất"],
-            ["ChatLieu", "NVARCHAR(100)", "None", "Yes", "Chất liệu (Da, Canvas, Mesh...)"],
-            ["GiaNhap", "DECIMAL(18,2)", "None", "No", "CHECK (GiaNhap > 0)"],
-            ["GiaBan", "DECIMAL(18,2)", "None", "No", "CHECK (GiaBan >= GiaNhap)"],
-            ["HinhAnh", "VARCHAR(255)", "None", "Yes", "Đường dẫn ảnh đại diện"],
-            ["TrangThai", "BIT", "None", "No", "DEFAULT 1 (1: Kinh doanh, 0: Ngừng)"]
+        ("3. Bảng SanPham (Mẫu sản phẩm giày)", [
+            ["maSanPham", "VARCHAR(10)", "PK", "No", "Mã mẫu giày (SP0001...), CHECK (maSanPham LIKE 'SP[0-9][0-9][0-9][0-9]') [CK_SanPham_ma]"],
+            ["tenSanPham", "NVARCHAR(100)", "None", "No", "Tên mẫu giày, CHECK (LEN(LTRIM(RTRIM(tenSanPham))) > 0) [CK_SanPham_ten]"],
+            ["loaiGiay", "NVARCHAR(30)", "None", "No", "Phân loại kiểu dáng mẫu giày (Sneaker, Oxford, Sandal, Boots...)"],
+            ["thuongHieu", "NVARCHAR(50)", "None", "No", "Hãng sản xuất / nhãn hiệu xuất xứ (Nike, Adidas, Puma, Converse...)"],
+            ["giaNhap", "DECIMAL(18,0)", "None", "No", "Giá vốn nhập kho, CHECK (giaNhap > 0) [CK_SanPham_giaNhap]"],
+            ["giaBan", "DECIMAL(18,0)", "None", "No", "Giá bán niêm yết, CHECK (giaBan >= giaNhap) [CK_SanPham_giaBan]"],
+            ["chatLieu", "NVARCHAR(50)", "None", "Yes", "Chất liệu chế tác (Da bò, Da PU, Canvas, Mesh...)"],
+            ["trangThai", "BIT", "None", "No", "DEFAULT 1 [DF_SanPham_trangThai] (1: Đang kinh doanh, 0: Ngừng kinh doanh - Xóa mềm)"]
         ]),
-        ("Bảng ChiTietGiay (Biến thể SKU)", [
-            ["MaChiTietGiay", "VARCHAR(10)", "PK", "No", "Mã biến thể SKU (CTG00001...)"],
-            ["MaSanPham", "VARCHAR(10)", "FK", "No", "Tham chiếu SanPham(MaSanPham)"],
-            ["KichThuoc", "INT", "None", "No", "CHECK (KichThuoc BETWEEN 35 AND 45)"],
-            ["MauSac", "NVARCHAR(30)", "None", "No", "Màu sắc (Trắng, Đen, Xám...)"],
-            ["SoLuongTon", "INT", "None", "No", "CHECK (SoLuongTon >= 0), DEFAULT 0"],
-            ["HinhAnhBienThe", "VARCHAR(255)", "None", "Yes", "Đường dẫn ảnh biến thể màu"],
-            ["TrangThai", "BIT", "None", "No", "DEFAULT 1 (1: Khả dụng)"]
+        ("4. Bảng ChiTietGiay (Biến thể kích cỡ và màu sắc SKU)", [
+            ["maChiTietGiay", "VARCHAR(10)", "PK", "No", "Mã biến thể SKU (CTG0001...), CHECK (maChiTietGiay LIKE 'CTG[0-9][0-9][0-9][0-9]') [CK_ChiTietGiay_ma]"],
+            ["maSanPham", "VARCHAR(10)", "FK", "No", "FK tham chiếu SanPham(maSanPham) [FK_ChiTietGiay_SanPham]"],
+            ["kichThuoc", "INT", "None", "No", "Kích cỡ giày, CHECK (kichThuoc BETWEEN 35 AND 45) [CK_ChiTietGiay_size]"],
+            ["mauSac", "NVARCHAR(30)", "None", "No", "Màu sắc biến thể. UNIQUE (maSanPham, kichThuoc, mauSac) [UQ_ChiTietGiay_BienThe]"],
+            ["soLuongTon", "INT", "None", "No", "Số lượng tồn kho biến thể, DEFAULT 0 [DF_ChiTietGiay_ton], CHECK (soLuongTon >= 0) [CK_ChiTietGiay_ton]"],
+            ["hinhAnh", "VARCHAR(200)", "None", "Yes", "Tên file ảnh biến thể, DEFAULT 'default_shoe.png' [DF_ChiTietGiay_anh]"]
         ]),
-        ("Bảng KhachHang", [
-            ["MaKhachHang", "VARCHAR(10)", "PK", "No", "Mã khách hàng (KH0001...)"],
-            ["HoTen", "NVARCHAR(50)", "None", "No", "Họ và tên khách hàng"],
-            ["SoDienThoai", "VARCHAR(10)", "None", "No", "UNIQUE, CHECK (LEN=10)"],
-            ["Email", "VARCHAR(50)", "None", "Yes", "Hòm thư điện tử"],
-            ["DiaChi", "NVARCHAR(200)", "None", "Yes", "Địa chỉ liên lạc"],
-            ["DiemTichLuy", "INT", "None", "No", "CHECK (DiemTichLuy >= 0), DEFAULT 0"],
-            ["NgayDangKy", "DATE", "None", "No", "DEFAULT GETDATE()"]
+        ("5. Bảng HoaDon (Hóa đơn thanh toán giao dịch)", [
+            ["maHoaDon", "VARCHAR(10)", "PK", "No", "Mã hóa đơn (HD000001...), CHECK (maHoaDon LIKE 'HD[0-9][0-9][0-9][0-9][0-9][0-9]') [CK_HoaDon_ma]"],
+            ["ngayLap", "DATETIME", "None", "No", "Thời điểm lập hóa đơn, DEFAULT GETDATE() [DF_HoaDon_ngayLap]"],
+            ["maNhanVien", "VARCHAR(10)", "FK", "No", "FK tham chiếu NhanVien(maNhanVien) [FK_HoaDon_NhanVien]"],
+            ["maKhachHang", "VARCHAR(10)", "FK", "Yes", "FK tham chiếu KhachHang(maKhachHang) [FK_HoaDon_KhachHang], NULL là khách vãng lai"],
+            ["tongTienHang", "DECIMAL(18,0)", "None", "No", "Tổng tiền hàng trước giảm, CHECK (tongTienHang >= 0) [CK_HoaDon_soAm]"],
+            ["chietKhau", "DECIMAL(18,0)", "None", "No", "Số tiền chiết khấu theo hạng thẻ, DEFAULT 0 [DF_HoaDon_chietKhau], CHECK (chietKhau >= 0) [CK_HoaDon_soAm]"],
+            ["diemSuDung", "INT", "None", "No", "Số điểm tích lũy dùng khấu trừ, DEFAULT 0 [DF_HoaDon_diemSuDung], CHECK (diemSuDung >= 0) [CK_HoaDon_soAm]"],
+            ["tienGiamDiem", "DECIMAL(18,0)", "None", "No", "DEFAULT 0 [DF_HoaDon_tienGiamDiem], CHECK (tienGiamDiem = diemSuDung * 1000) [CK_HoaDon_tienDiem]"],
+            ["tongTien", "DECIMAL(18,0)", "None", "No", "Tổng tiền khách phải trả, CHECK (tongTien = tongTienHang - chietKhau - tienGiamDiem AND tongTien >= 0) [CK_HoaDon_tongTien]"],
+            ["phuongThucTT", "NVARCHAR(30)", "None", "No", "DEFAULT N'Tiền mặt' [DF_HoaDon_pttt], CHECK (phuongThucTT IN (N'Tiền mặt', N'Chuyển khoản QR')) [CK_HoaDon_pttt]"],
+            ["tienKhachDua", "DECIMAL(18,0)", "None", "No", "Tiền khách đưa, CHECK (tienKhachDua >= tongTien) [CK_HoaDon_tienDua], QR thì tiền đưa bằng tổng tiền [CK_HoaDon_chuyenKhoan]"],
+            ["tienThua", "DECIMAL(18,0)", "None", "No", "Tiền thừa thối lại, CHECK (tienThua = tienKhachDua - tongTien) [CK_HoaDon_tienThua]"],
+            ["diemCong", "INT", "None", "No", "Điểm tích lũy cộng mới (= tongTien / 100000), DEFAULT 0 [DF_HoaDon_diemCong], CHECK (diemCong >= 0) [CK_HoaDon_soAm]"]
         ]),
-        ("Bảng NhanVien", [
-            ["MaNhanVien", "VARCHAR(10)", "PK", "No", "Mã nhân viên (NV0001...)"],
-            ["HoTen", "NVARCHAR(50)", "None", "No", "Họ tên đầy đủ"],
-            ["NgaySinh", "DATE", "None", "No", "CHECK (DATEDIFF(YEAR, NgaySinh, GETDATE()) >= 18)"],
-            ["GioiTinh", "BIT", "None", "No", "1: Nam, 0: Nữ"],
-            ["SoDienThoai", "VARCHAR(10)", "None", "No", "UNIQUE, CHECK (LEN=10)"],
-            ["DiaChi", "NVARCHAR(200)", "None", "No", "Nơi thường trú"],
-            ["ChucVu", "NVARCHAR(30)", "None", "No", "CHECK ('Quản lý', 'Nhân viên bán hàng')"],
-            ["LuongCoBan", "DECIMAL(18,2)", "None", "No", "CHECK (LuongCoBan >= 3000000)"],
-            ["TrangThai", "BIT", "None", "No", "DEFAULT 1 (1: Đang làm, 0: Đã nghỉ)"]
-        ]),
-        ("Bảng TaiKhoan", [
-            ["TenDangNhap", "VARCHAR(10)", "PK, FK", "No", "Tham chiếu NhanVien(MaNhanVien)"],
-            ["MatKhau", "VARCHAR(100)", "None", "No", "Mật khẩu đã mã hóa"],
-            ["QuyenHan", "VARCHAR(20)", "None", "No", "CHECK ('ADMIN', 'STAFF')"],
-            ["NgayTao", "DATE", "None", "No", "DEFAULT GETDATE()"],
-            ["TrangThai", "BIT", "None", "No", "DEFAULT 1 (1: Mở khóa, 0: Khóa)"]
-        ]),
-        ("Bảng HoaDon", [
-            ["MaHoaDon", "VARCHAR(10)", "PK", "No", "Mã hóa đơn (HD000001...)"],
-            ["NgayLap", "DATETIME", "None", "No", "DEFAULT GETDATE()"],
-            ["MaNhanVien", "VARCHAR(10)", "FK", "No", "Tham chiếu NhanVien(MaNhanVien)"],
-            ["MaKhachHang", "VARCHAR(10)", "FK", "Yes", "Tham chiếu KhachHang(MaKhachHang)"],
-            ["TongTien", "DECIMAL(18,2)", "None", "No", "CHECK (TongTien >= 0)"],
-            ["PhuongThuc", "NVARCHAR(30)", "None", "No", "CHECK ('Tiền mặt', 'Chuyển khoản')"],
-            ["TienKhachDua", "DECIMAL(18,2)", "None", "No", "Số tiền khách đưa"],
-            ["TienThua", "DECIMAL(18,2)", "None", "No", "Tiền thối lại cho khách"],
-            ["GhiChu", "NVARCHAR(255)", "None", "Yes", "Ghi chú đơn hàng"],
-            ["TrangThai", "NVARCHAR(30)", "None", "No", "DEFAULT N'Đã thanh toán'"]
-        ]),
-        ("Bảng ChiTietHoaDon", [
-            ["MaHoaDon", "VARCHAR(10)", "PK, FK", "No", "Tham chiếu HoaDon(MaHoaDon)"],
-            ["MaChiTietGiay", "VARCHAR(10)", "PK, FK", "No", "Tham chiếu ChiTietGiay(MaChiTietGiay)"],
-            ["SoLuong", "INT", "None", "No", "CHECK (SoLuong > 0)"],
-            ["DonGia", "DECIMAL(18,2)", "None", "No", "CHECK (DonGia > 0)"],
-            ["GiamGia", "DECIMAL(18,2)", "None", "No", "CHECK (GiamGia >= 0), DEFAULT 0"],
-            ["ThanhTien", "DECIMAL(18,2)", "None", "No", "CHECK (ThanhTien >= 0)"]
+        ("6. Bảng ChiTietHoaDon (Chi tiết dòng sản phẩm mua)", [
+            ["maHoaDon", "VARCHAR(10)", "PK, FK", "No", "FK tham chiếu HoaDon(maHoaDon) [FK_ChiTietHoaDon_HoaDon]"],
+            ["maChiTietGiay", "VARCHAR(10)", "PK, FK", "No", "FK tham chiếu ChiTietGiay(maChiTietGiay) [FK_ChiTietHoaDon_ChiTietGiay]"],
+            ["soLuong", "INT", "None", "No", "Số lượng mua, CHECK (soLuong > 0) [CK_ChiTietHoaDon_soLuong]"],
+            ["donGia", "DECIMAL(18,0)", "None", "No", "Đơn giá tại thời điểm mua, CHECK (donGia > 0) [CK_ChiTietHoaDon_donGia]"],
+            ["giamGia", "DECIMAL(18,0)", "None", "No", "Tiền giảm giá khuyến mãi dòng hàng, DEFAULT 0 [DF_ChiTietHoaDon_giamGia], CHECK (giamGia >= 0 AND giamGia <= soLuong * donGia) [CK_ChiTietHoaDon_giamGia]"],
+            ["thanhTien", "DECIMAL(18,0)", "None", "No", "Thành tiền dòng hàng, CHECK (thanhTien = soLuong * donGia - giamGia) [CK_ChiTietHoaDon_thanhTien]"]
         ])
     ]
 
@@ -627,72 +614,80 @@ def create_document():
         t_elem = doc.add_table(rows=len(rows_info) + 1, cols=5)
         style_table(t_elem, [1.5, 1.2, 0.7, 0.7, 2.2], ["Tên cột", "Kiểu dữ liệu", "Khóa", "Null", "Ràng buộc & Mô tả"], rows_info)
 
-    add_h2("III. Cơ chế xử lý toàn vẹn dữ liệu nâng cao trên SQL Server")
-    add_h3("1. Database Triggers tự động cập nhật tồn kho")
-    add_p("Hệ thống cài đặt Trigger trực tiếp trong SQL Server để đảm bảo tính nhất quán tuyệt đối giữa Hóa đơn và Kho hàng:")
-    add_bullet("Trigger TRG_ChiTietHoaDon_Insert: Tự động kiểm tra tồn kho trước khi ghi nhận dòng hàng. Nếu số lượng mua vượt quá số lượng tồn hiện có, Trigger sẽ phát lệnh RAISERROR và ROLLBACK TRANSACTION để hủy giao dịch. Nếu hợp lệ, tự động thực thi UPDATE ChiTietGiay SET SoLuongTon = SoLuongTon - i.SoLuong.", "Trừ kho tự động: ")
-    add_bullet("Trigger TRG_ChiTietHoaDon_Delete: Khi có yêu cầu hủy hóa đơn hoặc đổi trả hàng, Trigger sẽ tự động cộng hoàn trả số lượng giày vào kho: UPDATE ChiTietGiay SET SoLuongTon = SoLuongTon + d.SoLuong.", "Hoàn kho khi hủy đơn: ")
+    add_h2("III. Cơ chế xử lý toàn vẹn dữ liệu nâng cao (Ràng buộc CHECK & JDBC Transaction)")
+    add_h3("1. Hệ thống 33 ràng buộc CHECK toàn vẹn nghiệp vụ trên SQL Server")
+    add_p("Để bảo đảm dữ liệu luôn chính xác và nhất quán ngay từ tầng lưu trữ vật lý, hệ thống cài đặt đầy đủ 33 ràng buộc CHECK chặt chẽ phân bổ trên 6 bảng dữ liệu của Microsoft SQL Server:")
+    add_bullet("Bao gồm 8 ràng buộc: CK_NhanVien_ma (định dạng mã 'NV[0-9][0-9][0-9][0-9]'), CK_NhanVien_sdt (10 số di động Việt Nam), CK_NhanVien_email (định dạng email hợp lệ hoặc NULL), CK_NhanVien_tuoi (nhân viên đủ từ 18 tuổi trở lên theo luật định), CK_NhanVien_chucVu (chỉ chấp nhận 'Quản lý' hoặc 'Nhân viên bán hàng'), CK_NhanVien_ca (thuộc các ca làm chuẩn hoặc toàn thời gian), CK_NhanVien_luong (lương cơ bản > 0), và CK_NhanVien_matKhau (độ dài đúng 64 ký tự hex của mã băm SHA-256).", "Bảng NhanVien (8 CHECK): ")
+    add_bullet("Bao gồm 5 ràng buộc: CK_KhachHang_ma (định dạng 'KH[0-9][0-9][0-9][0-9]'), CK_KhachHang_sdt (10 chữ số), CK_KhachHang_email (chuẩn định dạng hòm thư điện tử), CK_KhachHang_diem (điểm tích lũy >= 0), và CK_KhachHang_hang (chỉ thuộc các hạng thẻ 'Đồng', 'Bạc', 'Vàng', 'Kim Cương').", "Bảng KhachHang (5 CHECK): ")
+    add_bullet("Bao gồm 4 ràng buộc: CK_SanPham_ma (định dạng 'SP[0-9][0-9][0-9][0-9]'), CK_SanPham_ten (tên mẫu sản phẩm không được rỗng), CK_SanPham_giaNhap (giá vốn nhập kho > 0), và CK_SanPham_giaBan (giá bán ra phải >= giá vốn nhập kho).", "Bảng SanPham (4 CHECK): ")
+    add_bullet("Bao gồm 3 ràng buộc: CK_ChiTietGiay_ma (định dạng mã biến thể SKU 'CTG[0-9][0-9][0-9][0-9]'), CK_ChiTietGiay_size (kích cỡ giày trong khoảng 35 đến 45), và CK_ChiTietGiay_ton (số lượng tồn kho SoLuongTon >= 0).", "Bảng ChiTietGiay (3 CHECK): ")
+    add_bullet("Bao gồm 9 ràng buộc: CK_HoaDon_ma (định dạng hóa đơn 6 số 'HD[0-9][0-9][0-9][0-9][0-9][0-9]'), CK_HoaDon_soAm (tổng tiền hàng, chiết khấu, điểm sử dụng, tiền giảm điểm, điểm cộng đều >= 0), CK_HoaDon_tienDiem (tiền giảm điểm = diemSuDung * 1000), CK_HoaDon_tongTien (tongTien = tongTienHang - chietKhau - tienGiamDiem >= 0), CK_HoaDon_diemKhach (khách vãng lai không có mã thành viên thì chietKhau = diemSuDung = diemCong = 0), CK_HoaDon_pttt (phương thức thuộc 'Tiền mặt' hoặc 'Chuyển khoản QR'), CK_HoaDon_tienDua (tiền khách đưa >= tổng tiền), CK_HoaDon_chuyenKhoan (nếu chuyển khoản QR thì tiền đưa phải bằng đúng tổng tiền), và CK_HoaDon_tienThua (tiền thừa = tienKhachDua - tongTien).", "Bảng HoaDon (9 CHECK): ")
+    add_bullet("Bao gồm 4 ràng buộc: CK_ChiTietHoaDon_soLuong (số lượng mua > 0), CK_ChiTietHoaDon_donGia (đơn giá sản phẩm bán ra > 0), CK_ChiTietHoaDon_giamGia (0 <= tiền giảm giá <= số lượng * đơn giá), và CK_ChiTietHoaDon_thanhTien (thành tiền = số lượng * đơn giá - giảm giá).", "Bảng ChiTietHoaDon (4 CHECK): ")
 
-    add_h3("2. Quản lý JDBC Transaction & Chống bán âm kho (Concurrency)")
-    add_p("Trong giờ cao điểm, tình huống có thể xảy ra: Một đôi giày size 40 chỉ còn đúng 1 đôi duy nhất trong kho, nhưng cả 2 quầy thu ngân cùng thêm vào giỏ và nhấn thanh toán đồng thời. Nếu không kiểm soát, hệ thống sẽ trừ 2 lần dẫn đến tồn kho bị âm (-1).")
-    add_p("Nhóm chúng em xử lý bằng JDBC Transaction nguyên tử tại tầng DAO:")
-    add_bullet("Thiết lập conn.setAutoCommit(false) trước khi thực hiện chuỗi thao tác lưu hóa đơn.", "Tắt Auto-Commit: ")
-    add_bullet("Dùng câu lệnh UPDATE có điều kiện kiểm tra tồn: UPDATE ChiTietGiay SET SoLuongTon = SoLuongTon - ? WHERE MaChiTietGiay = ? AND SoLuongTon >= ?. Nếu rowsAffected == 0, lập tức conn.rollback() và ném thông báo: 'Đôi giày size này vừa được quầy khác thanh toán, kho đã hết hàng!'.", "Khóa nguyên tử: ")
-    add_bullet("Khi toàn bộ hóa đơn và các dòng chi tiết được ghi thành công, mới gọi conn.commit().", "Commit đồng bộ: ")
+    add_h3("2. Quản lý JDBC Transaction ACID & Khóa tồn kho nguyên tử (Concurrency Control)")
+    add_p("Để xử lý đồng thời trong giờ cao điểm khi nhiều quầy thu ngân cùng thực hiện giao dịch thanh toán trên cùng một biến thể sản phẩm có số lượng tồn kho giới hạn, hệ thống không dùng thủ tục phản xạ sự kiện CSDL ngầm định nhằm tránh tắc nghẽn khóa máy chủ. Thay vào đó, toàn bộ nghiệp vụ kiểm soát bán hàng được quản trị chặt chẽ tại tầng DAO (dao/HoaDon_DAO.java) bằng cơ chế JDBC Transaction tuân thủ nghiêm ngặt 4 nguyên lý ACID:")
+    add_bullet("Thiết lập con.setAutoCommit(false) ngay đầu phương thức themHoaDon() để khởi tạo Transaction cục bộ, gom toàn bộ chuỗi ghi nhận dữ liệu vào một phiên giao dịch nguyên tử duy nhất.", "Khởi tạo Transaction: ")
+    add_bullet("Khi sinh mã hóa đơn mới, thực thi câu lệnh 'SELECT ISNULL(MAX(CAST(SUBSTRING(maHoaDon,3,6) AS INT)),0)+1 FROM HoaDon WITH (UPDLOCK, HOLDLOCK)'. Khóa UPDLOCK kết hợp HOLDLOCK giữ an toàn dải khóa trong suốt Transaction, ngăn chặn triệt để xung đột sinh trùng mã hóa đơn giữa các quầy thu ngân chạy song song.", "Khóa đọc an toàn sinh mã: ")
+    add_bullet("Thực thi câu lệnh UPDATE trừ kho nguyên tử có điều kiện: 'UPDATE ChiTietGiay SET soLuongTon = soLuongTon - ? WHERE maChiTietGiay = ? AND soLuongTon >= ?'. Nhờ điều kiện soLuongTon >= ?, nếu số lượng tồn kho SoLuongTon hiện tại không đủ đáp ứng, SQL Server sẽ cập nhật 0 dòng (rowsAffected == 0). Khi đó, hệ thống lập tức phát lệnh con.rollback() và ném ngoại lệ thông báo kho không đủ hàng để giao dịch viên và khách hàng nắm rõ.", "Khóa tồn kho nguyên tử: ")
+    add_bullet("Cập nhật điểm tích lũy và tự động nâng hạng thẻ thành viên cho khách hàng thân thiết trên bảng KhachHang.", "Đồng bộ tích điểm: ")
+    add_bullet("Chỉ khi toàn bộ các bước ghi bảng HoaDon, từng dòng ChiTietHoaDon, trừ kho ChiTietGiay và cập nhật khách hàng đều hoàn thành hợp lệ, lệnh con.commit() mới được kích hoạt để chốt dữ liệu vĩnh viễn vào SQL Server. Trong khối catch (SQLException), hệ thống lập tức thực hiện con.rollback() nhằm hoàn nguyên trạng thái kho và hóa đơn về trước thời điểm bắt đầu giao dịch. Khối finally luôn gọi con.setAutoCommit(true) để trả lại trạng thái kết nối cho Connection Pool.", "Cam kết & Hoàn nguyên (Commit & Rollback): ")
 
     add_h3("3. Chiến lược Xóa mềm (Soft-Delete Pattern)")
-    add_p("Nếu người quản lý xóa một mẫu giày bằng lệnh DELETE vật lý, SQL Server sẽ báo lỗi khóa ngoại FK Constraint Error 547 vì sản phẩm đó đã từng xuất hiện trong các hóa đơn bán hàng cũ. Nếu dùng CASCADE DELETE, hệ thống sẽ xóa sạch các hóa đơn cũ, làm sai lệch toàn bộ báo cáo doanh thu tài chính.")
-    add_p("Giải pháp của nhóm: Toàn bộ bảng SanPham và ChiTietGiay đều có cột TrangThai (BIT). Khi người quản lý chọn xóa, hệ thống chỉ cập nhật TrangThai = 0. Màn hình bán hàng chỉ truy vấn WHERE TrangThai = 1, đôi giày sẽ không còn xuất hiện tại quầy thu ngân nhưng toàn bộ hóa đơn và doanh thu trong quá khứ vẫn được bảo toàn nguyên vẹn 100%.")
+    add_p("Trong hệ thống bán lẻ, việc xóa vật lý (DELETE) trực tiếp các bản ghi dữ liệu danh mục là điều tối kỵ vì sẽ gây lỗi ràng buộc khóa ngoại (Foreign Key Constraint Error 547) đối với các hóa đơn giao dịch đã phát sinh trong quá khứ. Ngược lại, nếu thiết lập xóa lan truyền (CASCADE DELETE), hệ thống sẽ vô tình xóa sạch toàn bộ lịch sử bán hàng và chi tiết đơn hàng, gây sai lệch nghiêm trọng báo cáo doanh thu kế toán.")
+    add_p("Nhóm phát triển giải quyết triệt để bài toán này bằng chiến lược Xóa mềm (Soft-Delete Pattern) thông qua các trường trạng thái quản lý:")
+    add_bullet("Bảng SanPham được thiết kế cột trangThai (BIT, DEFAULT 1). Khi người quản lý thực hiện thao tác xóa một mẫu giày, hệ thống (thông qua SanPham_DAO) chỉ thực thi câu lệnh cập nhật trạng thái: UPDATE SanPham SET trangThai = 0 WHERE maSanPham = ?. Giao diện bán hàng chỉ tải dữ liệu danh mục với điều kiện WHERE trangThai = 1, do đó mẫu giày đã ngừng kinh doanh sẽ lập tức ẩn khỏi quầy thu ngân nhưng toàn bộ hóa đơn và doanh thu trong quá khứ vẫn được bảo toàn nguyên vẹn 100%.", "Xóa mềm sản phẩm: ")
+    add_bullet("Bảng NhanVien cũng được quản lý trạng thái bằng cột trangThai (BIT, DEFAULT 1). Khi nhân viên nghỉ việc, lớp NhanVien_DAO thực hiện cập nhật trangThai = 0. Hệ thống sẽ chặn nhân viên này đăng nhập bằng mật khẩu SHA-256 đã vô hiệu hóa, nhưng toàn bộ mã nhân viên phụ trách trên các chứng từ hóa đơn cũ vẫn được lưu giữ phục vụ tra cứu kiểm toán.", "Quản lý nhân viên nghỉ việc: ")
+    add_bullet("Các ràng buộc khóa ngoại tham chiếu từ ChiTietHoaDon đến HoaDon và ChiTietGiay đều giữ nguyên tắc không xóa lan truyền (NO ACTION), bảo đảm dữ liệu chứng từ thanh toán là bất biến (immutable) theo đúng chuẩn mực hạch toán tài chính.", "Bảo toàn chứng từ tài chính: ")
 
     doc.add_page_break()
 
     # ==========================================
-    # PHẦN IV: HIỆN THỰC VÀ MÔ TẢ GIAO DIỆN
+    # PHẦN IV: HIỆN THỰC VÀ MÔ TẢ GIAO DIỆN CHƯƠNG TRÌNH
     # ==========================================
     add_h1("PHẦN IV: HIỆN THỰC VÀ MÔ TẢ GIAO DIỆN CHƯƠNG TRÌNH")
     
     add_h2("I. Chức năng Đăng nhập & Phân quyền truy cập (Login & RBAC)")
-    add_p("Giao diện Đăng nhập là cửa ngõ bảo vệ của hệ thống, thiết kế theo chuẩn FlatLaf hiện đại với khung hình chữ nhật nổi bật giữa màn hình.")
-    add_bullet("Nhân viên khởi chạy ứng dụng. Con trỏ chuột tự động focus sẵn vào ô 'Tên đăng nhập' (Mã nhân viên, vd: NV0001 hoặc QL0001).", "Bước 1 - Mở ứng dụng: ")
-    add_bullet("Nhân viên nhập mã tài khoản và nhấn Tab để chuyển xuống ô 'Mật khẩu'. Trường mật khẩu sử dụng JPasswordField với icon con mắt cho phép ẩn/hiện mật khẩu.", "Bước 2 - Nhập tài khoản: ")
-    add_bullet("Nhấn Enter hoặc click nút 'Đăng nhập'. Hệ thống gọi TaiKhoanDAO đối chiếu mật khẩu đã mã hóa.", "Bước 3 - Xác thực: ")
-    add_bullet("Nếu là Quản lý (ADMIN): Mở toàn bộ các menu chức năng: Bán hàng, Quản lý sản phẩm, Quản lý nhân viên, Báo cáo doanh thu. Nếu là Thu ngân (STAFF): Hệ thống tự động ẩn hoặc vô hiệu hóa các menu quản trị nhân sự và báo cáo tài chính để bảo mật số liệu.", "Bước 4 - Phân quyền giao diện: ")
-    add_callout("Thông báo lỗi thân thiện: Nếu người dùng nhập sai mật khẩu quá 5 lần, tài khoản sẽ tạm thời bị khóa trong 15 phút để phòng chống tấn công dò mật khẩu (Brute-force).", "BẢO MẬT ĐĂNG NHẬP:");
+    add_p("Giao diện Đăng nhập (DangNhap_GUI) được thiết kế đồng bộ theo giao diện hệ thống của Windows thông qua UIManager.getSystemLookAndFeelClassName(), kết hợp cùng lớp tiện ích UIHelper tự vẽ các nút bấm bo góc và màu sắc nhận diện trang nhã.")
+    add_bullet("Nhân viên khởi chạy ứng dụng. Con trỏ chuột tự động focus sẵn vào ô 'Mã nhân viên' (hỗ trợ định dạng mã chuẩn NV0001 theo đúng quy chuẩn CSDL).", "Bước 1 - Mở ứng dụng: ")
+    add_bullet("Nhân viên nhập mã số và mật khẩu vào trường JPasswordField. Người dùng có thể nhấn phím Enter tại bất kỳ ô nhập liệu nào để thực hiện đăng nhập nhanh mà không cần thao tác chuột.", "Bước 2 - Nhập thông tin đăng nhập: ")
+    add_bullet("Nhấn Enter hoặc click nút 'Đăng Nhập'. Hệ thống gọi NhanVien_DAO.dangNhap() để xác thực: mật khẩu nhập vào được băm bằng thuật toán SHA-256 (tạo chuỗi hex 64 ký tự) và đối chiếu trực tiếp với cột matKhau trong bảng NhanVien.", "Bước 3 - Xác thực thông tin: ")
+    add_bullet("Nếu là Quản lý: Hệ thống hiển thị đầy đủ 4 tab chức năng trên giao diện chính ManHinhChinh_GUI gồm Bán hàng (POS), Quản lý mẫu giày, Khách hàng & tích điểm và Quản lý nhân sự. Nếu là Nhân viên bán hàng: Hệ thống chỉ hiển thị 3 tab phục vụ bán lẻ và vô hiệu hóa các nút Thêm, Sửa, Xóa trên màn hình danh mục sản phẩm.", "Bước 4 - Phân quyền giao diện: ")
+    add_callout("Bảo mật mật khẩu với mã băm SHA-256: Hệ thống không lưu trữ mật khẩu ở dạng văn bản rõ mà mã hóa một chiều qua thuật toán SHA-256 thành chuỗi cố định 64 ký tự hex. Quá trình kiểm tra quyền hạn được xử lý tập trung trong NhanVien_DAO, bảo đảm an toàn dữ liệu và tối ưu tốc độ xử lý.", "BẢO MẬT XÁC THỰC:");
 
     add_h2("II. Chức năng Bán hàng tại quầy (POS - Nghiệp vụ trọng tâm)")
-    add_p("Màn hình Bán hàng (POS) là phân hệ cốt lõi được nhóm đầu tư thiết kế tỉ mỉ nhất, chia thành 3 khu vực trực quan giúp thu ngân chốt đơn trong vòng chưa đầy 30 giây:")
-    add_bullet("Bao gồm thanh tìm kiếm Live Search (gõ tên hoặc quét mã Barcode), bộ lọc nhanh theo Danh mục (Sneaker, Chạy bộ), Hãng (Nike, Adidas) và Kích cỡ (36 -> 44).", "Khu vực 1 (Bên trái): Danh mục & Tra cứu biến thể: ")
-    add_bullet("Hiển thị danh sách các đôi giày đã chọn với đầy đủ cột: STT, Mã SKU, Tên giày, Size, Màu sắc, Đơn giá, Số lượng, Thành tiền và nút Xóa.", "Khu vực 2 (Ở giữa): Chi tiết Giỏ hàng hiện tại: ")
-    add_bullet("Khối Khách hàng (nhập SĐT, hiển thị điểm tích lũy, checkbox dùng điểm) và Khối Thanh toán (Tổng tiền hàng, Giảm giá, Tiền cần trả, Tiền khách đưa, Tiền thừa thối lại) cùng nút bấm to nổi bật 'F10 - Thanh toán & In hóa đơn'.", "Khu vực 3 (Bên phải): Bảng điều khiển Thanh toán: ")
+    add_p("Màn hình Bán hàng (BanHang_GUI) là phân hệ cốt lõi phục vụ trực tiếp nghiệp vụ tại quầy thu ngân, được thiết kế tối ưu công thái học với 2 khu vực chức năng trực quan:")
+    add_bullet("Khối Chọn sản phẩm: Cho phép thu ngân lựa chọn mẫu giày từ danh sách (cboSanPham), chọn kích cỡ (cboSize) và màu sắc (cboMauSac). Khi lựa chọn một biến thể cụ thể, nhãn hiển thị số lượng tồn kho SoLuongTon tức thì (vd: 'Còn: 15 đôi') cùng đơn giá niêm yết. Thu ngân nhập số lượng mua và click 'Thêm vào giỏ'. Phía dưới là Bảng giỏ hàng hiển thị danh sách các đôi giày đã chọn với đầy đủ cột: STT, Mã chi tiết, Tên sản phẩm, Size, Màu sắc, Số lượng, Đơn giá, Giảm giá, Thành tiền và hỗ trợ nút 'Xóa mục' (hoặc nhấn phím Delete).", "Khu vực 1 (Bên trái): Chọn biến thể & Giỏ hàng: ")
+    add_bullet("Khối Khách hàng: Nhập số điện thoại khách hàng vào ô txtSDTKhach và nhấn 'Tìm' để tra cứu nhanh qua KhachHang_DAO. Nếu là khách quen, hệ thống hiển thị tên khách, hạng thành viên (Đồng, Bạc, Vàng, Kim Cương) và số điểm tích lũy hiện có. Checkbox 'Dùng điểm' cho phép quy đổi 1 điểm = 1.000 VNĐ để trừ tiền trực tiếp vào đơn hàng. Khối Thanh toán: Hiển thị Tổng tiền hàng, Chiết khấu hạng thẻ, Tiền giảm điểm, Tổng tiền cần thanh toán. Thu ngân chọn phương thức (Tiền mặt hoặc Chuyển khoản QR), nhập tiền khách đưa và hệ thống tự động tính tiền thừa realtime có cơ chế kiểm soát ngoại lệ NumberFormatException.", "Khu vực 2 (Bên phải): Thông tin khách hàng & Bảng thanh toán: ")
 
-    add_p("Kịch bản 5 bước thao tác bán hàng siêu tốc:")
-    add_bullet("Thu ngân nhấn F2, con trỏ nhảy ngay vào ô tìm kiếm. Thu ngân gõ 'Air Force' hoặc quét mã súng Barcode. Bảng tự động lọc dòng sản phẩm trong vòng 0.2 giây.", "Bước 1 - Tra cứu giày nhanh: ")
-    add_bullet("Thu ngân nhấn Enter, một Popup nhỏ xuất hiện cho phép chọn Size (38, 39, 40, 41, 42) và Màu sắc (Trắng, Đen). Nhãn tồn kho hiển thị tức thì: 'Size 41 - Màu Trắng: Còn 8 đôi'. Nhập số lượng mua (mặc định là 1) và nhấn Enter để đưa vào giỏ hàng.", "Bước 2 - Chọn biến thể Size & Màu: ")
-    add_bullet("Thu ngân nhấn F3 nhảy sang ô SĐT khách hàng, nhập '0912345678'. Nếu là khách quen, hệ thống hiện: 'Nguyễn Văn A - Thành viên Bạc - Điểm: 150 điểm'. Nếu khách đồng ý dùng 50 điểm để giảm 50.000 VNĐ, thu ngân nhấn phím Space để tích chọn.", "Bước 3 - Nhập thông tin thành viên: ")
-    add_bullet("Nhấn Tab sang ô 'Tiền khách đưa', nhập 1.500.000 VNĐ (cho hóa đơn 1.250.000 VNĐ). Nhãn tiền thừa tự động nhảy số màu xanh lá to rõ: '250.000 VNĐ'.", "Bước 4 - Tính tiền thừa: ")
-    add_bullet("Thu ngân nhấn phím tắt F10. Hộp thoại xác nhận xuất hiện, nhấn Enter để chốt đơn. Hệ thống tự động lưu Transaction CSDL, trừ tồn kho theo đúng Size/Màu, cộng điểm thưởng cho khách và xuất hóa đơn nhiệt K80 ra máy in.", "Bước 5 - Thanh toán F10 & In vé: ")
+    add_p("Kịch bản 5 bước thao tác thanh toán chuẩn hóa:")
+    add_bullet("Thu ngân chọn mẫu giày từ combobox, lựa chọn kích cỡ và màu sắc tương ứng. Hệ thống truy xuất dữ liệu hiển thị SoLuongTon thực tế trong kho và đơn giá bán.", "Bước 1 - Chọn biến thể mẫu giày: ")
+    add_bullet("Nhập số lượng cần mua vào spinner và click nút 'Thêm vào giỏ' (hoặc nhấn Enter). Sản phẩm được đưa vào bảng giỏ hàng, tự động cộng dồn số lượng nếu trùng biến thể SKU.", "Bước 2 - Đưa vào giỏ hàng: ")
+    add_bullet("Thu ngân nhập số điện thoại khách hàng, click 'Tìm'. Nếu khách yêu cầu sử dụng điểm tích lũy để giảm giá, thu ngân tích chọn checkbox 'Dùng điểm' (1 điểm tương đương 1.000 VNĐ tiền mặt).", "Bước 3 - Nhận diện khách hàng & Tích điểm: ")
+    add_bullet("Nhập số tiền khách đưa vào ô nhập liệu. Hệ thống tự động tính toán số tiền thừa cần thối lại theo thời gian thực và hiển thị bằng chữ số to rõ.", "Bước 4 - Tính tiền thừa: ")
+    add_bullet("Thu ngân nhấn phím tắt F10 (hoặc click nút 'Thanh toán (F10)'). Hệ thống gọi phương thức thanhToanDonHang() kích hoạt giao dịch CSDL với Transaction toàn vẹn, cập nhật trừ kho SoLuongTon nguyên tử và hiển thị hộp thoại hóa đơn nhiệt K80 (JDialog) xác nhận thanh toán.", "Bước 5 - Thanh toán F10 & Hóa đơn K80: ")
 
-    add_callout("Định dạng hóa đơn K80 chuyên nghiệp: Hóa đơn in ra có đầy đủ Logo cửa hàng, Tên shop, Địa chỉ, Mã hóa đơn HD000123, Tên nhân viên thu ngân, Chi tiết từng đôi giày kèm Size và Màu sắc rõ ràng, Tổng tiền, Điểm tích lũy mới và Lời cảm ơn quý khách.", "HÓA ĐƠN BÁN LẺ IN TẠI QUẦY:");
+    add_callout("Giao dịch toàn vẹn với JDBC Transaction: Quy trình thanh toán được thực thi thông qua Transaction trong HoaDon_DAO. Hệ thống đặt con.setAutoCommit(false), sinh mã hóa đơn có khóa bảo vệ, thêm dữ liệu hóa đơn, duyệt trừ kho từng đôi giày theo câu lệnh có điều kiện (WHERE soLuongTon >= ?) và tích điểm khách hàng. Nếu có bất kỳ lỗi nào xảy ra hoặc kho hàng không đủ số lượng, hệ thống gọi rollback() ngay lập tức để bảo đảm dữ liệu tuyệt đối nhất quán.", "TOÀN VẸN GIAO DỊCH:");
 
     add_h2("III. Chức năng Quản lý sản phẩm giày dép & Biến thể SKU")
-    add_p("Phân hệ dành riêng cho Quản lý cửa hàng để theo dõi và điều chỉnh danh mục sản phẩm:")
-    add_bullet("Áp dụng mô hình Master - Detail: Nửa trên là Form nhập thông tin mẫu giày chung (Tên giày, Thương hiệu, Phân loại, Chất liệu, Giá nhập, Giá bán, Nút chọn ảnh từ máy tính). Nửa dưới là Tab chi tiết các biến thể kích cỡ và màu sắc tương ứng.", "Bố cục Master - Detail: ")
-    add_bullet("Khi thêm một mẫu giày mới, quản lý click 'Thêm biến thể', tích chọn các size kinh doanh (ví dụ: size 40, 41, 42) và nhập màu sắc. Hệ thống tự động sinh các mã SKU biến thể con và gán số lượng nhập ban đầu cho từng size.", "Tạo ma trận biến thể tự động: ")
-    add_bullet("Hệ thống kiểm tra tính hợp lệ bằng Regex: Tên sản phẩm từ 5-150 ký tự; Giá bán bắt buộc phải lớn hơn Giá nhập tối thiểu 10% để đảm bảo cửa hàng không bị lỗ.", "Kiểm tra dữ liệu nhập liệu: ")
-    add_bullet("Khi một mẫu giày ngừng sản xuất, quản lý chuyển trạng thái sang 'Ngừng kinh doanh'. Hệ thống thực hiện Soft-Delete, bảo toàn toàn bộ dữ liệu lịch sử bán hàng.", "Ngừng kinh doanh an toàn: ")
+    add_p("Phân hệ Quản lý sản phẩm (QuanLySanPham_GUI) phục vụ ban quản lý theo dõi và điều chỉnh danh mục hàng hóa:")
+    add_bullet("Form thông tin sản phẩm gồm: Mã sản phẩm (định dạng SP[0-9]{4}), Tên sản phẩm, Loại giày (danh sách lựa chọn như Sneaker, Thể Thao, Giày Da, Sandal), Thương hiệu (lựa chọn nhãn hàng như Nike, Adidas, Puma, Biti's, Vans), Giá nhập, Giá bán và Chất liệu.", "Bố cục form thông tin: ")
+    add_bullet("Hệ thống tự động sinh một biến thể SKU mặc định (kích cỡ 40, màu Đen, SoLuongTon = 20) trong ChiTietGiay khi tạo mới mẫu giày để sẵn sàng phục vụ bán hàng ngay lập tức.", "Khởi tạo biến thể mặc định: ")
+    add_bullet("Kiểm tra tính hợp lệ của dữ liệu nhập liệu: Giá nhập phải lớn hơn 0, Giá bán phải lớn hơn hoặc bằng Giá nhập nhằm bảo đảm hiệu quả kinh tế cho cửa hàng.", "Kiểm soát giá cả nghiêm ngặt: ")
+    add_bullet("Áp dụng cơ chế Xóa mềm (Soft-Delete): Khi người quản lý thực hiện xóa một mẫu giày, hệ thống cập nhật trangThai = 0 trong bảng SanPham. Nhờ vậy, sản phẩm sẽ không còn xuất hiện trong danh mục bán lẻ tại quầy POS nhưng toàn bộ các dòng hóa đơn bán hàng trong quá khứ vẫn được bảo toàn nguyên vẹn 100%, tránh được lỗi vi phạm khóa ngoại trong cơ sở dữ liệu.", "Cơ chế xóa mềm an toàn: ")
 
     add_h2("IV. Chức năng Quản lý khách hàng & Tích điểm thành viên")
-    add_p("Phân hệ hỗ trợ xây dựng mối quan hệ thân thiết với khách hàng quen thuộc:")
-    add_bullet("Quản lý danh sách thành viên với bảng dữ liệu hiển thị Mã KH, Họ tên, SĐT, Điểm tích lũy và Hạng thẻ (Đồng, Bạc, Vàng, Kim Cương).", "Danh sách & Tra cứu: ")
-    add_bullet("Hỗ trợ tạo nhanh thẻ thành viên mới ngay tại quầy thu ngân chỉ trong 5 giây bằng cách nhập SĐT và Họ tên.", "Đăng ký thành viên siêu tốc: ")
-    add_bullet("Cho phép xem lại toàn bộ các hóa đơn trong quá khứ mà khách hàng đã mua, hỗ trợ đắc lực khi khách mang giày đến yêu cầu đổi size trong vòng 7 ngày.", "Xem lịch sử mua hàng: ")
+    add_p("Phân hệ Quản lý khách hàng (QuanLyKhachHang_GUI) xây dựng mối quan hệ gắn kết với khách hàng thân thiết:")
+    add_bullet("Bảng dữ liệu hiển thị danh sách khách hàng gồm: Mã khách hàng (KH[0-9]{4}), Họ tên, Số điện thoại, Giới tính, Ngày sinh, Địa chỉ, Email, Điểm tích lũy và Hạng thành viên.", "Danh sách và thông tin chi tiết: ")
+    add_bullet("Form nhập liệu kiểm tra số điện thoại bắt buộc tuân theo biểu thức chính quy (Regex) 10 chữ số hợp lệ của các nhà mạng Việt Nam (^0[35789]\\d{8}$).", "Kiểm tra hợp lệ số điện thoại: ")
+    add_bullet("Cột điểm tích lũy và hạng thành viên (Đồng, Bạc, Vàng, Kim Cương) được thiết lập chỉ đọc (read-only) trên form nhập liệu nhằm chống gian lận. Điểm số chỉ được tự động cộng dồn và thăng hạng khi giao dịch thanh toán hóa đơn hoàn tất.", "Bảo vệ điểm tích lũy: ")
+    add_bullet("Hỗ trợ tìm kiếm khách hàng nhanh theo số điện thoại hoặc mã số. Thao tác xóa khách hàng được thực thi qua KhachHang_DAO.xoaKhachHang() (xóa vật lý nếu khách hàng chưa phát sinh hóa đơn).", "Thao tác dữ liệu khách hàng: ")
 
-    add_h2("V. Chức năng Thống kê doanh thu & Biểu đồ phân tích kinh doanh")
-    add_p("Phân hệ hỗ trợ người quản lý nắm bắt toàn diện sức khỏe tài chính của cửa hàng:")
-    add_bullet("Cung cấp 4 thẻ chỉ số tổng quan (KPI Cards): Tổng doanh thu (VNĐ), Tổng số đôi giày đã bán ra, Tổng số hóa đơn và Số lượng khách hàng mới.", "Chỉ số tổng hợp (KPI Cards): ")
-    add_bullet("Hỗ trợ lọc linh hoạt theo Ngày hôm nay, theo Tháng/Năm hoặc chọn Khoảng thời gian từ ngày A đến ngày B bằng JDateChooser.", "Bộ lọc thời gian đa dạng: ")
-    add_bullet("Tích hợp thư viện đồ họa JFreeChart để trực quan hóa: Biểu đồ cột biểu diễn doanh thu qua các mốc thời gian và Biểu đồ tròn thể hiện Top 5 mẫu giày bán chạy nhất.", "Trực quan hóa biểu đồ: ")
-    add_bullet("Tích hợp thư viện Apache POI xuất toàn bộ báo cáo doanh thu ra file Excel chuẩn (.xlsx) có công thức tính tổng và định dạng tiền tệ chuyên nghiệp.", "Xuất báo cáo Excel: ")
+    add_h2("V. Chức năng Thống kê doanh thu & Hiệu suất bán hàng")
+    add_p("Phân hệ Thống kê (ThongKe_GUI) hỗ trợ người quản lý theo dõi tổng quan tình hình kinh doanh của cửa hàng:")
+    add_bullet("Hệ thống bố trí 4 thẻ chỉ số tổng quan (KPI Cards) được tính toán trực tiếp từ danh sách hóa đơn lấy từ HoaDon_DAO.getAllHoaDon(): Tổng doanh thu (VNĐ), Tổng số đơn hàng, Số lượng giày bán ra (ước lượng trên giao diện bằng công thức: số đơn hàng nhân 2 để định hình quy mô) và Tổng số khách hàng.", "Thẻ chỉ số tổng hợp (KPI Cards): ")
+    add_bullet("Combobox thời gian (cboThoiGian) cung cấp các tùy chọn xem mốc thời gian báo cáo như 'Tất cả', 'Hôm nay', 'Tháng này', 'Năm nay', đi kèm nút 'Lọc dữ liệu' và 'Làm mới' cập nhật bảng hóa đơn.", "Bộ lọc mốc thời gian: ")
+    add_bullet("Bảng danh mục Top 5 sản phẩm bán chạy hiển thị danh sách các mẫu giày tiêu biểu của cửa hàng (hiện tại hiển thị danh sách mẫu 5 dòng cố định trên giao diện GUI nhằm định hình trực quan bố cục).", "Bảng top sản phẩm tiêu biểu: ")
+    add_bullet("Nút 'Xuất Báo Cáo [Excel]' trên giao diện khi người dùng nhấn sẽ kích hoạt hộp thoại JOptionPane thông báo trạng thái xuất báo cáo tới đường dẫn lưu trữ, đóng vai trò định hướng mở rộng tính năng trong giai đoạn tiếp theo.", "Nút xuất báo cáo doanh thu: ")
 
     if os.path.exists("diagram_chart_shoe.png"):
         doc.add_picture("diagram_chart_shoe.png", width=Inches(6.2))
@@ -702,21 +697,18 @@ def create_document():
         set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
 
     add_h2("VI. Bảng hệ thống phím tắt & Điều hướng bán hàng (Hotkeys)")
-    add_p("Nhằm giải phóng nhân viên thu ngân khỏi việc phải liên tục dùng chuột, hệ thống trang bị bộ phím tắt công thái học:")
-    t_hotkeys = doc.add_table(rows=11, cols=3)
+    add_p("Để tối ưu hóa trải nghiệm công thái học và giải phóng nhân viên thu ngân khỏi việc phải liên tục dùng chuột, hệ thống triển khai cơ chế KeyBindings với phạm vi WHEN_IN_FOCUSED_WINDOW trên JRootPane của ManHinhChinh_GUI. Cơ chế này cho phép bắt trọn vẹn các sự kiện phím chức năng trên toàn bộ cửa sổ ứng dụng bất kể thành phần giao diện nào đang nhận tiêu điểm:")
+    t_hotkeys = doc.add_table(rows=8, cols=3)
     hotkey_data = [
-        ["F2", "Màn hình Bán hàng (POS)", "Focus con trỏ ngay vào ô Tìm kiếm sản phẩm / Quét mã vạch"],
-        ["F3", "Màn hình Bán hàng (POS)", "Chuyển con trỏ sang ô Nhập Số điện thoại Khách hàng"],
-        ["F4", "Màn hình Bán hàng (POS)", "Làm mới đơn hàng / Tạo hóa đơn mới"],
-        ["F8", "Màn hình Bán hàng (POS)", "Tạm lưu đơn hàng hiện tại (khi khách đang chọn thêm giày)"],
-        ["F10", "Màn hình Bán hàng (POS)", "Xác nhận thanh toán và in hóa đơn K80 (Nghiệp vụ quan trọng nhất)"],
-        ["Ctrl + N", "Quản lý SP / Khách hàng", "Thêm mới một bản ghi (Tạo mẫu giày mới / Thêm khách hàng)"],
-        ["Ctrl + S", "Quản lý SP / Khách hàng", "Lưu dữ liệu vừa nhập vào cơ sở dữ liệu"],
-        ["Ctrl + E", "Thống kê / Báo cáo", "Xuất dữ liệu báo cáo ra file Excel (.xlsx)"],
-        ["Delete", "Giỏ hàng / Danh sách", "Xóa sản phẩm khỏi giỏ hàng / Ngừng kinh doanh mẫu giày"],
-        ["Esc", "Toàn bộ Dialog / Popup", "Đóng cửa sổ hiện tại, hủy bỏ thao tác"]
+        ["F1", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Bán hàng (POS)"],
+        ["F2", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Quản lý mẫu giày"],
+        ["F3", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Khách hàng & Tích điểm"],
+        ["F4", "Toàn hệ thống (JRootPane)", "Chuyển nhanh đến Tab Quản lý nhân sự (dành cho Quản lý)"],
+        ["F10", "Toàn hệ thống / Màn hình POS", "Thực thi thanh toán đơn hàng tại quầy POS (thanhToanDonHang)"],
+        ["Delete", "Bảng giỏ hàng POS", "Xóa mục sản phẩm đang được chọn khỏi giỏ hàng (xoaMucKhoiGio)"],
+        ["Esc", "Toàn hệ thống (JRootPane)", "Mở hộp thoại xác nhận đăng xuất khỏi hệ thống"]
     ]
-    style_table(t_hotkeys, [1.0, 2.0, 3.3], ["Phím tắt", "Phạm vi áp dụng", "Hành động thực thi"], hotkey_data)
+    style_table(t_hotkeys, [1.0, 2.2, 3.1], ["Phím tắt", "Phạm vi áp dụng", "Hành động thực thi"], hotkey_data)
 
     doc.add_page_break()
 
@@ -727,26 +719,31 @@ def create_document():
     
     add_h2("I. Đánh giá kết quả đạt được và những hạn chế")
     add_h3("1. Những ưu điểm nổi bật của hệ thống")
-    add_bullet("Hệ thống giải quyết trọn vẹn bài toán khó nhất của cửa hàng giày dép là quản lý ma trận biến thể kích cỡ (size 35-44) và màu sắc, giúp nhân viên tra cứu tồn kho từng size trong 0.2 giây.", "Xử lý biến thể chuyên sâu: ")
-    add_bullet("Phân tách ranh giới mạch lạc giữa GUI (Swing FlatLaf), BUS (Validation & Logic) và DAO (JDBC Prepared Statements), tuân thủ 100% chuẩn mực đào tạo của Khoa CNTT - IUH.", "Kiến trúc 3 lớp chuẩn mực: ")
-    add_bullet("Nhờ hệ thống phím tắt (F2, F3, F10) và cơ chế Live Search, thời gian thao tác thanh toán cho một lượt khách được rút ngắn xuống chỉ còn 20 - 30 giây.", "Trải nghiệm người dùng vượt trội: ")
-    add_bullet("Cơ chế JDBC Transaction và kỹ thuật Xóa mềm (Soft-Delete) đảm bảo tuyệt đối không bao giờ xảy ra tình trạng bán âm kho và bảo toàn trọn vẹn lịch sử hóa đơn kế toán cũ.", "Toàn vẹn dữ liệu an toàn cao: ")
-    add_bullet("Cung cấp báo cáo trực quan, biểu đồ trực tiếp hỗ trợ đắc lực cho người quản lý đưa ra quyết định kinh doanh.", "Hỗ trợ quản trị kinh doanh: ")
+    add_bullet("Phân tách ranh giới rõ ràng theo kiến trúc 3 tầng chuẩn mực: Tầng Trình diễn (GUI Java Swing với UIHelper tự vẽ giao diện), Tầng Truy cập dữ liệu (DAO với JDBC PreparedStatement và Transaction kiểm soát an toàn), và Tầng Thực thể (Entity hướng đối tượng thuần túy).", "Kiến trúc 3 tầng chuẩn mực: ")
+    add_bullet("Giải quyết triệt để bài toán biến thể giày dép qua liên kết giữa SanPham và ChiTietGiay, quản lý chi tiết kích cỡ và màu sắc, hiển thị SoLuongTon chính xác tại quầy.", "Quản lý biến thể chuyên sâu: ")
+    add_bullet("Cơ chế JDBC Transaction với khóa nguyên tử và lệnh gọi rollback() khi có lỗi trong HoaDon_DAO, kết hợp kỹ thuật Xóa mềm cập nhật cột trangThai trong SanPham_DAO giúp bảo vệ toàn vẹn dữ liệu, loại bỏ hiện tượng bán âm kho và giữ nguyên lịch sử kế toán.", "An toàn dữ liệu tuyệt đối: ")
+    add_bullet("Hệ thống phím tắt toàn cục đăng ký qua WHEN_IN_FOCUSED_WINDOW (F1-F4, F10, Delete, Esc) cùng giao diện tính tiền thừa realtime giúp thu ngân thao tác nhanh chóng, rút ngắn thời gian phục vụ tại quầy.", "Công thái học và tốc độ: ")
+    add_bullet("Giao diện đồ họa trang nhã, phân chia rõ ràng các phân hệ bán hàng, sản phẩm, khách hàng thân thiết, quản trị nhân sự và thống kê tổng quan.", "Giao diện thân thiện và dễ dùng: ")
 
     add_h3("2. Những điểm còn hạn chế")
-    add_bullet("Hiện tại ứng dụng mới vận hành trên môi trường Desktop nội bộ (mạng LAN cửa hàng), chưa hỗ trợ người quản lý theo dõi doanh thu từ xa qua điện thoại di động.", "Chưa có phiên bản Mobile/Web: ")
-    add_bullet("Chức năng thanh toán chuyển khoản hiện vẫn yêu cầu thu ngân mở ứng dụng ngân hàng trên điện thoại để kiểm tra tiền về thủ công trước khi bấm xác nhận.", "Thanh toán chuyển khoản bán tự động: ")
-    add_bullet("Chưa tích hợp đồng bộ đa kênh (Omnichannel) với các sàn thương mại điện tử (Shopee, TikTok Shop, Lazada).", "Chưa liên kết sàn TMĐT: ")
+    add_bullet("Thống kê số lượng đôi giày bán ra tại thẻ KPI hiện là con số ước lượng (tính bằng công thức số đơn hàng nhân 2), chưa thực hiện câu lệnh truy vấn tổng hợp số lượng thực tế từ bảng ChiTietHoaDon.", "Ước lượng số lượng bán ra: ")
+    add_bullet("Bảng Top 5 sản phẩm bán chạy đang hiển thị danh sách cố định trên giao diện GUI nhằm định hình bố cục, chưa liên kết truy vấn gom nhóm theo doanh số bán hàng thực tế từ cơ sở dữ liệu.", "Top sản phẩm hiển thị cố định: ")
+    add_bullet("Nút 'Xuất Báo Cáo [Excel]' trên giao diện mới chỉ dừng lại ở việc hiển thị hộp thoại thông báo định hướng tính năng, chưa tích hợp thư viện tạo file bảng tính thực tế.", "Chưa xuất file bảng tính thực tế: ")
+    add_bullet("Phân hệ Thống kê chưa có biểu đồ tương tác động mà hiện đang sử dụng hình ảnh minh họa phân tích kinh doanh để định hình giao diện báo cáo.", "Chưa có biểu đồ tương tác: ")
+    add_bullet("Thao tác xóa khách hàng tại KhachHang_DAO là thao tác xóa cứng (DELETE vật lý trong CSDL), chưa đồng bộ cơ chế xóa mềm qua trạng thái như phân hệ sản phẩm.", "Xóa khách hàng là xóa cứng: ")
+    add_bullet("Hệ thống hiện tại vận hành trên nền tảng ứng dụng Desktop nội bộ (mạng LAN cửa hàng), chưa hỗ trợ người quản lý theo dõi tình hình bán hàng từ xa qua thiết bị di động hay website.", "Chưa có phiên bản Web/Mobile: ")
 
     add_h2("II. Hướng phát triển trong tương lai")
-    add_p("Để hệ thống ngày càng hoàn thiện và đáp ứng tốt hơn nhu cầu mở rộng quy mô chuỗi cửa hàng, nhóm định hướng các giai đoạn nâng cấp tiếp theo:")
-    add_bullet("Tích hợp cổng thanh toán VietQR động: Khi bấm thanh toán, màn hình hiển thị mã QR có sẵn số tiền và mã hóa đơn. Khi khách quét mã chuyển tiền thành công, hệ thống tự động nhận Webhook và in hóa đơn tức thì mà thu ngân không cần kiểm tra điện thoại.", "1. Tích hợp thanh toán QR Code tự động: ")
-    add_bullet("Xây dựng hệ thống Backend RESTful API bằng Spring Boot và phát triển ứng dụng di động (Flutter / React Native) cho phép nhân viên dùng camera điện thoại quét mã vạch kiểm kê kho và quản lý theo dõi doanh thu thời gian thực ở bất kỳ đâu.", "2. Mở rộng kiến trúc Web & Mobile: ")
-    add_bullet("Ứng dụng học máy (Machine Learning) để phân tích xu hướng tiêu thụ giày theo mùa, dự báo cỡ giày nào sắp hết hàng để gợi ý người quản lý lên đơn nhập hàng sớm.", "3. Trí tuệ nhân tạo dự báo nhập hàng: ")
+    add_p("Nhằm hoàn thiện hệ thống và đáp ứng nhu cầu mở rộng quy mô kinh doanh bán lẻ giày dép, nhóm đề xuất các định hướng nâng cấp tiếp theo:")
+    add_bullet("Xây dựng các câu lệnh truy vấn chi tiết từ bảng ChiTietHoaDon để tính toán chính xác tuyệt đối số lượng giày đã bán và xếp hạng Top sản phẩm bán chạy tự động; tích hợp thư viện xuất dữ liệu ra file bảng tính phục vụ công tác kế toán định kỳ.", "1. Hoàn thiện phân hệ thống kê & báo cáo: ")
+    add_bullet("Bổ sung cột trangThai vào bảng KhachHang và hoàn thiện cơ chế xóa mềm đồng bộ cho toàn bộ các thực thể trong hệ thống.", "2. Đồng bộ giải pháp xóa mềm cho khách hàng: ")
+    add_bullet("Tự động tạo mã QR thanh toán chứa sẵn số tiền và mã hóa đơn, kết nối Webhook ngân hàng để xác nhận giao dịch tự động mà thu ngân không cần kiểm tra điện thoại.", "3. Tích hợp thanh toán QR Code động: ")
+    add_bullet("Xây dựng hệ thống Backend API bằng Spring Boot và phát triển ứng dụng di động hỗ trợ nhân viên dùng camera quét kiểm kê kho và quản lý theo dõi doanh thu thời gian thực từ xa.", "4. Mở rộng kiến trúc Web & Mobile: ")
+    add_bullet("Phân tích dữ liệu mua hàng và xu hướng tiêu dùng theo mùa, đưa ra dự báo sớm về các kích cỡ sắp hết hàng để hỗ trợ lập kế hoạch nhập hàng kịp thời.", "5. Ứng dụng trí tuệ nhân tạo dự báo tồn kho: ")
 
     add_h2("III. Lời kết")
-    add_p("Đồ án 'Hệ thống Quản lý Bán hàng tại Cửa hàng Giày dép Thời trang (StepUp Footwear)' đã hoàn thành xuất sắc các mục tiêu nghiên cứu và thực nghiệm đề ra trong đề cương học phần Lập trình hướng sự kiện đối với công nghệ Java. Thông qua đồ án, nhóm sinh viên năm 3 chúng em không chỉ củng cố vững chắc nền tảng kiến thức về lập trình hướng đối tượng, xử lý sự kiện trong Java Swing, kỹ thuật tương tác cơ sở dữ liệu qua JDBC Transaction và thiết kế chuẩn hóa SQL Server, mà quan trọng hơn cả là đã rèn luyện được tư duy phân tích bài toán thực tế của doanh nghiệp bán lẻ.")
-    add_p("Nhóm chúng em xin gửi lời cảm ơn chân thành và sâu sắc nhất tới cô Trần Thị Anh Thi cùng toàn thể quý Thầy Cô trong Khoa Công nghệ Thông tin đã tận tình chỉ bảo, giúp đỡ chúng em trong suốt quá trình thực hiện đề tài này!")
+    add_p("Đồ án 'Hệ thống Quản lý Bán hàng tại Cửa hàng Giày dép Thời trang (StepUp Footwear)' đã hoàn thành các mục tiêu nghiên cứu và thực nghiệm đề ra trong học phần Lập trình hướng sự kiện trên nền tảng Java. Đề tài phản ánh đúng đắn mô hình kiến trúc 3 tầng: Tầng Trình diễn (GUI Swing kết hợp UIHelper), Tầng Truy cập dữ liệu (DAO với JDBC Transaction), và Tầng Thực thể nghiệp vụ (Entity). Nhóm sinh viên chúng em đã tích lũy được nhiều kinh nghiệm thực tiễn quý giá về thiết kế giao diện công thái học, xử lý giao dịch cơ sở dữ liệu toàn vẹn và giải quyết bài toán quản lý ma trận biến thể giày dép trong môi trường bán lẻ.")
+    add_p("Nhóm chúng em xin bày tỏ lòng biết ơn sâu sắc nhất tới cô Trần Thị Anh Thi cùng toàn thể quý Thầy Cô trong Khoa Công nghệ Thông tin - Trường Đại học Công nghiệp TP. Hồ Chí Minh đã tận tình chỉ dạy, động viên và hướng dẫn chúng em trong suốt quá trình thực hiện đồ án này!")
 
     # Save document
     output_filename = "BaoCao_QuanLyBanGiay_HSK.docx"

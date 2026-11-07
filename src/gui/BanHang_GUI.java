@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Phân hệ Bán Hàng Tại Quầy (POS - Point of Sale).
  * Được tối ưu hóa toàn diện theo Clean Code:
- * 1. [C1] Hệ thống phím tắt đa tầng: F1 (POS), F2 (Chọn giày), F10 (Thanh toán), DEL (Xóa giỏ), ESC (Đăng xuất).
+ * 1. [C1] Hệ thống phím tắt đa tầng: F1 (POS), F2 (Chuyển Tab Quản lý mẫu giày), F10 (Thanh toán), DEL (Xóa giỏ), ESC (Đăng xuất).
  * 2. [C3, K6] Cơ chế làm mới đơn hàng lamMoiDonHang() dọn sạch dữ liệu khách cũ sau thanh toán.
  * 3. [C5, K7] Kiểm soát ngoại lệ NumberFormatException khi khách nhập chữ hoặc để trống ô tiền.
  * 4. [C7, K9] Đồng bộ danh sách sản phẩm tức thì qua taiLaiDanhSachSanPham() khi có mẫu giày mới.

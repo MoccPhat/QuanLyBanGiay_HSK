@@ -138,12 +138,12 @@ Mặc dù báo cáo và toàn bộ tài liệu đã đạt mức đồng bộ ho
 3. `src/gui/QuanLyKhachHang_GUI.java`: Bắt Enter trên `txtTimSDT`, chuẩn hóa regex `^KH\d{4}$` và `^0[35789]\d{8}$`, tách bạch kiểm tra trùng mã và trùng SĐT, hiển thị thông điệp lỗi thật từ DAO, xóa selection khi reset form.
 4. `src/dao/HoaDon_DAO.java`: Thêm `lastErrorMessage`, chặn âm hóa `tongTien` do `diemDung` vượt quá giá trị đơn hàng, đồng bộ thanh toán QR, bổ sung 3 hàm thống kê thật: `getTongSoLuongBanRa()`, `getTongKhachHang()`, `getTopSanPhamBanChay()`.
 5. `src/dao/ChiTietGiay_DAO.java`: Đổi ảnh mặc định sang `default_shoe.png`, chuẩn hóa định dạng mã `CTG%04d`.
-6. `src/gui/BanHang_GUI.java`: Xóa phím tắt huỷ diệt `TXT_DEL`, map `F2` -> Thêm giỏ, `F5` -> Làm mới, sửa xóa giỏ hàng không xóa nhầm dòng 0, sinh mã KH tự động `sinhMaKhachHangMoi()`, validate SĐT nghiêm ngặt, hiển thị lỗi CSDL chi tiết.
+6. `src/gui/BanHang_GUI.java`: Xóa phím tắt huỷ diệt `TXT_DEL`, phím F2 dành riêng chuyển Tab Quản lý mẫu giày, nút đổi tên thành "+ Thêm Vào Giỏ", sửa xóa giỏ hàng không xóa nhầm dòng 0, sinh mã KH tự động `sinhMaKhachHangMoi()`, validate SĐT nghiêm ngặt, hiển thị lỗi CSDL chi tiết.
 7. `src/dao/NhanVien_DAO.java`: Thêm `lastError`, mapping mã lỗi SQL Server (2627, 2601, 547), tự động băm SHA-256 cho mật khẩu thô, an toàn null cho `email`, `diaChi`, `caLamViec`, thêm `kiemTraTrungMa`, `kiemTraTrungSDT`.
 8. `src/gui/QuanLyNhanVien_GUI.java`: Dùng `cboCaLam` tránh vi phạm `CK_NhanVien_ca`, thêm cột `diaChi` trên bảng để không bị ghi đè null khi sửa, regex nghiêm ngặt `^NV\d{4}$`, `^0[35789]\d{8}$`, hiển thị lỗi chi tiết từ DAO.
 9. `src/dao/SanPham_DAO.java`: Thêm `lastError`, mapping lỗi SQL Server, an toàn null cho `chatLieu`, thêm `kiemTraTrungMa()`.
 10. `src/gui/QuanLySanPham_GUI.java`: Tránh NPE trên `chatLieu` null, regex mã `^SP\d{4}$`, dùng ảnh `default_shoe.png`, kiểm tra trùng mã trước khi thêm, kiểm tra kết quả `xoaSanPham` và hiện lỗi chi tiết, đăng ký Enter trên `txtTimKiem`.
-11. `src/gui/ThongKe_GUI.java`: Kỳ thống kê động theo `LocalDate.now()`, lọc ngày thực tế (Hôm nay, Tháng này, Năm nay), hiển thị số lượng đôi bán và số khách hàng từ database thật, Top 5 sản phẩm bán chạy truy vấn động từ CSDL, xuất CSV UTF-8 BOM (`\uFEFF`) hỗ trợ tiếng Việt có dấu trong Excel.
+11. `src/gui/ThongKe_GUI.java`: Giữ nguyên hiện trạng đồ án thực tế: KPI tính từ danh sách hóa đơn (tổng doanh thu, số đơn, số đôi ước lượng = số đơn × 2), bảng Top 5 sản phẩm mẫu hardcode, nút Xuất Báo Cáo [Excel] chỉ mở JOptionPane thông báo tính năng đang hoàn thiện (không dùng Apache POI).
 12. `run.bat`: Bổ sung `-Dfile.encoding=UTF-8` để JVM luôn chạy chuẩn Unicode tiếng Việt.
 
 ### 6.2. Kết quả kiểm thử thực tế trên CSDL SQL Server:
