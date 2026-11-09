@@ -7,14 +7,28 @@ import entity.SanPham;
 import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * Lớp truy xuất và thao tác dữ liệu (tầng DAO) cho Sản phẩm trong CSDL SQL Server,
+ * quản lý danh mục sản phẩm, ràng buộc giá bán/giá nhập, xóa mềm và tìm kiếm nâng cao.
+ */
 public class SanPham_DAO {
 
     private String lastError = "";
 
+    /**
+     * Lấy thông báo lỗi gần nhất phát sinh khi thực thi các thao tác cơ sở dữ liệu.
+     *
+     * @return chuỗi mô tả lỗi gần nhất
+     */
     public String getLastError() {
         return lastError;
     }
 
+    /**
+     * Phân tích mã lỗi SQLException từ SQL Server để chuyển thành thông báo lỗi tiếng Việt thân thiện với người dùng.
+     *
+     * @param e ngoại lệ SQLException phát sinh từ hệ quản trị CSDL
+     */
     private void handleSQLException(SQLException e) {
         int code = e.getErrorCode();
         String msg = e.getMessage();
@@ -37,6 +51,12 @@ public class SanPham_DAO {
         }
     }
 
+    /**
+     * Mở hoặc tái sử dụng kết nối CSDL từ ConnectDB Singleton.
+     *
+     * @return đối tượng Connection đang kết nối
+     * @throws SQLException khi không thể thiết lập kết nối cơ sở dữ liệu
+     */
     private Connection getConnection() throws SQLException {
         ConnectDB.getInstance();
         Connection con = ConnectDB.getConnection();
@@ -47,6 +67,11 @@ public class SanPham_DAO {
         return con;
     }
 
+    /**
+     * Lấy danh sách toàn bộ sản phẩm đang kinh doanh (trangThai = 1), sắp xếp tăng dần theo mã sản phẩm.
+     *
+     * @return danh sách các đối tượng SanPham
+     */
     public ArrayList<SanPham> getAllSanPham() {
         ArrayList<SanPham> ds = new ArrayList<>();
         try {
@@ -75,6 +100,12 @@ public class SanPham_DAO {
         return ds;
     }
 
+    /**
+     * Tìm kiếm và lấy thông tin chi tiết của một sản phẩm theo mã định danh.
+     *
+     * @param maSP mã sản phẩm cần tìm kiếm
+     * @return đối tượng SanPham nếu tìm thấy, null nếu không tồn tại
+     */
     public SanPham getSanPhamTheoMa(String maSP) {
         SanPham sp = null;
         try {
@@ -103,6 +134,12 @@ public class SanPham_DAO {
         return sp;
     }
 
+    /**
+     * Kiểm tra mã sản phẩm đã tồn tại trong CSDL hay chưa để chống trùng khóa chính.
+     *
+     * @param maSP mã sản phẩm cần kiểm tra
+     * @return true nếu mã đã tồn tại, ngược lại false
+     */
     public boolean kiemTraTrungMa(String maSP) {
         String sql = "SELECT 1 FROM SanPham WHERE maSanPham = ?";
         try {
@@ -120,6 +157,13 @@ public class SanPham_DAO {
         return false;
     }
 
+    /**
+     * Thêm mới một sản phẩm vào CSDL có kiểm tra quyền Quản lý của người gọi.
+     *
+     * @param sp đối tượng SanPham chứa thông tin cần thêm mới
+     * @param caller đối tượng NhanVien đại diện cho người gọi thao tác (phải là Quản lý)
+     * @return true nếu thêm thành công, ngược lại false
+     */
     public boolean themSanPham(SanPham sp, NhanVien caller) {
         lastError = "";
         if (caller != null && !caller.isQuanLy()) {
@@ -155,10 +199,23 @@ public class SanPham_DAO {
         return n > 0;
     }
 
+    /**
+     * Thêm mới một sản phẩm vào CSDL (phiên bản không truyền người gọi thao tác).
+     *
+     * @param sp đối tượng SanPham chứa thông tin cần thêm mới
+     * @return true nếu thêm thành công, ngược lại false
+     */
     public boolean themSanPham(SanPham sp) {
         return themSanPham(sp, null);
     }
 
+    /**
+     * Cập nhật thông tin chi tiết của sản phẩm có kiểm tra quyền Quản lý của người gọi.
+     *
+     * @param sp đối tượng SanPham chứa thông tin cập nhật mới
+     * @param caller đối tượng NhanVien đại diện cho người gọi thao tác (phải là Quản lý)
+     * @return true nếu cập nhật thành công, ngược lại false
+     */
     public boolean capNhatSanPham(SanPham sp, NhanVien caller) {
         lastError = "";
         if (caller != null && !caller.isQuanLy()) {
@@ -192,10 +249,23 @@ public class SanPham_DAO {
         return n > 0;
     }
 
+    /**
+     * Cập nhật thông tin chi tiết của sản phẩm (phiên bản không truyền người gọi thao tác).
+     *
+     * @param sp đối tượng SanPham chứa thông tin cập nhật mới
+     * @return true nếu cập nhật thành công, ngược lại false
+     */
     public boolean capNhatSanPham(SanPham sp) {
         return capNhatSanPham(sp, null);
     }
 
+    /**
+     * Xóa mềm sản phẩm bằng cách chuyển trangThai = 0 có kiểm tra quyền Quản lý.
+     *
+     * @param maSP mã sản phẩm cần xóa mềm
+     * @param caller đối tượng NhanVien đại diện cho người gọi thao tác (phải là Quản lý)
+     * @return true nếu xóa mềm thành công, ngược lại false
+     */
     public boolean xoaSanPham(String maSP, NhanVien caller) {
         lastError = "";
         if (caller != null && !caller.isQuanLy()) {
@@ -218,12 +288,20 @@ public class SanPham_DAO {
         return n > 0;
     }
 
+    /**
+     * Xóa mềm sản phẩm bằng cách chuyển trangThai = 0 (phiên bản không truyền người gọi thao tác).
+     *
+     * @param maSP mã sản phẩm cần xóa mềm
+     * @return true nếu xóa mềm thành công, ngược lại false
+     */
     public boolean xoaSanPham(String maSP) {
         return xoaSanPham(maSP, null);
     }
 
     /**
-     * Lấy danh sách tất cả thương hiệu giày hiện có trong CSDL (phục vụ lọc nâng cao).
+     * Lấy danh sách tất cả các thương hiệu giày hiện có trong CSDL (phục vụ lọc nâng cao).
+     *
+     * @return danh sách các chuỗi tên thương hiệu
      */
     public ArrayList<String> getAllThuongHieu() {
         ArrayList<String> ds = new ArrayList<>();
@@ -244,7 +322,9 @@ public class SanPham_DAO {
     }
 
     /**
-     * Lấy danh sách tất cả phân loại giày hiện có trong CSDL (phục vụ lọc nâng cao).
+     * Lấy danh sách tất cả các phân loại giày hiện có trong CSDL (phục vụ lọc nâng cao).
+     *
+     * @return danh sách các chuỗi phân loại giày
      */
     public ArrayList<String> getAllLoaiGiay() {
         ArrayList<String> ds = new ArrayList<>();
@@ -267,6 +347,13 @@ public class SanPham_DAO {
     /**
      * Tìm kiếm nâng cao sản phẩm theo nhiều tiêu chí kết hợp:
      * Thương hiệu, khoảng giá bán (từ - đến), loại giày, tình trạng còn hàng/ngừng bán.
+     *
+     * @param thuongHieu thương hiệu giày cần lọc (hoặc 'Tất cả')
+     * @param giaTu mức giá bán tối thiểu (hoặc null nếu không giới hạn)
+     * @param giaDen mức giá bán tối đa (hoặc null nếu không giới hạn)
+     * @param loaiGiay loại giày cần lọc (hoặc 'Tất cả')
+     * @param conHang tình trạng còn hàng (true: chỉ lấy sản phẩm còn hàng tồn kho, false: hết hàng hoặc ngừng bán, null: Tất cả)
+     * @return danh sách các đối tượng SanPham thỏa mãn điều kiện lọc
      */
     public ArrayList<SanPham> timKiemNangCao(String thuongHieu, Double giaTu, Double giaDen, String loaiGiay, Boolean conHang) {
         ArrayList<SanPham> ds = new ArrayList<>();

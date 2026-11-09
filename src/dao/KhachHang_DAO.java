@@ -8,13 +8,28 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * Lớp truy xuất và thao tác dữ liệu (tầng DAO) cho Khách hàng trong CSDL SQL Server,
+ * quản lý thông tin khách hàng, tích điểm, phân hạng thành viên và tìm kiếm nâng cao.
+ */
 public class KhachHang_DAO {
     private String lastError = "";
 
+    /**
+     * Lấy thông báo lỗi gần nhất phát sinh khi thực thi các thao tác cơ sở dữ liệu.
+     *
+     * @return chuỗi mô tả lỗi gần nhất
+     */
     public String getLastError() {
         return lastError;
     }
 
+    /**
+     * Mở hoặc tái sử dụng kết nối CSDL từ ConnectDB Singleton.
+     *
+     * @return đối tượng Connection đang kết nối
+     * @throws SQLException khi không thể thiết lập kết nối cơ sở dữ liệu
+     */
     private Connection getConnection() throws SQLException {
         ConnectDB.getInstance();
         Connection con = ConnectDB.getConnection();
@@ -25,6 +40,11 @@ public class KhachHang_DAO {
         return con;
     }
 
+    /**
+     * Lấy danh sách toàn bộ khách hàng trong hệ thống, sắp xếp tăng dần theo mã khách hàng.
+     *
+     * @return danh sách các đối tượng KhachHang
+     */
     public ArrayList<KhachHang> getAllKhachHang() {
         ArrayList<KhachHang> ds = new ArrayList<>();
         String sql = "SELECT * FROM KhachHang ORDER BY maKhachHang ASC";
@@ -55,6 +75,12 @@ public class KhachHang_DAO {
         return ds;
     }
 
+    /**
+     * Tìm kiếm khách hàng theo số điện thoại chính xác.
+     *
+     * @param sdt số điện thoại của khách hàng cần tìm
+     * @return đối tượng KhachHang tương ứng hoặc null nếu không tìm thấy
+     */
     public KhachHang timTheoSoDienThoai(String sdt) {
         KhachHang kh = null;
         String sql = "SELECT * FROM KhachHang WHERE soDienThoai = ?";
@@ -85,6 +111,12 @@ public class KhachHang_DAO {
         return kh;
     }
 
+    /**
+     * Tìm kiếm khách hàng theo mã định danh duy nhất.
+     *
+     * @param maKH mã khách hàng cần tìm kiếm
+     * @return đối tượng KhachHang tương ứng hoặc null nếu không tìm thấy
+     */
     public KhachHang getKhachHangTheoMa(String maKH) {
         KhachHang kh = null;
         String sql = "SELECT * FROM KhachHang WHERE maKhachHang = ?";
@@ -115,6 +147,12 @@ public class KhachHang_DAO {
         return kh;
     }
 
+    /**
+     * Kiểm tra mã khách hàng đã tồn tại trong CSDL hay chưa để chống trùng khóa chính.
+     *
+     * @param maKH mã khách hàng cần kiểm tra
+     * @return true nếu mã đã tồn tại, ngược lại false
+     */
     public boolean kiemTraTrungMa(String maKH) {
         String sql = "SELECT 1 FROM KhachHang WHERE maKhachHang = ?";
         try {
@@ -132,10 +170,23 @@ public class KhachHang_DAO {
         return false;
     }
 
+    /**
+     * Kiểm tra số điện thoại khách hàng đã tồn tại trong CSDL hay chưa.
+     *
+     * @param sdt số điện thoại cần kiểm tra
+     * @return true nếu số điện thoại đã tồn tại, ngược lại false
+     */
     public boolean kiemTraTrungSDT(String sdt) {
         return kiemTraTrungSDT(sdt, null);
     }
 
+    /**
+     * Kiểm tra số điện thoại khách hàng đã tồn tại hay chưa (loại trừ mã khách hàng đang cập nhật).
+     *
+     * @param sdt số điện thoại cần kiểm tra
+     * @param maKHExclude mã khách hàng cần loại trừ khỏi phạm vi kiểm tra trùng
+     * @return true nếu số điện thoại bị trùng lặp, ngược lại false
+     */
     public boolean kiemTraTrungSDT(String sdt, String maKHExclude) {
         boolean coExclude = (maKHExclude != null && !maKHExclude.trim().isEmpty());
         String sql = "SELECT 1 FROM KhachHang WHERE soDienThoai = ?" + (coExclude ? " AND maKhachHang <> ?" : "");
@@ -157,6 +208,12 @@ public class KhachHang_DAO {
         return false;
     }
 
+    /**
+     * Thêm mới một khách hàng vào CSDL.
+     *
+     * @param kh đối tượng KhachHang chứa thông tin cần thêm mới
+     * @return true nếu thêm thành công, ngược lại false
+     */
     public boolean themKhachHang(KhachHang kh) {
         lastError = "";
         int n = 0;
@@ -195,6 +252,14 @@ public class KhachHang_DAO {
         return n > 0;
     }
 
+    /**
+     * Cập nhật điểm tích lũy và hạng thành viên mới cho khách hàng.
+     *
+     * @param maKH mã khách hàng cần cập nhật
+     * @param diemMoi số điểm tích lũy mới
+     * @param hangMoi tên hạng thành viên mới
+     * @return true nếu cập nhật thành công, ngược lại false
+     */
     public boolean capNhatDiem(String maKH, int diemMoi, String hangMoi) {
         lastError = "";
         int n = 0;
@@ -215,9 +280,10 @@ public class KhachHang_DAO {
     }
 
     /**
-     * Cập nhật thông tin khách hàng (L12):
-     * Bổ sung ngaySinh, gioiTinh, email vào câu UPDATE để không bị mất dữ liệu.
-     * Bỏ cập nhật hangThanhVien từ form (hạng thành viên tự tính theo điểm tích lũy).
+     * Cập nhật thông tin cá nhân của khách hàng (họ tên, sđt, ngày sinh, giới tính, địa chỉ, email).
+     *
+     * @param kh đối tượng KhachHang chứa thông tin cập nhật mới
+     * @return true nếu cập nhật thành công, ngược lại false
      */
     public boolean capNhatKhachHang(KhachHang kh) {
         lastError = "";
@@ -251,9 +317,11 @@ public class KhachHang_DAO {
     }
 
     /**
-     * Xóa khách hàng (L13 & L14):
-     * - Kiểm tra quyền Quản lý ở tầng DAO (L14).
-     * - Kiểm tra lịch sử hóa đơn: nếu đã có hóa đơn -> chặn xóa và trả về thông báo thân thiện (L13).
+     * Xóa khách hàng khỏi hệ thống có kiểm tra quyền Quản lý và chặn xóa nếu khách đã có lịch sử hóa đơn.
+     *
+     * @param maKH mã khách hàng cần xóa
+     * @param caller đối tượng NhanVien đại diện cho người gọi thao tác (phải là Quản lý)
+     * @return true nếu xóa thành công, ngược lại false
      */
     public boolean xoaKhachHang(String maKH, NhanVien caller) {
         lastError = "";
@@ -285,10 +353,21 @@ public class KhachHang_DAO {
         }
     }
 
+    /**
+     * Xóa khách hàng khỏi hệ thống (phiên bản không truyền người gọi thao tác).
+     *
+     * @param maKH mã khách hàng cần xóa
+     * @return true nếu xóa thành công, ngược lại false
+     */
     public boolean xoaKhachHang(String maKH) {
         return xoaKhachHang(maKH, null);
     }
 
+    /**
+     * Tự động sinh mã khách hàng mới có dạng KHxxxx tăng dần liên tục và an toàn khi đồng thời truy cập.
+     *
+     * @return chuỗi mã khách hàng mới được sinh ra
+     */
     public String sinhMaKhachHangMoi() {
         try {
             Connection con = getConnection();
@@ -309,6 +388,12 @@ public class KhachHang_DAO {
     /**
      * Tìm kiếm nâng cao khách hàng theo nhiều tiêu chí kết hợp:
      * Hạng thành viên, khoảng điểm tích lũy (từ - đến), giới tính.
+     *
+     * @param hangThanhVien tên hạng thành viên cần lọc (hoặc 'Tất cả')
+     * @param diemTu mức điểm tích lũy tối thiểu (hoặc null nếu không giới hạn)
+     * @param diemDen mức điểm tích lũy tối đa (hoặc null nếu không giới hạn)
+     * @param gioiTinh giới tính cần lọc (true: Nam, false: Nữ, null: Tất cả)
+     * @return danh sách các đối tượng KhachHang thỏa mãn tiêu chuẩn lọc
      */
     public ArrayList<KhachHang> timKiemNangCao(String hangThanhVien, Integer diemTu, Integer diemDen, Boolean gioiTinh) {
         ArrayList<KhachHang> ds = new ArrayList<>();

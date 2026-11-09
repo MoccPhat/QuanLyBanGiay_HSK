@@ -13,14 +13,28 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 
+/**
+ * Lớp truy xuất và thao tác dữ liệu (tầng DAO) cho Nhân viên trong CSDL SQL Server,
+ * quản lý thông tin nhân sự, xác thực đăng nhập, băm mật khẩu bảo mật và phân quyền chức năng.
+ */
 public class NhanVien_DAO {
 
     private String lastError = "";
 
+    /**
+     * Lấy thông báo lỗi gần nhất phát sinh khi thực thi các thao tác cơ sở dữ liệu.
+     *
+     * @return chuỗi mô tả lỗi gần nhất
+     */
     public String getLastError() {
         return lastError;
     }
 
+    /**
+     * Phân tích mã lỗi SQLException từ SQL Server để chuyển thành thông báo lỗi tiếng Việt thân thiện với người dùng.
+     *
+     * @param e ngoại lệ SQLException phát sinh từ hệ quản trị CSDL
+     */
     private void handleSQLException(SQLException e) {
         int code = e.getErrorCode();
         String msg = e.getMessage();
@@ -57,6 +71,12 @@ public class NhanVien_DAO {
         }
     }
 
+    /**
+     * Mở hoặc tái sử dụng kết nối CSDL từ ConnectDB Singleton.
+     *
+     * @return đối tượng Connection đang kết nối
+     * @throws SQLException khi không thể thiết lập kết nối cơ sở dữ liệu
+     */
     private Connection getConnection() throws SQLException {
         ConnectDB.getInstance();
         Connection con = ConnectDB.getConnection();
@@ -67,6 +87,11 @@ public class NhanVien_DAO {
         return con;
     }
 
+    /**
+     * Lấy danh sách toàn bộ nhân viên đang làm việc (trangThai = 1), sắp xếp tăng dần theo mã nhân viên.
+     *
+     * @return danh sách các đối tượng NhanVien
+     */
     public ArrayList<NhanVien> getAllNhanVien() {
         ArrayList<NhanVien> ds = new ArrayList<>();
         try {
@@ -105,8 +130,11 @@ public class NhanVien_DAO {
     public static final int SALT_BYTES = 16;
 
     /**
-     * Băm mật khẩu bằng PBKDF2WithHmacSHA256 (L08).
-     * Định dạng lưu trữ: pbkdf2$<iterations>$<saltBase64>$<hashBase64>
+     * Băm mật khẩu bằng PBKDF2WithHmacSHA256 kết hợp muối ngẫu nhiên và 100.000 vòng lặp.
+     * Định dạng lưu trữ: pbkdf2$iterations$saltBase64$hashBase64.
+     *
+     * @param password mật khẩu văn bản thô cần băm
+     * @return chuỗi băm mật khẩu chuẩn PBKDF2
      */
     public static String hashPBKDF2(String password) {
         try {
@@ -127,8 +155,11 @@ public class NhanVien_DAO {
     }
 
     /**
-     * Xác thực mật khẩu: Hỗ trợ cả chuẩn mới PBKDF2 và chuẩn cũ SHA-256 (64 hex) (L08).
-     * Dùng MessageDigest.isEqual để chống tấn công Timing Attack.
+     * Xác thực mật khẩu người dùng nhập so với chuỗi băm trong CSDL (hỗ trợ cả PBKDF2 và SHA-256 cũ), chống tấn công Timing Attack.
+     *
+     * @param password mật khẩu văn bản thô do người dùng nhập
+     * @param storedHash chuỗi băm mật khẩu lưu trữ trong CSDL
+     * @return true nếu mật khẩu chính xác, ngược lại false
      */
     public static boolean verifyPassword(String password, String storedHash) {
         if (password == null || storedHash == null) {
@@ -163,6 +194,12 @@ public class NhanVien_DAO {
         }
     }
 
+    /**
+     * Phương thức tĩnh băm chuỗi văn bản bằng thuật toán SHA-256 trả về chuỗi 64 ký tự hex.
+     *
+     * @param input chuỗi văn bản cần băm
+     * @return chuỗi hex 64 ký tự kết quả băm SHA-256
+     */
     public static String hashSHA256Static(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -179,13 +216,21 @@ public class NhanVien_DAO {
         }
     }
 
+    /**
+     * Băm chuỗi văn bản bằng thuật toán SHA-256 (gọi hàm tĩnh hashSHA256Static).
+     *
+     * @param input chuỗi văn bản cần băm
+     * @return chuỗi hex 64 ký tự kết quả băm SHA-256
+     */
     public String hashSHA256(String input) {
         return hashSHA256Static(input);
     }
 
     /**
-     * Kiểm tra kích thước cột matKhau trong bảng NhanVien có đủ lưu chuỗi PBKDF2 (~83 ký tự) hay không.
-     * Nếu CHAR(64), không thể nhồi 83 ký tự để tránh lỗi SQL Server 8152.
+     * Kiểm tra độ rộng của cột matKhau trong bảng NhanVien có đủ lưu chuỗi băm PBKDF2 (tối thiểu 83 ký tự) hay không.
+     *
+     * @param con đối tượng kết nối Connection đang hoạt động
+     * @return true nếu cột có độ rộng >= 83 hoặc không giới hạn, ngược lại false
      */
     public boolean isColumnLargeEnoughForPBKDF2(Connection con) {
         try {
@@ -202,12 +247,11 @@ public class NhanVien_DAO {
     }
 
     /**
-     * Xác thực đăng nhập (L08 & L10):
-     * Phân biệt rõ ràng 3 trường hợp khi thất bại:
-     * 1. Không tìm thấy mã nhân viên (hoặc tài khoản bị ngừng hoạt động).
-     * 2. Mật khẩu không chính xác (hỗ trợ cả PBKDF2 và SHA-256).
-     * 3. Lỗi kết nối CSDL hoặc ngoại lệ hệ thống.
-     * Tự động nâng cấp hash SHA-256 lên PBKDF2 nếu đăng nhập đúng và kích thước cột cho phép (L08).
+     * Xác thực thông tin đăng nhập của nhân viên theo mã và mật khẩu, tự động nâng cấp hash lên PBKDF2 nếu đủ điều kiện.
+     *
+     * @param maNV mã nhân viên cần đăng nhập
+     * @param matKhau mật khẩu văn bản thô do người dùng nhập
+     * @return đối tượng NhanVien nếu đăng nhập thành công, null nếu thất bại
      */
     public NhanVien dangNhap(String maNV, String matKhau) {
         lastError = "";
@@ -267,6 +311,12 @@ public class NhanVien_DAO {
         return nv;
     }
 
+    /**
+     * Tìm kiếm và lấy thông tin chi tiết của một nhân viên theo mã định danh.
+     *
+     * @param maNV mã nhân viên cần tìm kiếm
+     * @return đối tượng NhanVien nếu tìm thấy, null nếu không tồn tại
+     */
     public NhanVien getNhanVienTheoMa(String maNV) {
         NhanVien nv = null;
         try {
@@ -300,6 +350,12 @@ public class NhanVien_DAO {
         return nv;
     }
 
+    /**
+     * Kiểm tra mã nhân viên đã tồn tại trong CSDL hay chưa để chống trùng khóa chính.
+     *
+     * @param maNV mã nhân viên cần kiểm tra
+     * @return true nếu mã đã tồn tại, ngược lại false
+     */
     public boolean kiemTraTrungMa(String maNV) {
         String sql = "SELECT 1 FROM NhanVien WHERE maNhanVien = ?";
         try {
@@ -317,6 +373,13 @@ public class NhanVien_DAO {
         return false;
     }
 
+    /**
+     * Kiểm tra số điện thoại nhân viên đã được sử dụng hay chưa (ngoại trừ nhân viên đang cập nhật).
+     *
+     * @param sdt số điện thoại cần kiểm tra
+     * @param maNVExclude mã nhân viên cần loại trừ khỏi phạm vi kiểm tra trùng
+     * @return true nếu số điện thoại bị trùng lặp, ngược lại false
+     */
     public boolean kiemTraTrungSDT(String sdt, String maNVExclude) {
         boolean coExclude = (maNVExclude != null && !maNVExclude.trim().isEmpty());
         String sql = "SELECT 1 FROM NhanVien WHERE soDienThoai = ?" + (coExclude ? " AND maNhanVien <> ?" : "");
@@ -338,6 +401,13 @@ public class NhanVien_DAO {
         return false;
     }
 
+    /**
+     * Thêm mới một nhân viên vào CSDL có kiểm tra quyền Quản lý của người gọi và ràng buộc tuổi từ 18 trở lên.
+     *
+     * @param nv đối tượng NhanVien chứa thông tin cần thêm mới
+     * @param caller đối tượng NhanVien đại diện cho người gọi thao tác (phải là Quản lý)
+     * @return true nếu thêm thành công, ngược lại false
+     */
     public boolean themNhanVien(NhanVien nv, NhanVien caller) {
         lastError = "";
         if (caller != null && !caller.isQuanLy()) {
@@ -409,10 +479,23 @@ public class NhanVien_DAO {
         return n > 0;
     }
 
+    /**
+     * Thêm mới một nhân viên vào CSDL (phiên bản không truyền người gọi thao tác).
+     *
+     * @param nv đối tượng NhanVien chứa thông tin cần thêm mới
+     * @return true nếu thêm thành công, ngược lại false
+     */
     public boolean themNhanVien(NhanVien nv) {
         return themNhanVien(nv, null);
     }
 
+    /**
+     * Cập nhật thông tin hồ sơ của nhân viên có kiểm tra quyền Quản lý và ràng buộc tuổi từ 18 trở lên.
+     *
+     * @param nv đối tượng NhanVien chứa thông tin cập nhật mới
+     * @param caller đối tượng NhanVien đại diện cho người gọi thao tác (phải là Quản lý)
+     * @return true nếu cập nhật thành công, ngược lại false
+     */
     public boolean capNhatNhanVien(NhanVien nv, NhanVien caller) {
         lastError = "";
         if (caller != null && !caller.isQuanLy()) {
@@ -467,10 +550,23 @@ public class NhanVien_DAO {
         return n > 0;
     }
 
+    /**
+     * Cập nhật thông tin hồ sơ của nhân viên (phiên bản không truyền người gọi thao tác).
+     *
+     * @param nv đối tượng NhanVien chứa thông tin cập nhật mới
+     * @return true nếu cập nhật thành công, ngược lại false
+     */
     public boolean capNhatNhanVien(NhanVien nv) {
         return capNhatNhanVien(nv, null);
     }
 
+    /**
+     * Xóa mềm nhân viên bằng cách chuyển trangThai = 0 có kiểm tra quyền Quản lý.
+     *
+     * @param maNV mã nhân viên cần xóa mềm
+     * @param caller đối tượng NhanVien đại diện cho người gọi thao tác (phải là Quản lý)
+     * @return true nếu xóa mềm thành công, ngược lại false
+     */
     public boolean xoaNhanVien(String maNV, NhanVien caller) {
         lastError = "";
         if (caller != null && !caller.isQuanLy()) {
@@ -492,12 +588,21 @@ public class NhanVien_DAO {
         return n > 0;
     }
 
+    /**
+     * Xóa mềm nhân viên bằng cách chuyển trangThai = 0 (phiên bản không truyền người gọi thao tác).
+     *
+     * @param maNV mã nhân viên cần xóa mềm
+     * @return true nếu xóa mềm thành công, ngược lại false
+     */
     public boolean xoaNhanVien(String maNV) {
         return xoaNhanVien(maNV, null);
     }
 
     /**
-     * Tìm kiếm nhân viên theo từ khóa (Mã NV, Họ tên hoặc Số điện thoại).
+     * Tìm kiếm nhân viên đang làm việc theo từ khóa (Mã NV, Họ tên, Số điện thoại hoặc Chức vụ).
+     *
+     * @param tuKhoa từ khóa cần tìm kiếm
+     * @return danh sách các đối tượng NhanVien thỏa mãn từ khóa tìm kiếm
      */
     public ArrayList<NhanVien> timKiemNhanVien(String tuKhoa) {
         ArrayList<NhanVien> ds = new ArrayList<>();

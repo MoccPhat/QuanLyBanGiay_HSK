@@ -8,26 +8,32 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 /**
- * Lớp DAO quản lý nghiệp vụ và thao tác CSDL cho Hóa đơn bán lẻ.
- * Áp dụng giao dịch toàn vẹn (Transaction ACID) tuân thủ đúng quy trình nghiệp vụ:
- * 1. Khóa bảng sinh mã hóa đơn tăng dần liên tục, chống trùng lặp giữa các máy POS.
- * 2. Lưu hóa đơn với đầy đủ tiền hàng, chiết khấu, điểm trừ, điểm cộng và tiền thanh toán thực.
- * 3. Lưu chi tiết hóa đơn và trừ tồn kho có điều kiện (rollback ngay nếu thiếu hàng).
- * 4. Khấu trừ điểm tích lũy đã dùng, cộng điểm thưởng mới và tự động cập nhật lại hạng thành viên.
+ * Lớp truy xuất và thao tác dữ liệu (tầng DAO) cho Hóa đơn bán lẻ trong CSDL SQL Server,
+ * áp dụng giao dịch toàn vẹn ACID, quản lý thanh toán, trừ tồn kho, tích điểm và thống kê doanh thu.
  */
 public class HoaDon_DAO {
     private String lastErrorMessage = "";
 
+    /**
+     * Lấy thông báo lỗi chi tiết gần nhất phát sinh khi thực thi thao tác CSDL.
+     *
+     * @return chuỗi mô tả lỗi chi tiết gần nhất
+     */
     public String getLastErrorMessage() {
         return lastErrorMessage;
     }
 
+    /**
+     * Lấy thông báo lỗi gần nhất phát sinh khi thực thi thao tác CSDL (phương thức bí danh của getLastErrorMessage).
+     *
+     * @return chuỗi mô tả lỗi gần nhất
+     */
     public String getLastError() {
         return lastErrorMessage;
     }
 
     /**
-     * Lớp đóng gói kết quả tính toán chi tiết hóa đơn, bảo toàn kiểu tiền BigDecimal (L09).
+     * Lớp đóng gói kết quả tính toán chi tiết tiền hóa đơn bảo toàn độ chính xác số học.
      */
     public static class KetQuaTinhTien {
         private final double tongTienHang;
@@ -37,6 +43,16 @@ public class HoaDon_DAO {
         private final double tongPhaiTra;
         private final int diemCong;
 
+        /**
+         * Khởi tạo đối tượng đóng gói kết quả tính toán tiền hóa đơn.
+         *
+         * @param tongTienHang tổng tiền hàng gốc
+         * @param chietKhau số tiền chiết khấu theo hạng thành viên
+         * @param diemSuDung số điểm tích lũy sử dụng
+         * @param tienGiamDiem số tiền giảm trừ tương ứng từ điểm
+         * @param tongPhaiTra tổng tiền khách thực tế cần thanh toán
+         * @param diemCong số điểm tích lũy được cộng mới
+         */
         public KetQuaTinhTien(double tongTienHang, double chietKhau, int diemSuDung, double tienGiamDiem, double tongPhaiTra, int diemCong) {
             this.tongTienHang = tongTienHang;
             this.chietKhau = chietKhau;
@@ -46,18 +62,57 @@ public class HoaDon_DAO {
             this.diemCong = diemCong;
         }
 
+        /**
+         * Lấy tổng tiền hàng gốc.
+         *
+         * @return số tiền hàng gốc (VNĐ)
+         */
         public double getTongTienHang() { return tongTienHang; }
+
+        /**
+         * Lấy số tiền chiết khấu theo hạng thành viên.
+         *
+         * @return số tiền chiết khấu (VNĐ)
+         */
         public double getChietKhau() { return chietKhau; }
+
+        /**
+         * Lấy số điểm tích lũy sử dụng.
+         *
+         * @return số điểm sử dụng
+         */
         public int getDiemSuDung() { return diemSuDung; }
+
+        /**
+         * Lấy số tiền giảm trừ quy đổi từ điểm tích lũy.
+         *
+         * @return số tiền giảm từ điểm (VNĐ)
+         */
         public double getTienGiamDiem() { return tienGiamDiem; }
+
+        /**
+         * Lấy tổng số tiền thực tế khách cần thanh toán sau giảm trừ.
+         *
+         * @return tổng tiền cần thanh toán (VNĐ)
+         */
         public double getTongPhaiTra() { return tongPhaiTra; }
+
+        /**
+         * Lấy số điểm tích lũy được cộng mới từ đơn hàng.
+         *
+         * @return số điểm thưởng được cộng
+         */
         public int getDiemCong() { return diemCong; }
     }
 
     /**
-     * Tập trung tính chiết khấu và tiền thanh toán tại 1 điểm duy nhất (L09).
-     * Mọi phép tính số học dùng BigDecimal với quy tắc làm tròn HALF_UP.
+     * Tập trung tính chiết khấu và tiền thanh toán tại 1 điểm duy nhất dùng BigDecimal với quy tắc làm tròn HALF_UP.
      * Khách vãng lai: chiết khấu = 0, điểm = 0, điểm cộng = 0.
+     *
+     * @param tongTienHangVal tổng tiền hàng gốc trước giảm giá
+     * @param kh thông tin khách hàng mua hàng (hoặc null nếu là khách vãng lai)
+     * @param diemMuonDung số điểm tích lũy khách hàng mong muốn sử dụng
+     * @return đối tượng KetQuaTinhTien chứa các khoản tiền và điểm tính toán chi tiết
      */
     public static KetQuaTinhTien tinhChiTietTien(double tongTienHangVal, KhachHang kh, int diemMuonDung) {
         java.math.BigDecimal tienHang = java.math.BigDecimal.valueOf(tongTienHangVal).setScale(0, java.math.RoundingMode.HALF_UP);
@@ -109,6 +164,11 @@ public class HoaDon_DAO {
         );
     }
 
+    /**
+     * Lấy danh sách toàn bộ hóa đơn trong CSDL, sắp xếp giảm dần theo ngày lập.
+     *
+     * @return danh sách các đối tượng HoaDon
+     */
     public ArrayList<HoaDon> getAllHoaDon() {
         ArrayList<HoaDon> ds = new ArrayList<>();
         String sql = "SELECT h.*, nv.hoTen AS tenNV, kh.hoTen AS tenKH " +
@@ -174,9 +234,11 @@ public class HoaDon_DAO {
     }
 
     /**
-     * Thực thi một giao dịch bán hàng an toàn trong duy nhất 1 Transaction CSDL.
-     * @param hd Thông tin hóa đơn và các dòng sản phẩm trong giỏ hàng.
-     * @return true nếu lưu thành công toàn bộ, false nếu có lỗi hoặc hết tồn kho.
+     * Thực thi một giao dịch bán hàng an toàn trong duy nhất 1 Transaction CSDL:
+     * khóa sinh mã hóa đơn, lưu hóa đơn 13 cột, lưu chi tiết hóa đơn, trừ kho và cập nhật tích điểm.
+     *
+     * @param hd Thông tin hóa đơn và các dòng sản phẩm trong giỏ hàng
+     * @return true nếu lưu thành công toàn bộ, false nếu có lỗi hoặc hết tồn kho
      */
     public boolean themHoaDon(HoaDon hd) {
         Connection con = null;
@@ -349,6 +411,11 @@ public class HoaDon_DAO {
         }
     }
 
+    /**
+     * Tính tổng số lượng tất cả các sản phẩm giày dép đã bán ra từ các hóa đơn.
+     *
+     * @return tổng số lượng sản phẩm nguyên đã xuất bán
+     */
     public int getTongSoLuongBanRa() {
         String sql = "SELECT ISNULL(SUM(soLuong), 0) FROM ChiTietHoaDon";
         try {
@@ -371,6 +438,11 @@ public class HoaDon_DAO {
         return 0;
     }
 
+    /**
+     * Đếm tổng số lượng khách hàng đã đăng ký thông tin trong hệ thống.
+     *
+     * @return tổng số lượng khách hàng
+     */
     public int getTongKhachHang() {
         String sql = "SELECT COUNT(*) FROM KhachHang";
         try {
@@ -393,6 +465,12 @@ public class HoaDon_DAO {
         return 0;
     }
 
+    /**
+     * Lấy danh sách những sản phẩm bán chạy nhất theo số lượng xuất bán và tổng doanh thu.
+     *
+     * @param top số lượng sản phẩm đứng đầu cần lấy
+     * @return danh sách các mảng Object[] chứa thông tin: thứ hạng, mã SP, tên SP, hãng, tổng SL, tổng doanh thu
+     */
     public ArrayList<Object[]> getTopSanPhamBanChay(int top) {
         ArrayList<Object[]> list = new ArrayList<>();
         String sql = "SELECT TOP (?) sp.maSanPham, sp.tenSanPham, sp.thuongHieu, " +
@@ -432,7 +510,10 @@ public class HoaDon_DAO {
     }
 
     /**
-     * Lấy danh sách chi tiết các món hàng (sản phẩm, biến thể, số lượng, giá, thành tiền) của một hóa đơn.
+     * Lấy danh sách chi tiết các món hàng (sản phẩm, biến thể, số lượng, giá, thành tiền) của một hóa đơn theo mã.
+     *
+     * @param maHD mã hóa đơn cần tra cứu danh sách chi tiết
+     * @return danh sách các đối tượng ChiTietHoaDon thuộc hóa đơn
      */
     public ArrayList<ChiTietHoaDon> getChiTietHoaDonTheoMa(String maHD) {
         ArrayList<ChiTietHoaDon> list = new ArrayList<>();
@@ -490,7 +571,10 @@ public class HoaDon_DAO {
     }
 
     /**
-     * Lấy thông tin một hóa đơn theo mã.
+     * Lấy thông tin đầy đủ của một hóa đơn kèm toàn bộ danh sách chi tiết các món hàng theo mã định danh.
+     *
+     * @param maHD mã hóa đơn cần tìm kiếm
+     * @return đối tượng HoaDon đầy đủ thông tin hoặc null nếu không tồn tại
      */
     public HoaDon getHoaDonTheoMa(String maHD) {
         String sql = "SELECT h.*, nv.hoTen AS tenNV, kh.hoTen AS tenKH " +
@@ -558,7 +642,10 @@ public class HoaDon_DAO {
     }
 
     /**
-     * Tìm kiếm hóa đơn theo từ khóa (Mã HĐ, Tên Thu ngân, Tên Khách hàng).
+     * Tìm kiếm hóa đơn theo từ khóa (khớp với Mã HĐ, Tên Thu ngân hoặc Tên Khách hàng).
+     *
+     * @param tuKhoa từ khóa cần tìm kiếm
+     * @return danh sách các đối tượng HoaDon thỏa mãn từ khóa tìm kiếm
      */
     public ArrayList<HoaDon> timKiemHoaDon(String tuKhoa) {
         if (tuKhoa == null || tuKhoa.trim().isEmpty()) {

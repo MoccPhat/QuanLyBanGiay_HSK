@@ -7,14 +7,28 @@ import entity.SanPham;
 import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * Lớp truy xuất và thao tác dữ liệu (tầng DAO) cho Biến thể giày (ChiTietGiay) trong CSDL SQL Server,
+ * quản lý thông tin kích cỡ, màu sắc, tồn kho và hình ảnh của từng SKU sản phẩm.
+ */
 public class ChiTietGiay_DAO {
     private SanPham_DAO sp_dao = new SanPham_DAO();
     private String lastError = "";
 
+    /**
+     * Lấy thông báo lỗi gần nhất phát sinh khi thực thi các thao tác cơ sở dữ liệu.
+     *
+     * @return chuỗi mô tả lỗi gần nhất
+     */
     public String getLastError() {
         return lastError;
     }
 
+    /**
+     * Lấy danh sách toàn bộ các biến thể giày (SKU) của những sản phẩm đang hoạt động kinh doanh.
+     *
+     * @return danh sách các đối tượng ChiTietGiay
+     */
     public ArrayList<ChiTietGiay> getAllChiTietGiay() {
         ArrayList<ChiTietGiay> ds = new ArrayList<>();
         try {
@@ -58,6 +72,12 @@ public class ChiTietGiay_DAO {
         return ds;
     }
 
+    /**
+     * Lấy danh sách tất cả các biến thể kích cỡ và màu sắc thuộc về một sản phẩm cụ thể theo mã.
+     *
+     * @param maSP mã sản phẩm cần tra cứu các biến thể
+     * @return danh sách các đối tượng ChiTietGiay tương ứng với mã sản phẩm
+     */
     public ArrayList<ChiTietGiay> getChiTietTheoSanPham(String maSP) {
         ArrayList<ChiTietGiay> ds = new ArrayList<>();
         try {
@@ -101,6 +121,13 @@ public class ChiTietGiay_DAO {
         return ds;
     }
 
+    /**
+     * Cập nhật trừ số lượng hàng tồn kho của một biến thể giày khi xuất bán có điều kiện kiểm tra số lượng đủ.
+     *
+     * @param maCTG mã biến thể giày (SKU) cần trừ tồn kho
+     * @param soLuongTru số lượng sản phẩm xuất bán cần trừ
+     * @return true nếu trừ kho thành công, false nếu tồn kho không đủ hoặc lỗi CSDL
+     */
     public boolean capNhatTonKho(String maCTG, int soLuongTru) {
         int n = 0;
         try {
@@ -124,6 +151,12 @@ public class ChiTietGiay_DAO {
         return n > 0;
     }
 
+    /**
+     * Thêm mới một bản ghi biến thể giày (size, màu sắc, tồn kho, ảnh) vào CSDL.
+     *
+     * @param ctg đối tượng ChiTietGiay chứa thông tin biến thể cần thêm mới
+     * @return true nếu thêm thành công, ngược lại false
+     */
     public boolean themChiTietGiay(ChiTietGiay ctg) {
         int n = 0;
         try {
@@ -155,6 +188,11 @@ public class ChiTietGiay_DAO {
         return n > 0;
     }
 
+    /**
+     * Tự động sinh mã biến thể giày mới có dạng CTGxxxx tăng dần liên tục và chống trùng lặp.
+     *
+     * @return chuỗi mã biến thể giày mới được sinh ra
+     */
     public String sinhMaChiTietGiayMoi() {
         try {
             ConnectDB.getInstance();
@@ -177,6 +215,11 @@ public class ChiTietGiay_DAO {
         return String.format("CTG%04d", Math.abs(System.currentTimeMillis() % 10000));
     }
 
+    /**
+     * Lấy toàn bộ danh sách các biến thể giày (phương thức bí danh của getAllChiTietGiay).
+     *
+     * @return danh sách các đối tượng ChiTietGiay
+     */
     public ArrayList<ChiTietGiay> layTatCaChiTietGiay() {
         return getAllChiTietGiay();
     }

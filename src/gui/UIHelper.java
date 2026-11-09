@@ -9,6 +9,9 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+/**
+ * Lớp tiện ích giao diện (GUI Helper) cung cấp bảng màu chuẩn, kiểu nút bấm phẳng, định dạng bảng và các thành phần giao diện đồ họa.
+ */
 public class UIHelper {
 
     // Bảng màu chuẩn đồ họa hiện đại
@@ -25,6 +28,14 @@ public class UIHelper {
     public static final Color TEXT_DARK    = new Color(15, 23, 42);    // Chữ màu tối chuẩn sắc nét
     public static final Color BTN_LIGHT_BG = new Color(241, 245, 249); // Nền nút xám sáng
 
+    /**
+     * Tạo nút bấm với kích thước mặc định (100x32px), màu nền và màu chữ tùy chọn.
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @param bgColor màu nền của nút
+     * @param fgColor màu chữ của nút
+     * @return đối tượng JButton tùy biến
+     */
     public static JButton createButton(String text, Color bgColor, Color fgColor) {
         return createButton(text, bgColor, fgColor, 100, 32);
     }
@@ -32,6 +43,13 @@ public class UIHelper {
     /**
      * Tạo nút bấm tùy biến đảm bảo 100% hiển thị màu nền và chữ sắc nét trên mọi hệ điều hành.
      * Tự vẽ nền và chữ bằng Graphics2D để ngăn Look & Feel của Windows làm mờ hoặc đổi màu chữ.
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @param bgColor màu nền của nút
+     * @param fgColor màu chữ của nút
+     * @param minW chiều rộng tối thiểu của nút (px)
+     * @param minH chiều cao tối thiểu của nút (px)
+     * @return đối tượng JButton tùy biến
      */
     public static JButton createButton(String text, Color bgColor, Color fgColor, int minW, int minH) {
         JButton btn = new JButton(text) {
@@ -104,48 +122,120 @@ public class UIHelper {
         return btn;
     }
 
+    /**
+     * Tạo nút bấm chính (Primary) màu xanh dương nổi bật với kích thước chuẩn (110x34px).
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @return đối tượng JButton kiểu Primary
+     */
     public static JButton createPrimaryBtn(String text) {
         return createPrimaryBtn(text, 110, 34);
     }
 
+    /**
+     * Tạo nút bấm chính (Primary) màu xanh dương nổi bật với kích thước tùy biến.
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @param minW chiều rộng tối thiểu của nút (px)
+     * @param minH chiều cao tối thiểu của nút (px)
+     * @return đối tượng JButton kiểu Primary
+     */
     public static JButton createPrimaryBtn(String text, int minW, int minH) {
         return createButton(text, ACCENT_BLUE, Color.WHITE, minW, minH);
     }
 
+    /**
+     * Tạo nút bấm thành công (Success) màu xanh lá cây với kích thước chuẩn (110x34px).
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @return đối tượng JButton kiểu Success
+     */
     public static JButton createSuccessBtn(String text) {
         return createSuccessBtn(text, 110, 34);
     }
 
+    /**
+     * Tạo nút bấm thành công (Success) màu xanh lá cây với kích thước tùy biến.
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @param minW chiều rộng tối thiểu của nút (px)
+     * @param minH chiều cao tối thiểu của nút (px)
+     * @return đối tượng JButton kiểu Success
+     */
     public static JButton createSuccessBtn(String text, int minW, int minH) {
         return createButton(text, SUCCESS_GREEN, Color.WHITE, minW, minH);
     }
 
+    /**
+     * Tạo nút bấm cảnh báo nguy hiểm (Danger) màu đỏ với kích thước chuẩn (110x34px).
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @return đối tượng JButton kiểu Danger
+     */
     public static JButton createDangerBtn(String text) {
         return createDangerBtn(text, 110, 34);
     }
 
+    /**
+     * Tạo nút bấm cảnh báo nguy hiểm (Danger) màu đỏ với kích thước tùy biến.
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @param minW chiều rộng tối thiểu của nút (px)
+     * @param minH chiều cao tối thiểu của nút (px)
+     * @return đối tượng JButton kiểu Danger
+     */
     public static JButton createDangerBtn(String text, int minW, int minH) {
         return createButton(text, DANGER_RED, Color.WHITE, minW, minH);
     }
 
+    /**
+     * Tạo nút bấm tối màu (Dark) xanh navy đậm với kích thước chuẩn (65x30px).
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @return đối tượng JButton kiểu Dark
+     */
     public static JButton createDarkBtn(String text) {
         return createDarkBtn(text, 65, 30);
     }
 
+    /**
+     * Tạo nút bấm tối màu (Dark) xanh navy đậm với kích thước tùy biến.
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @param minW chiều rộng tối thiểu của nút (px)
+     * @param minH chiều cao tối thiểu của nút (px)
+     * @return đối tượng JButton kiểu Dark
+     */
     public static JButton createDarkBtn(String text, int minW, int minH) {
         return createButton(text, PRIMARY_BLUE, Color.WHITE, minW, minH);
     }
 
+    /**
+     * Tạo nút bấm phụ (Secondary) màu xám sáng với kích thước chuẩn (120x34px).
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @return đối tượng JButton kiểu Secondary
+     */
     public static JButton createSecondaryBtn(String text) {
         return createSecondaryBtn(text, 120, 34);
     }
 
+    /**
+     * Tạo nút bấm phụ (Secondary) màu xám sáng với kích thước tùy biến.
+     *
+     * @param text tiêu đề hiển thị trên nút
+     * @param minW chiều rộng tối thiểu của nút (px)
+     * @param minH chiều cao tối thiểu của nút (px)
+     * @return đối tượng JButton kiểu Secondary
+     */
     public static JButton createSecondaryBtn(String text, int minW, int minH) {
         return createButton(text, BTN_LIGHT_BG, TEXT_DARK, minW, minH);
     }
 
     /**
-     * Định dạng trường nhập liệu có viền mềm và hiệu ứng khi focus
+     * Định dạng trường nhập liệu có viền mềm và hiệu ứng đổi màu viền khi nhận/mất tiêu điểm.
+     *
+     * @param txt trường nhập liệu JTextField cần định dạng
      */
     public static void styleTextField(JTextField txt) {
         txt.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -172,7 +262,9 @@ public class UIHelper {
     }
 
     /**
-     * Định dạng ComboBox phẳng và dễ đọc
+     * Định dạng ComboBox phẳng và dễ đọc.
+     *
+     * @param cbo hộp chọn JComboBox cần định dạng
      */
     public static void styleComboBox(JComboBox<?> cbo) {
         cbo.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -184,7 +276,9 @@ public class UIHelper {
     }
 
     /**
-     * Định dạng bảng JTable chuẩn doanh nghiệp: hàng cao 32px, tiêu đề xanh navy sang trọng
+     * Định dạng bảng JTable chuẩn doanh nghiệp: hàng cao 32px, tiêu đề xanh navy sang trọng, căn giữa cột đầu tiên.
+     *
+     * @param table bảng JTable cần định dạng
      */
     public static void styleTable(JTable table) {
         table.setRowHeight(30);
@@ -206,7 +300,11 @@ public class UIHelper {
     }
 
     /**
-     * Tạo Panel có khung TitledBorder chuẩn đồng bộ
+     * Tạo Panel có khung TitledBorder chuẩn đồng bộ và tiêu đề màu tùy chọn.
+     *
+     * @param title tiêu đề hiển thị trên khung viền
+     * @param titleColor màu sắc của chữ tiêu đề
+     * @return đối tượng JPanel có khung viền TitledBorder
      */
     public static JPanel createTitledPanel(String title, Color titleColor) {
         JPanel p = new JPanel();
