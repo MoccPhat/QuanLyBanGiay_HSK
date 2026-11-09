@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Phân hệ Quản lý nhân sự cửa hàng (StepUp POS).
+ * Phân hệ Quản lý nhân sự cửa hàng và phân quyền tài khoản người dùng.
+ * Thuộc tầng Presentation (GUI) trong kiến trúc 3 tầng, tiếp nhận các thao tác CRUD nhân viên và phân quyền qua NhanVien_DAO.
  * - Dành riêng cho Quản lý.
  * - Kiểm tra dữ liệu đầu vào: Lương > 0, SĐT 10 chữ số đúng định dạng (C6).
  * - Sử dụng ListSelectionListener hỗ trợ chọn nhân viên bằng bàn phím (C8).
@@ -42,6 +43,9 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
     private NhanVien_DAO nv_dao;
     private DecimalFormat df = new DecimalFormat("#,### VNĐ");
 
+    /**
+     * Khởi tạo giao diện quản lý nhân sự với các trường nhập liệu thông tin cá nhân, chức vụ, ca làm việc và bảng danh sách.
+     */
     public QuanLyNhanVien_GUI() {
         nv_dao = new NhanVien_DAO();
 
@@ -182,6 +186,9 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         docDuLieuVaoTable();
     }
 
+    /**
+     * Nạp toàn bộ danh sách nhân viên từ cơ sở dữ liệu lên bảng hiển thị JTable.
+     */
     public void docDuLieuVaoTable() {
         modelNV.setRowCount(0);
         List<NhanVien> list = nv_dao.getAllNhanVien();
@@ -194,6 +201,11 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         }
     }
 
+    /**
+     * Hiển thị thông tin chi tiết của nhân viên được chọn trên bảng lên các trường nhập liệu của form.
+     *
+     * @param row chỉ số dòng đang được chọn trong bảng nhân viên
+     */
     private void hienThiThongTinLenForm(int row) {
         if (row < 0 || row >= modelNV.getRowCount()) return;
         String ma = (String) modelNV.getValueAt(row, 1);
@@ -224,6 +236,12 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         txtMatKhau.setEditable(false);
     }
 
+    /**
+     * Chuyển đổi chuỗi ngày sinh theo định dạng linh hoạt (dd/MM/yyyy hoặc chuỗi số 8 ký tự ddMMyyyy) sang LocalDate.
+     *
+     * @param text chuỗi văn bản chứa thông tin ngày sinh do người dùng nhập
+     * @return đối tượng LocalDate tương ứng hoặc ném ngoại lệ nếu định dạng không hợp lệ
+     */
     private LocalDate parseNgaySinh(String text) {
         if (text == null || text.trim().isEmpty()) return null;
         text = text.trim();
@@ -236,6 +254,11 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         return null;
     }
 
+    /**
+     * Xử lý các sự kiện hành động trên form: Thêm nhân viên, Cập nhật thông tin, Xóa/Nghỉ việc, Xóa trắng form, Tìm kiếm hoặc Lọc chức vụ.
+     *
+     * @param e sự kiện hành động của người dùng
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -467,6 +490,11 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         }
     }
 
+    /**
+     * Hiển thị hộp thoại chi tiết nhân sự gồm mã, họ tên, chức vụ, lương cơ bản, ca làm việc và ngày vào làm.
+     *
+     * @param maNV mã định danh của nhân viên cần xem chi tiết
+     */
     private void hienThiChiTietNhanVien(String maNV) {
         NhanVien nv = nv_dao.getNhanVienTheoMa(maNV);
         if (nv == null) {
@@ -537,6 +565,9 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         dlg.setVisible(true);
     }
 
+    /**
+     * Xóa trắng các trường nhập liệu trên form và thiết lập lại các lựa chọn mặc định ban đầu.
+     */
     private void xoaTrang() {
         txtMaNV.setText("");
         txtMaNV.setEditable(true);
@@ -555,6 +586,11 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         txtMaNV.requestFocus();
     }
 
+    /**
+     * Xử lý sự kiện click chuột trên bảng nhân viên: 1 click để hiển thị form, 2 click để xem hộp thoại chi tiết nhân sự.
+     *
+     * @param e sự kiện thao tác chuột của người dùng
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         int row = tableNV.getSelectedRow();
@@ -567,8 +603,31 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         }
     }
 
+    /**
+     * Xử lý sự kiện nhấn chuột trên bảng nhân viên (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mousePressed(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện nhả chuột trên bảng nhân viên (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseReleased(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện chuột đi vào vùng bảng nhân viên (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseEntered(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện chuột rời khỏi vùng bảng nhân viên (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseExited(MouseEvent e) {}
 }

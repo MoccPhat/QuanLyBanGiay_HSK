@@ -19,6 +19,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+/**
+ * Phân hệ Thống kê doanh thu, số lượng đơn hàng và hiệu suất bán hàng.
+ * Thuộc tầng Presentation (GUI) trong kiến trúc 3 tầng, tiếp nhận các truy vấn tổng hợp và trực quan hóa số liệu qua HoaDon_DAO.
+ */
 public class ThongKe_GUI extends JPanel implements ActionListener {
     private JLabel lblTongDoanhThuVal;
     private JLabel lblTongDonHangVal;
@@ -41,6 +45,9 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     private DecimalFormat df = new DecimalFormat("#,### VNĐ");
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+    /**
+     * Khởi tạo giao diện thống kê doanh thu với các thẻ KPI, bảng danh sách hóa đơn và các nút chức năng.
+     */
     public ThongKe_GUI() {
         hd_dao = new HoaDon_DAO();
 
@@ -146,6 +153,15 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         napDuLieuThongKe();
     }
 
+    /**
+     * Tạo một thẻ hiển thị chỉ số KPI với tiêu đề, nhãn giá trị và màu sắc nhận diện trực quan.
+     *
+     * @param title tiêu đề của chỉ số KPI
+     * @param lblValue JLabel hiển thị số liệu định lượng
+     * @param primaryColor màu chữ chủ đạo của thẻ
+     * @param bgColor màu nền của thẻ KPI
+     * @return JPanel chứa cấu trúc thẻ hiển thị KPI hoàn chỉnh
+     */
     private JPanel createKPICard(String title, JLabel lblValue, Color primaryColor, Color bgColor) {
         JPanel card = new JPanel(new BorderLayout(0, 6));
         card.setBackground(bgColor);
@@ -166,6 +182,9 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         return card;
     }
 
+    /**
+     * Lớp truyền tải dữ liệu (DTO) chứa kết quả tổng hợp thống kê gồm danh sách hóa đơn, tổng số lượng và tổng khách hàng.
+     */
     public static class ThongKeData {
         public ArrayList<HoaDon> dsHD;
         public int tongSL;
@@ -175,6 +194,8 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     /**
      * Nạp dữ liệu thống kê ngoài luồng sự kiện (Off-EDT) bằng SwingWorker (L27).
      * Tránh treo giao diện người dùng khi cơ sở dữ liệu có lượng hóa đơn lớn.
+     *
+     * @return đối tượng ThongKeData chứa số liệu thống kê thu thập từ CSDL
      */
     public ThongKeData loadThongKeData() {
         ThongKeData data = new ThongKeData();
@@ -185,8 +206,7 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     }
 
     /**
-     * Nạp dữ liệu thống kê ngoài luồng sự kiện (Off-EDT) bằng SwingWorker (L27).
-     * Tránh treo giao diện người dùng khi cơ sở dữ liệu có lượng hóa đơn lớn.
+     * Thực thi tác vụ tải dữ liệu thống kê bất đồng bộ bằng SwingWorker và cập nhật lên giao diện khi hoàn thành.
      */
     public void napDuLieuThongKe() {
         
@@ -224,6 +244,11 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Cập nhật các chỉ số thẻ KPI và danh sách hóa đơn lên bảng JTable sau khi tải dữ liệu xong.
+     *
+     * @param data đối tượng ThongKeData chứa dữ liệu tổng hợp từ cơ sở dữ liệu
+     */
     public void capNhatGiaoDienThongKe(ThongKeData data) {
         modelHoaDon.setRowCount(0);
 
@@ -266,6 +291,12 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         lblKhachHangVal.setText(data.tongKH + " khách");
     }
 
+    /**
+     * Tạo chuỗi văn bản định dạng hóa đơn K80 hoàn chỉnh từ đối tượng hóa đơn và danh sách chi tiết hóa đơn.
+     *
+     * @param hd đối tượng hóa đơn cần kết xuất nội dung in
+     * @return chuỗi văn bản định dạng phiếu hóa đơn K80
+     */
     public String taoNoiDungHoaDon(HoaDon hd) {
         StringBuilder bill = new StringBuilder();
         bill.append("=============================================\n");
@@ -302,6 +333,11 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         return bill.toString();
     }
 
+    /**
+     * Hiển thị hộp thoại xem trước hóa đơn K80 và hỗ trợ chức năng xuất hóa đơn ra file văn bản .txt.
+     *
+     * @param maHD mã định danh của hóa đơn cần hiển thị chi tiết
+     */
     public void hienThiChiTietHoaDon(String maHD) {
         HoaDon hd = hd_dao.getHoaDonTheoMa(maHD);
         if (hd == null) {
@@ -386,6 +422,11 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         dlg.setVisible(true);
     }
 
+    /**
+     * Xử lý sự kiện nhấn nút trên màn hình thống kê: Làm mới dữ liệu, Xem chi tiết hóa đơn hoặc Xuất file.
+     *
+     * @param e sự kiện hành động của người dùng
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();

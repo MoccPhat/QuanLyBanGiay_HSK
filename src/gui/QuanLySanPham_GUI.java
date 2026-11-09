@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Phân hệ Quản lý danh mục mẫu giày (StepUp POS).
+ * Phân hệ Quản lý danh mục mẫu giày dép và biến thể kích thước, màu sắc, tồn kho.
+ * Thuộc tầng Presentation (GUI) trong kiến trúc 3 tầng, tiếp nhận các thao tác CRUD sản phẩm và biến thể qua SanPham_DAO và ChiTietGiay_DAO.
  * - Cung cấp giao diện CRUD mẫu giày cho Quản lý.
  * - Kiểm tra chặt chẽ tính hợp lệ của dữ liệu trước khi gửi xuống DAO/CSDL (C6, K8).
  * - Tự động tạo biến thể khởi tạo (Size 40, Đen, Tồn 20) để sản phẩm mới có thể bán được ngay (C7, K9).
@@ -53,10 +54,18 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
     private ChiTietGiay_DAO ctg_dao;
     private DecimalFormat df = new DecimalFormat("#,### VNĐ");
 
+    /**
+     * Khởi tạo giao diện quản lý mẫu giày mặc định không phân quyền nhân viên cụ thể.
+     */
     public QuanLySanPham_GUI() {
         this(null);
     }
 
+    /**
+     * Khởi tạo giao diện quản lý mẫu giày với thông tin nhân viên đăng nhập để phân quyền thao tác (khóa nút nếu là thu ngân).
+     *
+     * @param nv đối tượng nhân viên đang đăng nhập vào hệ thống
+     */
     public QuanLySanPham_GUI(NhanVien nv) {
         this.nhanVien = nv;
         this.sp_dao = new SanPham_DAO();
@@ -230,6 +239,9 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         DocDuLieuDatabaseVaoTable();
     }
 
+    /**
+     * Nạp toàn bộ danh sách sản phẩm cùng tổng tồn kho các biến thể từ cơ sở dữ liệu lên bảng hiển thị JTable.
+     */
     public void DocDuLieuDatabaseVaoTable() {
         modelSP.setRowCount(0);
         List<SanPham> list = sp_dao.getAllSanPham();
@@ -250,6 +262,11 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         }
     }
 
+    /**
+     * Hiển thị thông tin chi tiết của mẫu giày được chọn trên bảng lên các trường nhập liệu của form.
+     *
+     * @param row chỉ số dòng đang được chọn trong bảng sản phẩm
+     */
     private void hienThiThongTinLenForm(int row) {
         if (row < 0 || row >= modelSP.getRowCount()) return;
         txtMaSP.setText(modelSP.getValueAt(row, 1).toString());
@@ -263,6 +280,11 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         txtChatLieu.setText(cl != null ? cl.toString() : "");
     }
 
+    /**
+     * Xử lý các sự kiện hành động trên form: Thêm mẫu giày, Cập nhật thông tin, Xóa sản phẩm, Xóa trắng form, Tìm kiếm hoặc Lọc nâng cao.
+     *
+     * @param e sự kiện hành động của người dùng
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -459,7 +481,9 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
     }
 
     /**
-     * Hộp thoại xem chi tiết sản phẩm mẫu và danh sách biến thể SKU (size, màu, số lượng tồn kho).
+     * Hiển thị hộp thoại chi tiết sản phẩm gồm danh sách các biến thể kích cỡ, màu sắc, số lượng tồn kho và cho phép cập nhật tồn kho.
+     *
+     * @param maSP mã định danh của sản phẩm cần xem chi tiết
      */
     private void hienThiChiTietSanPham(String maSP) {
         SanPham sp = sp_dao.getSanPhamTheoMa(maSP);
@@ -519,6 +543,9 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         dlg.setVisible(true);
     }
 
+    /**
+     * Xóa trắng các trường nhập liệu trên form và thiết lập lại các lựa chọn mặc định ban đầu.
+     */
     private void xoaTrang() {
         txtMaSP.setText("");
         txtMaSP.setEditable(true);
@@ -532,6 +559,11 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         txtMaSP.requestFocus();
     }
 
+    /**
+     * Xử lý sự kiện click chuột trên bảng sản phẩm: 1 click để hiển thị form, 2 click để xem hộp thoại chi tiết biến thể kích cỡ/màu sắc.
+     *
+     * @param e sự kiện thao tác chuột của người dùng
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         int row = tableSP.getSelectedRow();
@@ -544,8 +576,31 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         }
     }
 
+    /**
+     * Xử lý sự kiện nhấn chuột trên bảng sản phẩm (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mousePressed(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện nhả chuột trên bảng sản phẩm (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseReleased(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện chuột đi vào vùng bảng sản phẩm (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseEntered(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện chuột rời khỏi vùng bảng sản phẩm (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseExited(MouseEvent e) {}
 }

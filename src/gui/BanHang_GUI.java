@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * Phân hệ Bán Hàng Tại Quầy (POS - Point of Sale).
+ * Thuộc tầng Presentation (GUI) trong kiến trúc 3 tầng, điều phối quy trình lập hóa đơn, trừ tồn kho và thanh toán qua HoaDon_DAO.
  * Được tối ưu hóa toàn diện theo Clean Code:
  * 1. [C1] Hệ thống phím tắt đa tầng: F1 (POS), F2 (Chuyển Tab Quản lý mẫu giày), F10 (Thanh toán), DEL (Xóa giỏ), ESC (Đăng xuất).
  * 2. [C3, K6] Cơ chế làm mới đơn hàng lamMoiDonHang() dọn sạch dữ liệu khách cũ sau thanh toán.
@@ -84,6 +85,11 @@ public class BanHang_GUI extends JPanel implements ActionListener {
     private double tongTienGiam = 0;
     private double khachCanTra = 0;
 
+    /**
+     * Khởi tạo giao diện bán hàng POS với thông tin nhân viên thu ngân, nạp danh mục sản phẩm và khởi tạo giỏ hàng.
+     *
+     * @param nv đối tượng nhân viên đang phụ trách ca bán hàng
+     */
     public BanHang_GUI(NhanVien nv) {
         this.nhanVienDangNhap = nv;
         this.sanPhamDAO = new SanPham_DAO();
@@ -117,6 +123,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         taiLaiDanhSachSanPham();
     }
 
+    /**
+     * Nạp dữ liệu biến thể kích thước, màu sắc và số lượng tồn kho của tất cả sản phẩm từ ChiTietGiay_DAO vào bộ nhớ đệm.
+     */
     private void loadDataBienThe() {
         dsChiTietGiay = chiTietGiayDAO.getAllChiTietGiay();
         if (dsChiTietGiay == null) dsChiTietGiay = new ArrayList<>();
@@ -502,6 +511,11 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         });
     }
 
+    /**
+     * Chuyển đổi tab hiển thị trên JTabbedPane của cửa sổ chính từ màn hình bán hàng.
+     *
+     * @param index chỉ số của tab cần chuyển tới
+     */
     private void switchTab(int index) {
         Window w = SwingUtilities.getWindowAncestor(this);
         if (w instanceof ManHinhChinh_GUI) {
@@ -546,6 +560,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Cập nhật danh sách các kích cỡ và màu sắc khả dụng trên combobox theo mẫu giày đang chọn.
+     */
     private void capNhatDanhSachSizeVaMau() {
         if (cboSanPham == null || cboSize == null || cboMauSac == null) return;
         String tenSP = (String) cboSanPham.getSelectedItem();
@@ -573,6 +590,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         capNhatThongTinBienThe();
     }
 
+    /**
+     * Cập nhật thông tin số lượng tồn kho và đơn giá bán tương ứng với biến thể kích cỡ và màu sắc đang được chọn.
+     */
     private void capNhatThongTinBienThe() {
         ChiTietGiay ct = timChiTietDangChon();
         if (ct != null) {
@@ -584,6 +604,11 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Tìm kiếm đối tượng ChiTietGiay khớp với mẫu giày, kích thước và màu sắc đang được người dùng lựa chọn trên giao diện.
+     *
+     * @return đối tượng ChiTietGiay tương ứng hoặc null nếu không tìm thấy biến thể
+     */
     private ChiTietGiay timChiTietDangChon() {
         String tenSP = (String) cboSanPham.getSelectedItem();
         String sizeStr = (String) cboSize.getSelectedItem();
@@ -603,6 +628,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         return null;
     }
 
+    /**
+     * Tính toán tổng tiền hàng, chiết khấu hạng thẻ thành viên, số tiền giảm từ điểm tích lũy và tổng số tiền thanh toán thực tế.
+     */
     private void tinhToanTongTienHoaDon() {
         tongTienGoc = 0;
         for (int i = 0; i < modelGioHang.getRowCount(); i++) {
@@ -623,6 +651,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         tinhTienThua();
     }
 
+    /**
+     * Tính số tiền thừa trả lại cho khách hàng dựa trên số tiền khách đưa và tổng thanh toán của hóa đơn.
+     */
     private void tinhTienThua() {
         try {
             String str = txtTienKhachDua.getText().replace(",", "").replace(".", "").trim();
@@ -634,6 +665,11 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Xử lý các sự kiện hành động của người dùng trên giao diện bán hàng: thêm giỏ hàng, tìm khách hàng, áp dụng điểm, làm mới.
+     *
+     * @param e sự kiện hành động của người dùng
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -930,10 +966,18 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         capNhatThongTinBienThe();
     }
 
+    /**
+     * Kích hoạt quy trình thanh toán đơn hàng từ phím tắt F10 trên cửa sổ chính.
+     */
     public void thanhToanDonHang() {
         btnThanhToan.doClick();
     }
 
+    /**
+     * Lấy model dữ liệu DefaultTableModel của bảng giỏ hàng phục vụ kiểm thử tự động.
+     *
+     * @return DefaultTableModel quản lý dữ liệu giỏ hàng hiện tại
+     */
     public DefaultTableModel getModelGioHang() {
         return modelGioHang;
     }

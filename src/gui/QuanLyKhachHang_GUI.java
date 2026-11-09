@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Phân hệ Quản lý khách hàng & Chương trình tích điểm thành viên (StepUp POS).
+ * Phân hệ Quản lý khách hàng & Chương trình tích điểm thành viên.
+ * Thuộc tầng Presentation (GUI) trong kiến trúc 3 tầng, tiếp nhận các thao tác CRUD và tra cứu lịch sử mua hàng qua KhachHang_DAO.
  * - Quản lý hồ sơ khách hàng, phân hạng thẻ (Đồng, Bạc, Vàng, Kim Cương).
  * - Kiểm tra dữ liệu: SĐT 10 chữ số bắt đầu bằng số 0 (C6).
  * - Sử dụng ListSelectionListener để điều hướng bàn phím mũi tên hiển thị dữ liệu form (C8).
@@ -40,10 +41,18 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
     private KhachHang_DAO kh_dao;
     private entity.NhanVien nhanVienDangNhap;
 
+    /**
+     * Khởi tạo giao diện quản lý khách hàng mặc định không phân quyền nhân viên cụ thể.
+     */
     public QuanLyKhachHang_GUI() {
         this(null);
     }
 
+    /**
+     * Khởi tạo giao diện quản lý khách hàng với thông tin nhân viên đăng nhập để phân quyền thao tác.
+     *
+     * @param nhanVien đối tượng nhân viên đang thao tác trên hệ thống
+     */
     public QuanLyKhachHang_GUI(entity.NhanVien nhanVien) {
         this.nhanVienDangNhap = nhanVien;
         kh_dao = new KhachHang_DAO();
@@ -193,6 +202,9 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         docDuLieuVaoTable();
     }
 
+    /**
+     * Nạp toàn bộ danh sách khách hàng từ cơ sở dữ liệu lên bảng hiển thị JTable.
+     */
     public void docDuLieuVaoTable() {
         modelKH.setRowCount(0);
         List<KhachHang> list = kh_dao.getAllKhachHang();
@@ -205,6 +217,11 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         }
     }
 
+    /**
+     * Hiển thị thông tin chi tiết của khách hàng được chọn trên bảng lên các trường nhập liệu của form.
+     *
+     * @param row chỉ số dòng đang được chọn trong bảng khách hàng
+     */
     private void hienThiThongTinLenForm(int row) {
         if (row < 0 || row >= modelKH.getRowCount()) return;
         txtMaKH.setText((String) modelKH.getValueAt(row, 1));
@@ -217,6 +234,11 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         cboHang.setEnabled(false);
     }
 
+    /**
+     * Xử lý các sự kiện hành động trên form: Thêm khách hàng, Cập nhật thông tin, Xóa trắng form, Tìm kiếm theo SĐT hoặc Lọc phân hạng.
+     *
+     * @param e sự kiện hành động của người dùng
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -400,7 +422,9 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
     }
 
     /**
-     * Hộp thoại xem hồ sơ chi tiết khách hàng và lịch sử hóa đơn.
+     * Hiển thị hộp thoại chi tiết khách hàng gồm thông tin cá nhân, phân hạng thẻ, điểm tích lũy và danh sách hóa đơn đã mua.
+     *
+     * @param maKH mã định danh của khách hàng cần xem chi tiết
      */
     private void hienThiChiTietKhachHang(String maKH) {
         KhachHang kh = kh_dao.getKhachHangTheoMa(maKH);
@@ -467,6 +491,9 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         dlg.setVisible(true);
     }
 
+    /**
+     * Xóa trắng các trường nhập liệu trên form và thiết lập lại trạng thái mặc định ban đầu.
+     */
     private void xoaTrang() {
         txtMaKH.setText("");
         txtMaKH.setEditable(true);
@@ -482,6 +509,11 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         txtMaKH.requestFocus();
     }
 
+    /**
+     * Xử lý sự kiện click chuột trên bảng khách hàng: 1 click để hiển thị form, 2 click để xem chi tiết lịch sử mua sắm.
+     *
+     * @param e sự kiện thao tác chuột của người dùng
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         int row = tableKH.getSelectedRow();
@@ -494,8 +526,31 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         }
     }
 
+    /**
+     * Xử lý sự kiện nhấn chuột trên bảng khách hàng (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mousePressed(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện nhả chuột trên bảng khách hàng (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseReleased(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện chuột đi vào vùng bảng khách hàng (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseEntered(MouseEvent e) {}
+
+    /**
+     * Xử lý sự kiện chuột rời khỏi vùng bảng khách hàng (không sử dụng).
+     *
+     * @param e sự kiện chuột
+     */
     @Override public void mouseExited(MouseEvent e) {}
 }

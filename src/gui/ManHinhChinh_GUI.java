@@ -8,8 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Cửa sổ làm việc chính của hệ thống StepUp Footwear POS.
- * Điều phối 5 phân hệ chức năng thông qua JTabbedPane:
+ * Cửa sổ làm việc chính của hệ thống quản lý bán hàng giày dép.
+ * Thuộc tầng Presentation (GUI) trong kiến trúc 3 tầng, điều phối 5 phân hệ chức năng thông qua JTabbedPane:
  * - Tab 0: Bán hàng tại quầy (POS) [F1]
  * - Tab 1: Quản lý danh mục mẫu giày [F2]
  * - Tab 2: Quản lý khách hàng & tích điểm [F3]
@@ -25,6 +25,11 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
     private JTabbedPane tabbedPane;
     private JButton btnDangXuat;
 
+    /**
+     * Khởi tạo màn hình chính, thiết lập layout, nạp các tab phân hệ theo vai trò và đăng ký phím tắt toàn cục.
+     *
+     * @param nv đối tượng nhân viên đăng nhập dùng để phân quyền truy cập chức năng
+     */
     public ManHinhChinh_GUI(NhanVien nv) {
         this.nhanVien = nv;
 
@@ -81,6 +86,11 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         add(pFooter, BorderLayout.SOUTH);
     }
 
+    /**
+     * Khởi tạo thanh tiêu đề phía trên giao diện gồm tên hệ thống, thông tin nhân viên thu ngân và nút đăng xuất.
+     *
+     * @return JPanel chứa các thành phần hiển thị phần header của cửa sổ chính
+     */
     private JPanel buildHeaderPanel() {
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(new Color(30, 58, 138)); // Xanh navy đậm phong cách IUH
@@ -113,6 +123,11 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         return p;
     }
 
+    /**
+     * Xử lý sự kiện nhấn nút Đăng Xuất: hiển thị hộp thoại xác nhận và chuyển về màn hình đăng nhập nếu đồng ý.
+     *
+     * @param e sự kiện hành động của người dùng
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(btnDangXuat)) {
@@ -124,13 +139,16 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Thực hiện thao tác đăng xuất nhanh khi người dùng nhấn phím tắt ESC trên toàn bộ ứng dụng.
+     */
     public void dangXuat() {
         btnDangXuat.doClick();
     }
 
     /**
-     * Đăng ký phím tắt toàn cục trên JRootPane (WHEN_IN_FOCUSED_WINDOW).
-     * Bất kể con trỏ đang ở ô nhập hay bảng nào trong cửa sổ, các phím đều hoạt động.
+     * Đăng ký hệ thống phím tắt toàn cục trên JRootPane (WHEN_IN_FOCUSED_WINDOW).
+     * Hỗ trợ các phím F1-F5 chuyển tab, F10 thanh toán POS, ESC đăng xuất, DELETE xóa giỏ hàng.
      */
     private void registerKeyBindings() {
         JRootPane rp = getRootPane();
@@ -220,6 +238,11 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         });
     }
 
+    /**
+     * Lấy đối tượng JTabbedPane chứa các phân hệ làm việc trên cửa sổ chính.
+     *
+     * @return JTabbedPane điều phối các tab chức năng của hệ thống
+     */
     public JTabbedPane getTabbedPane() {
         return tabbedPane;
     }

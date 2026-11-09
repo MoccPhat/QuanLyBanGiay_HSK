@@ -10,6 +10,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+/**
+ * Giao diện đăng nhập hệ thống quản lý bán hàng giày dép.
+ * Thuộc tầng Presentation (GUI) trong kiến trúc 3 tầng, tiếp nhận tài khoản và phân quyền nhân viên qua NhanVien_DAO.
+ */
 public class DangNhap_GUI extends JFrame implements ActionListener {
     private JTextField txtMaNV;
     private JPasswordField txtMatKhau;
@@ -17,6 +21,9 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
     private JButton btnThoat;
     private NhanVien_DAO nv_dao;
 
+    /**
+     * Khởi tạo giao diện đăng nhập gồm các ô nhập thông tin tài khoản, mật khẩu và các nút lệnh điều khiển.
+     */
     public DangNhap_GUI() {
         setTitle("HỆ THỐNG QUẢN LÝ BÁN HÀNG GIÀY DÉP - ĐĂNG NHẬP");
         setSize(480, 320);
@@ -106,6 +113,11 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
         txtMatKhau.addKeyListener(enterKey);
     }
 
+    /**
+     * Xử lý sự kiện nhấn nút Đăng Nhập hoặc Thoát: xác thực mã nhân viên và mật khẩu qua DAO hoặc đóng ứng dụng.
+     *
+     * @param e sự kiện hành động của người dùng trên giao diện
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -136,6 +148,11 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Điểm khởi chạy ứng dụng đăng nhập độc lập với giao diện Look and Feel của hệ điều hành.
+     *
+     * @param args mảng các tham số dòng lệnh truyền vào chương trình
+     */
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
