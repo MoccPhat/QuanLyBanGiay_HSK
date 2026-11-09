@@ -15,10 +15,11 @@ import java.util.Properties;
  * Chuỗi kết nối tuân thủ định dạng chuẩn của Microsoft SQL Server JDBC Driver.
  */
 public class ConnectDB {
-    // Chuỗi URL mẫu chuẩn mực trỏ vào database thật QuanLyBanGiay
-    // Ghi chú quan trọng: Tên CSDL thực tế của đồ án là QuanLyBanGiay (khác với QLNVIEN trong giáo trình/bài mẫu)
+    // Chuỗi URL mẫu chuẩn mực tối giản theo đúng bài giảng của giảng viên:
+    // String url = "jdbc:sqlserver://localhost:1433;databasename=QuanLyBanGiay";
+    // (Ghi chú: Các tham số như encrypt, trustServerCertificate, loginTimeout có thể để trong ghi chú hoặc cấu hình qua db.properties)
     public static final String DEFAULT_URL = 
-        "jdbc:sqlserver://localhost:1433;databasename=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;loginTimeout=3;";
+        "jdbc:sqlserver://localhost:1433;databasename=QuanLyBanGiay";
     public static final String DEFAULT_USER = "sa";
 
     public static Connection con = null;
@@ -85,11 +86,9 @@ public class ConnectDB {
             password = "";
         }
 
-        // Đảm bảo loginTimeout=3 nếu chưa có trong URL để tránh treo giao diện lâu
-        if (!url.toLowerCase().contains("logintimeout")) {
-            url = url.endsWith(";") ? url + "loginTimeout=3;" : url + ";loginTimeout=3;";
-        }
-
+        // Chuỗi kết nối tối giản theo mẫu của giảng viên:
+        // jdbc:sqlserver://localhost:1433;databasename=QuanLyBanGiay
+        // (Không bắt buộc encrypt, trustServerCertificate, loginTimeout trong chuỗi chính)
         con = DriverManager.getConnection(url, user, password);
         if (con != null && !con.isClosed()) {
             System.out.println(">>> Kết nối Microsoft SQL Server thành công! (URL: " + url + ", User: " + user + ")");
