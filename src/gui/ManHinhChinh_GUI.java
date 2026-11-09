@@ -28,7 +28,7 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
     public ManHinhChinh_GUI(NhanVien nv) {
         this.nhanVien = nv;
 
-        setTitle("HỆ THỐNG QUẢN LÝ BÁN HÀNG TẠI CỬA HÀNG GIÀY DÉP THỜI TRANG - STEPUP POS");
+        setTitle("HỆ THỐNG QUẢN LÝ BÁN HÀNG TẠI CỬA HÀNG GIÀY DÉP");
         setSize(1350, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -87,7 +87,7 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         pnl.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
 
         // Logo & Tên cửa hàng
-        JLabel lblBrand = new JLabel("STEPUP FOOTWEAR POS - QUẢN LÝ BÁN HÀNG GIÀY DÉP");
+        JLabel lblBrand = new JLabel("QUẢN LÝ BÁN HÀNG GIÀY DÉP");
         lblBrand.setFont(new Font("Arial", Font.BOLD, 16));
         lblBrand.setForeground(Color.WHITE);
         pnl.add(lblBrand, BorderLayout.WEST);

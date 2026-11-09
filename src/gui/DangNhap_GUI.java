@@ -36,7 +36,7 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
         // Tiêu đề
         JPanel pnlTitle = new JPanel(new GridLayout(2, 1));
         pnlTitle.setBackground(Color.WHITE);
-        JLabel lblTitle = new JLabel("STEPUP FOOTWEAR POS", JLabel.CENTER);
+        JLabel lblTitle = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG GIÀY DÉP", JLabel.CENTER);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
         lblTitle.setForeground(new Color(185, 28, 28)); // Đỏ rượu phong cách shop giày
 

@@ -88,7 +88,8 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         g.gridx = 1; g.gridy = 3; pnlForm.add(pnlGender, g);
 
         g.gridx = 0; g.gridy = 4; pnlForm.add(new JLabel("Ngày sinh (dd/MM/yyyy):"), g);
-        txtNgaySinh = new JTextField("01/01/2000", 15);
+        txtNgaySinh = new JTextField(15);
+        txtNgaySinh.setToolTipText("dd/MM/yyyy");
         g.gridx = 1; g.gridy = 4; pnlForm.add(txtNgaySinh, g);
 
         g.gridx = 0; g.gridy = 5; pnlForm.add(new JLabel("Mật khẩu khởi tạo:"), g);
@@ -218,7 +219,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             if (nv.getNgaySinh() != null) {
                 txtNgaySinh.setText(nv.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             } else {
-                txtNgaySinh.setText("01/01/2000");
+                txtNgaySinh.setText("");
             }
             txtEmail.setText(nv.getEmail() != null ? nv.getEmail() : "");
         }
@@ -270,6 +271,12 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
                 return;
             }
 
+            if (nsStr == null || nsStr.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày sinh (dd/MM/yyyy)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtNgaySinh.requestFocus();
+                return;
+            }
+
             LocalDate ngaySinh = parseNgaySinh(nsStr);
             if (ngaySinh == null) {
                 JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ (định dạng dd/MM/yyyy, ví dụ: 20/08/1998)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
@@ -286,7 +293,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             }
 
             if (!em.isEmpty() && !em.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-                JOptionPane.showMessageDialog(this, "Email không đúng định dạng (ví dụ: nhanvien@stepup.vn)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Email không đúng định dạng (ví dụ: nhanvien@gmail.com)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
                 txtEmail.requestFocus();
                 return;
             }
@@ -376,6 +383,12 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
                 return;
             }
 
+            if (nsStr == null || nsStr.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày sinh (dd/MM/yyyy)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtNgaySinh.requestFocus();
+                return;
+            }
+
             LocalDate ngaySinh = parseNgaySinh(nsStr);
             if (ngaySinh == null) {
                 JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ (định dạng dd/MM/yyyy, ví dụ: 20/08/1998)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
@@ -391,7 +404,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             }
 
             if (!em.isEmpty() && !em.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-                JOptionPane.showMessageDialog(this, "Email không đúng định dạng (ví dụ: nhanvien@stepup.vn)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Email không đúng định dạng (ví dụ: nhanvien@gmail.com)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
                 txtEmail.requestFocus();
                 return;
             }
@@ -617,7 +630,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         txtHoTen.setText("");
         txtSDT.setText("");
         txtDiaChi.setText("");
-        txtNgaySinh.setText("01/01/2000");
+        txtNgaySinh.setText("");
         txtEmail.setText("");
         txtLuong.setText("");
         txtMatKhau.setText("");

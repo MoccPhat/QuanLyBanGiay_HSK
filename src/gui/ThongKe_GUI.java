@@ -330,7 +330,7 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     public String taoNoiDungHoaDon(HoaDon hd) {
         StringBuilder bill = new StringBuilder();
         bill.append("=============================================\n");
-        bill.append("            STEPUP FOOTWEAR STORE            \n");
+        bill.append("              CỬA HÀNG GIÀY DÉP              \n");
         bill.append("      12 Nguyễn Văn Bảo, Gò Vấp, TP.HCM      \n\n");
         bill.append("               HÓA ĐƠN BÁN LẺ                \n\n");
         bill.append("Mã HĐ: ").append(hd.getMaHoaDon()).append("\n");

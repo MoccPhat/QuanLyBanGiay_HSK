@@ -828,7 +828,7 @@ public class BanHang_GUI extends JPanel implements ActionListener {
             // Hiển thị hóa đơn bán lẻ K80 chuẩn hóa khoảng cách và độ rộng
             StringBuilder bill = new StringBuilder();
             bill.append("=============================================\n");
-            bill.append("            STEPUP FOOTWEAR STORE            \n");
+            bill.append("              CỬA HÀNG GIÀY DÉP              \n");
             bill.append("      12 Nguyễn Văn Bảo, Gò Vấp, TP.HCM      \n\n");
             bill.append("               HÓA ĐƠN BÁN LẺ                \n\n");
             bill.append("Mã HĐ: ").append(hd.getMaHoaDon()).append("\n");
