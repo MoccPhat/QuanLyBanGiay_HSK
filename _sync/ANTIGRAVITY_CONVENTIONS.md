@@ -77,3 +77,26 @@ Ghi chú đã kiểm tra: `humanizer`, `generative_ui`, `minimax-xlsx` có tên 
 ## 12. Cách gửi lệnh (kỹ thuật)
 - CDP `127.0.0.1:52173`, composer là **Lexical editor**: chèn text dài một lần thì được, chèn nhiều chunk liên tiếp thì bị reset/đứt → phải `Ctrl+A` + `Delete` rồi `insertText` một lần và **kiểm tra độ dài trước khi Send**.
 - Nút gửi của pane trái/phải khác nhau; khi pane đang chạy, nút thành `Cancel (Ctrl+D)` → không gửi chen ngang, phải chờ.
+
+
+## QUY TẮC TRÌNH BÀY (BẮT BUỘC)
+> Áp dụng tuyệt đối cho mọi tài liệu báo cáo (.docx), tài liệu kỹ thuật và mã nguồn trong dự án StepUp.
+
+1. **Không tô background / shading / highlight màu trong văn bản báo cáo:**
+   - Tuyệt đối không tô background shading (`w:shd`) hoặc highlight màu (`w:highlight`) trong bất kỳ đoạn văn (`paragraph`), từ ngữ (`run`), hay ô bảng biểu (`table cell`). Giữ nền văn bản và bảng biểu hoàn toàn tự nhiên, không đổ màu.
+2. **Chữ thường dùng màu mặc định (đen):**
+   - Toàn bộ văn bản thường, bảng biểu và nội dung sử dụng màu mặc định (đen, `w:color w:val="000000"`). Không sử dụng các màu chữ accent xanh lam, đỏ, lục, xám slate trong nội dung báo cáo kỹ thuật.
+3. **Các cấp Heading (1-3) in đậm và cỡ chữ to hơn văn bản thường:**
+   - Bắt buộc in đậm (`w:b`) và tăng cỡ chữ theo cấp bậc rõ ràng so với văn bản thường:
+     + Văn bản thường (`Normal`): 13pt.
+     + `Heading 3`: 14pt (+1pt so với văn bản thường), in đậm (`w:b`), màu đen (`000000`).
+     + `Heading 2`: 15pt (+2pt so với văn bản thường), in đậm (`w:b`), màu đen (`000000`).
+     + `Heading 1`: 16pt (+2pt so với Heading 2), in đậm (`w:b`), màu đen (`000000`).
+4. **Chuỗi kết nối JDBC Microsoft SQL Server tuân thủ dạng chuẩn:**
+   - Chuỗi kết nối JDBC Microsoft SQL Server bắt buộc tuân thủ đúng định dạng chuẩn:
+     ```java
+     String url = "jdbc:sqlserver://localhost:1433;databasename=<TEN_DB_THAT>;...";
+     ```
+     (Kèm theo các thuộc tính bảo mật phù hợp như `encrypt=true;trustServerCertificate=true;`).
+5. **Không tự ý thay đổi style trình bày khi chưa có yêu cầu từ người dùng:**
+   - Tuyệt đối không tự ý thay đổi style trình bày, bảng màu, khoảng cách hoặc cấu trúc văn bản khi chưa có yêu cầu cụ thể từ người dùng.

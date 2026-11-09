@@ -10,9 +10,17 @@ import java.util.Properties;
 
 /**
  * Lớp quản lý kết nối cơ sở dữ liệu Microsoft SQL Server (Singleton pattern).
- * Cấu hình kết nối được đọc từ file bên ngoài 'db.properties' để bảo mật thông tin tài khoản (L07).
+ * Cấu hình kết nối ưu tiên đọc từ file bên ngoài 'db.properties' để bảo mật thông tin tài khoản (L07).
+ * Tên CSDL thực tế của đồ án: QuanLyBanGiay (khác với tên bài mẫu QLNVIEN của môn học).
+ * Chuỗi kết nối tuân thủ định dạng chuẩn của Microsoft SQL Server JDBC Driver.
  */
 public class ConnectDB {
+    // Chuỗi URL mẫu chuẩn mực trỏ vào database thật QuanLyBanGiay
+    // Ghi chú quan trọng: Tên CSDL thực tế của đồ án là QuanLyBanGiay (khác với QLNVIEN trong giáo trình/bài mẫu)
+    public static final String DEFAULT_URL = 
+        "jdbc:sqlserver://localhost:1433;databasename=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;loginTimeout=3;";
+    public static final String DEFAULT_USER = "sa";
+
     public static Connection con = null;
     private static ConnectDB instance = new ConnectDB();
 
@@ -23,7 +31,7 @@ public class ConnectDB {
     /**
      * Tải thuộc tính kết nối từ file 'db.properties' (tìm tại thư mục gốc ứng dụng hoặc classpath).
      */
-    private Properties loadProperties() throws SQLException {
+    private Properties loadProperties() {
         Properties props = new Properties();
         File propFile = new File("db.properties");
         if (propFile.exists()) {
@@ -31,7 +39,7 @@ public class ConnectDB {
                 props.load(fis);
                 return props;
             } catch (Exception e) {
-                throw new SQLException("Không thể đọc file cấu hình 'db.properties': " + e.getMessage(), e);
+                System.err.println("Cảnh báo: Không thể đọc file cấu hình 'db.properties': " + e.getMessage());
             }
         }
 
@@ -42,13 +50,10 @@ public class ConnectDB {
                 return props;
             }
         } catch (Exception e) {
-            throw new SQLException("Không thể đọc 'db.properties' từ classpath: " + e.getMessage(), e);
+            System.err.println("Cảnh báo: Không thể đọc 'db.properties' từ classpath: " + e.getMessage());
         }
 
-        throw new SQLException(
-            "Không tìm thấy file cấu hình 'db.properties'!\n" +
-            "Vui lòng sao chép 'db.properties.example' thành 'db.properties' tại thư mục gốc và cấu hình URL/User/Password kết nối SQL Server."
-        );
+        return props;
     }
 
     public void connect() throws SQLException {
@@ -59,15 +64,25 @@ public class ConnectDB {
         }
 
         Properties props = loadProperties();
+
+        // Chuỗi kết nối mẫu chuẩn mực theo yêu cầu đồ án:
+        // String url = "jdbc:sqlserver://localhost:1433;databasename=QuanLyBanGiay;";
+        // Ưu tiên đọc từ 'db.properties', nếu không có cấu hình thì dùng DEFAULT_URL trỏ vào CSDL thật QuanLyBanGiay
         String url = props.getProperty("db.url", props.getProperty("url"));
-        String user = props.getProperty("db.user", props.getProperty("user"));
+        if (url == null || url.trim().isEmpty()) {
+            // Ghi chú: Tên CSDL thực tế của đồ án là QuanLyBanGiay (khác với bài mẫu QLNVIEN của môn học)
+            url = DEFAULT_URL;
+        }
+
+        // Đọc user & password từ db.properties, KHÔNG hard-code mật khẩu
+        String user = props.getProperty("db.user", props.getProperty("user", DEFAULT_USER));
         String password = props.getProperty("db.password", props.getProperty("password", ""));
 
-        if (url == null || url.trim().isEmpty()) {
-            throw new SQLException("Thiếu thuộc tính 'db.url' trong file 'db.properties'!");
-        }
         if (user == null || user.trim().isEmpty()) {
-            throw new SQLException("Thiếu thuộc tính 'db.user' trong file 'db.properties'!");
+            user = DEFAULT_USER;
+        }
+        if (password == null) {
+            password = "";
         }
 
         // Đảm bảo loginTimeout=3 nếu chưa có trong URL để tránh treo giao diện lâu
