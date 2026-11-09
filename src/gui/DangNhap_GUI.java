@@ -1,6 +1,5 @@
 package gui;
 
-import connectDB.ConnectDB;
 import dao.NhanVien_DAO;
 import entity.NhanVien;
 
@@ -10,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
 
 public class DangNhap_GUI extends JFrame implements ActionListener {
     private JTextField txtMaNV;
@@ -119,20 +117,6 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
 
             if (maNV.isEmpty() || matKhau.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ Mã nhân viên và Mật khẩu!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Kiểm tra kết nối CSDL trước khi xác thực tài khoản
-            try {
-                ConnectDB.getInstance();
-                if (ConnectDB.getConnection() == null || ConnectDB.getConnection().isClosed()) {
-                    ConnectDB.getInstance().connect();
-                }
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this,
-                    "Không thể kết nối đến Microsoft SQL Server (database: QuanLyBanGiay)!\n" +
-                    "Vui lòng đảm bảo dịch vụ SQL Server (SQLEXPRESS) đang hoạt động.",
-                    "Lỗi kết nối cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 

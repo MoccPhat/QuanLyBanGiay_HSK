@@ -13,14 +13,13 @@ public class Main {
             e.printStackTrace();
         }
 
-        SwingUtilities.invokeLater(() -> {
-            try {
-                ConnectDB.getInstance().connect();
-                System.out.println("Kết nối Microsoft SQL Server thành công!");
-            } catch (SQLException e) {
-                System.err.println("Chưa khởi động SQL Server hoặc cổng TCP 1433 chưa mở: " + e.getMessage());
-            }
+        try {
+            ConnectDB.getInstance().connect();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
+        SwingUtilities.invokeLater(() -> {
             // Khởi động màn hình Đăng Nhập
             DangNhap_GUI login = new DangNhap_GUI();
             login.setVisible(true);

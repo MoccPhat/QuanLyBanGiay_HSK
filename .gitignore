@@ -48,8 +48,6 @@ Desktop.ini
 .DS_Store
 
 # Database credentials
-db.properties
-!db.properties.example
 
 # Critique folder & archive
 PHAN-BIEN-DO-AN-project*
