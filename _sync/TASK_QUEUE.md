@@ -1,6 +1,6 @@
 # 📌 BẢNG ĐIỀU PHỐI TIẾN ĐỘ DỰ ÁN (TASK_QUEUE.MD)
 
-> **Cập nhật lúc:** 2026-11-09 20:46:00  
+> **Cập nhật lúc:** 2026-11-09 21:42:00  
 > **Người thực hiện:** Tab 3 — Báo cáo (.docx/.md) & Đóng gói bàn giao  
 > **Dự án:** StepUp — Quản lý Cửa Hàng Bán Giày (`E:\Eclipse Java\project`)
 
@@ -10,6 +10,8 @@
 
 | Việc | Trạng thái | Bằng chứng | Người phụ trách (tab) | Ghi chú |
 |---|---|---|---|---|
+| **Thay 8 sơ đồ chụp tay không watermark (DOC-NOWATERMARK)** | `DONE` (Hoàn hảo 100%) | 8 ảnh manual: Hình 1 (55 KB), Hình 3 (82 KB), Hình 7 (35 KB), Hình 15 (39 KB), Hình 16 (43 KB), Hình 17 (42 KB), Hình 18 (40 KB), Hình 19 (43 KB); Drawings = 20/20; 0 watermark; 3 previews: `noWM_hinh1.png`, `noWM_hinh7.png`, `noWM_hinh19.png` | Tab 3 (Báo cáo) | Đã thanh lọc sạch 8 ảnh VP watermark khỏi `word/media/`; Giữ nguyên 100% caption & thứ tự hình; Khổ rộng 16cm căn giữa. |
+| **VP Manual Captures (VP-MANUAL-CAPTURE)** | `DONE` (100% Sạch Watermark) | **Đủ 8 sơ đồ chụp trực tiếp từ live canvas Visual Paradigm** (0% watermark): `manual_usecase.png` (1143×710), `manual_class.png` (1016×771), `manual_seq_thanhtoan.png` (995×771), `manual_seq_dangnhap.png` (1158×771), `manual_seq_khachhang.png` (1113×771), `manual_seq_sanpham.png` (1211×771), `manual_seq_nhanvien.png` (1057×771), `manual_seq_thongke.png` (1148×771); Cả 8 ảnh rộng >= 995px | Tab 4 / Subagent VP | Triệt tiêu hoàn toàn chữ 'Evaluation copy' trên ảnh export; Tự động hóa desktop switching Win32 + JVMTI zoom ratio + PIL crop sát mép an toàn; Không cắt mép, không thanh công cụ, không watermark. |
 | **Đóng gói lại bản bàn giao (PACK-1109)** | `DONE` (Hoàn hảo 100%) | `bin\Main.class` major 61 (Java 17); Thư mục `StepUp_QuanLyBanGiay_Deliverable` (96 files, 6.45 MB); `StepUp_QuanLyBanGiay_FINAL_2026-11-09.zip` (5.84 MB, 96 files); 0 file `.py`, 0 `db.properties`, 0 `hoadon`, 0 `_sync` | Tab 3 (Đóng gói) | Sạch 100% file rác; Gói nén chuẩn xác đúng cấu trúc yêu cầu; Bytecode Java 17. |
 | **Thay ảnh Hình 1 Use Case & sạch StepUp (DOC-FINAL-HINH1)** | `DONE` (Hoàn hảo) | Thay Hình 1 bằng `_sync/vp_usecase_diagram.png` (16cm, center); Caption 'Hình 1. Sơ đồ Use Case tổng thể hệ thống Quản lý bán giày thời trang (Visual Paradigm 18)'; Danh mục hình khớp; StepUp Footwear POS hits = 0; 3 ảnh preview `_sync/final_toc.png`, `_sync/final_hinh1.png`, `_sync/final_last.png` | Tab 3 (Báo cáo) | Drawings trước/sau = 20/20; Layout nguyên vẹn không vỡ; Mục lục không còn dòng VI/VII; Trang cuối sạch đẹp. |
 | **Bìa học thuật chuẩn V2 (COVER-FRAME-V2)** | `DONE` (5/5 PASS) | Khung A4 300dpi (`_sync/cover_frame_a4.png`, 47,284 bytes); 100% đối xứng gương; 4 cạnh đủ hình thoi; lề an toàn >= 72px; dòng ngày 'TP. Hồ Chí Minh, tháng 11 năm 2026'; `_sync/cover_preview3.png` | Tab 3 (Báo cáo) | 5/5 tiêu chí checklist đều PASS; Đạt chuẩn học thuật đối xứng hoàn hảo; Bỏ placeholder `...`. |
