@@ -253,33 +253,6 @@ public class KhachHang_DAO {
     }
 
     /**
-     * Cập nhật điểm tích lũy và hạng thành viên mới cho khách hàng.
-     *
-     * @param maKH mã khách hàng cần cập nhật
-     * @param diemMoi số điểm tích lũy mới
-     * @param hangMoi tên hạng thành viên mới
-     * @return true nếu cập nhật thành công, ngược lại false
-     */
-    public boolean capNhatDiem(String maKH, int diemMoi, String hangMoi) {
-        lastError = "";
-        int n = 0;
-        String sql = "UPDATE KhachHang SET diemTichLuy = ?, hangThanhVien = ? WHERE maKhachHang = ?";
-        try {
-            Connection con = getConnection();
-            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-                pstmt.setInt(1, diemMoi);
-                pstmt.setString(2, hangMoi);
-                pstmt.setString(3, maKH);
-                n = pstmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            lastError = "Không kết nối được CSDL: " + e.getMessage();
-            e.printStackTrace();
-        }
-        return n > 0;
-    }
-
-    /**
      * Cập nhật thông tin cá nhân của khách hàng (họ tên, sđt, ngày sinh, giới tính, địa chỉ, email).
      *
      * @param kh đối tượng KhachHang chứa thông tin cập nhật mới

@@ -6,8 +6,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 
 /**
  * Lớp tiện ích giao diện (GUI Helper) cung cấp bảng màu chuẩn, kiểu nút bấm phẳng, định dạng bảng và các thành phần giao diện đồ họa.
@@ -22,7 +20,6 @@ public class UIHelper {
     public static final Color WARN_AMBER   = new Color(217, 119, 6);   // Vàng cam cảnh báo
     public static final Color BG_GRAY      = new Color(248, 250, 252); // Xám nền nhẹ
     public static final Color BG_MAIN      = BG_GRAY;
-    public static final Color INFO_BLUE    = ACCENT_BLUE;
     public static final Color BORDER_GRAY  = new Color(203, 213, 225); // Xám viền
 
     public static final Color TEXT_DARK    = new Color(15, 23, 42);    // Chữ màu tối chuẩn sắc nét
@@ -230,49 +227,6 @@ public class UIHelper {
      */
     public static JButton createSecondaryBtn(String text, int minW, int minH) {
         return createButton(text, BTN_LIGHT_BG, TEXT_DARK, minW, minH);
-    }
-
-    /**
-     * Định dạng trường nhập liệu có viền mềm và hiệu ứng đổi màu viền khi nhận/mất tiêu điểm.
-     *
-     * @param txt trường nhập liệu JTextField cần định dạng
-     */
-    public static void styleTextField(JTextField txt) {
-        txt.setFont(new Font("Arial", Font.PLAIN, 13));
-        txt.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_GRAY, 1, true),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)
-        ));
-        txt.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                txt.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(ACCENT_BLUE, 2, true),
-                        BorderFactory.createEmptyBorder(5, 9, 5, 9)
-                ));
-            }
-            @Override
-            public void focusLost(FocusEvent e) {
-                txt.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER_GRAY, 1, true),
-                        BorderFactory.createEmptyBorder(6, 10, 6, 10)
-                ));
-            }
-        });
-    }
-
-    /**
-     * Định dạng ComboBox phẳng và dễ đọc.
-     *
-     * @param cbo hộp chọn JComboBox cần định dạng
-     */
-    public static void styleComboBox(JComboBox<?> cbo) {
-        cbo.setFont(new Font("Arial", Font.PLAIN, 13));
-        cbo.setBackground(Color.WHITE);
-        cbo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_GRAY, 1, true),
-                BorderFactory.createEmptyBorder(2, 4, 2, 4)
-        ));
     }
 
     /**

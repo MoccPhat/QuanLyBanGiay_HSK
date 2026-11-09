@@ -322,29 +322,6 @@ public class SanPham_DAO {
     }
 
     /**
-     * Lấy danh sách tất cả các phân loại giày hiện có trong CSDL (phục vụ lọc nâng cao).
-     *
-     * @return danh sách các chuỗi phân loại giày
-     */
-    public ArrayList<String> getAllLoaiGiay() {
-        ArrayList<String> ds = new ArrayList<>();
-        String sql = "SELECT DISTINCT loaiGiay FROM SanPham WHERE loaiGiay IS NOT NULL AND loaiGiay <> '' ORDER BY loaiGiay ASC";
-        try {
-            Connection con = getConnection();
-            try (Statement stmt = con.createStatement();
-                 ResultSet rs = stmt.executeQuery(sql)) {
-                while (rs.next()) {
-                    ds.add(rs.getString("loaiGiay"));
-                }
-            }
-        } catch (SQLException e) {
-            handleSQLException(e);
-            e.printStackTrace();
-        }
-        return ds;
-    }
-
-    /**
      * Tìm kiếm nâng cao sản phẩm theo nhiều tiêu chí kết hợp:
      * Thương hiệu, khoảng giá bán (từ - đến), loại giày, tình trạng còn hàng/ngừng bán.
      *

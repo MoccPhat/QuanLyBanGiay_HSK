@@ -1,7 +1,6 @@
 package entity;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 /**
  * Lớp thực thể trừu tượng đại diện cho một người trong hệ thống (tầng Entity),

@@ -122,36 +122,6 @@ public class ChiTietGiay_DAO {
     }
 
     /**
-     * Cập nhật trừ số lượng hàng tồn kho của một biến thể giày khi xuất bán có điều kiện kiểm tra số lượng đủ.
-     *
-     * @param maCTG mã biến thể giày (SKU) cần trừ tồn kho
-     * @param soLuongTru số lượng sản phẩm xuất bán cần trừ
-     * @return true nếu trừ kho thành công, false nếu tồn kho không đủ hoặc lỗi CSDL
-     */
-    public boolean capNhatTonKho(String maCTG, int soLuongTru) {
-        int n = 0;
-        try {
-            ConnectDB.getInstance();
-            Connection con = ConnectDB.getConnection();
-            if (con == null || con.isClosed()) {
-                ConnectDB.getInstance().connect();
-                con = ConnectDB.getConnection();
-            }
-            String sql = "UPDATE ChiTietGiay SET soLuongTon = soLuongTon - ? WHERE maChiTietGiay = ? AND soLuongTon >= ?";
-            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-                pstmt.setInt(1, soLuongTru);
-                pstmt.setString(2, maCTG);
-                pstmt.setInt(3, soLuongTru);
-                n = pstmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            lastError = "Không kết nối được CSDL: " + e.getMessage();
-            e.printStackTrace();
-        }
-        return n > 0;
-    }
-
-    /**
      * Thêm mới một bản ghi biến thể giày (size, màu sắc, tồn kho, ảnh) vào CSDL.
      *
      * @param ctg đối tượng ChiTietGiay chứa thông tin biến thể cần thêm mới
@@ -215,12 +185,4 @@ public class ChiTietGiay_DAO {
         return String.format("CTG%04d", Math.abs(System.currentTimeMillis() % 10000));
     }
 
-    /**
-     * Lấy toàn bộ danh sách các biến thể giày (phương thức bí danh của getAllChiTietGiay).
-     *
-     * @return danh sách các đối tượng ChiTietGiay
-     */
-    public ArrayList<ChiTietGiay> layTatCaChiTietGiay() {
-        return getAllChiTietGiay();
-    }
 }
