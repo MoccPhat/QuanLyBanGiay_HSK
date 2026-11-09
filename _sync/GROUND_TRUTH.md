@@ -15,8 +15,7 @@
 - Java 17 (Temurin), Swing, JDBC. Chỉ có 2 thư viện: `lib/mssql-jdbc-12.4.2.jre11.jar`, `lib/sqljdbc42.jar`.
 - **KHÔNG có** FlatLaf, JFreeChart, Apache POI, và **KHÔNG có tầng BUS**. Kiến trúc thực tế: `entity` – `dao` – `gui` (+ `connectDB`).
 - Giao diện dùng Look & Feel hệ thống của Windows; nút bấm được tự vẽ lại trong `gui/UIHelper.java` (`paintComponent` + `fillRoundRect`).
-- Báo cáo Word được **sinh tự động** từ script `generate_final_report_docx.py` (699 dòng) → `BaoCao_QuanLyBanGiay_HSK.docx` + bản copy `QuanLyBanGiay_HSK.docx`.
-  → Muốn sửa nội dung Word: **sửa trong script rồi chạy lại**, không sửa trực tiếp file .docx.
+- Báo cáo Word `BaoCao_QuanLyBanGiay_HSK.docx` được **bảo trì chuẩn hóa** qua các script OpenXML / python-docx chuyên dụng (bảo toàn logo IUH, 23 bảng biểu, chuẩn hóa màu 000000, 0 w:shd, 0 w:highlight), đồng thời đồng bộ mã nguồn trong `generate_final_report_docx.py`.
 
 ---
 
@@ -37,7 +36,7 @@
 | chucVu | NVARCHAR(30) | No | CHECK ∈ {N'Quản lý', N'Nhân viên bán hàng'} |
 | luongCoBan | DECIMAL(18,0) | No | CHECK > 0 |
 | caLamViec | NVARCHAR(20) | Yes | CHECK IS NULL OR ∈ {N'Toàn thời gian', N'Ca sáng', N'Ca chiều', N'Ca tối'} |
-| matKhau | CHAR(64) | No | **SHA-256 hex, CHECK LEN = 64** — không có bảng TaiKhoan riêng |
+| matKhau | CHAR(64) | No | **SHA-256 hex, CHECK LEN = 64** (sẵn sàng tương thích ngược PBKDF2 100.000 vòng lặp có fallback an toàn; hỗ trợ đổi mật khẩu `doiMatKhau()`) — không có bảng TaiKhoan riêng |
 | trangThai | BIT | No | DEFAULT 1 |
 
 ### 2.2 KhachHang (PK: maKhachHang)
@@ -124,13 +123,13 @@ Quan hệ: `Nguoi ◁── NhanVien`, `Nguoi ◁── KhachHang` (kế thừa)
 ## 4. GIAO DIỆN THẬT (`src/gui`)
 
 - **Đăng nhập** (`DangNhap_GUI`): nhập mã NV + mật khẩu → `NhanVien_DAO.dangNhap(maNV, matKhau)` đối chiếu SHA-256 trong bảng `NhanVien`. **Không có TaiKhoanDAO, không có khóa tài khoản sau 5 lần sai, không có icon con mắt ẩn/hiện mật khẩu.**
-- **Khung chính** (`ManHinhChinh_GUI`): 4 tab — Bán hàng (POS) [F1], Quản lý mẫu giày [F2], Khách hàng & tích điểm [F3], Quản lý nhân sự [F4] (tab 4 chỉ thêm nếu `nhanVien.isQuanLy()`).
-- **Phím tắt thật** (`registerKeyBindings`, `WHEN_IN_FOCUSED_WINDOW` trên JRootPane): F1/F2/F3/F4 chuyển tab, F10 → `BanHang_GUI.thanhToanDonHang()`, ESC → hộp thoại đăng xuất, DELETE → `BanHang_GUI.xoaMucKhoiGio()`. **Không có F8, Ctrl+N, Ctrl+S, Ctrl+E.**
-- **Bán hàng** (`BanHang_GUI`): chọn mẫu/size/màu, hiện tồn kho, thêm vào giỏ, tìm khách theo SĐT, checkbox dùng điểm (1 điểm = 1.000đ), ô tiền khách đưa tính tiền thừa realtime (bắt `NumberFormatException`), thanh toán → transaction → hộp thoại hóa đơn K80 (JDialog, không in ra máy in thật). Không có tìm kiếm Live Search, không có quét Barcode, không có popup chọn size.
+- **Khung chính** (`ManHinhChinh_GUI`): 5 tab — Bán hàng (POS) [F1], Quản lý mẫu giày [F2], Khách hàng & tích điểm [F3], Quản lý nhân sự [F4], Thống kê doanh thu [F5] (Tab 4 và Tab 5 chỉ thêm nếu `nhanVien.isQuanLy()`).
+- **Phím tắt thật** (`registerKeyBindings`, `WHEN_IN_FOCUSED_WINDOW` trên JRootPane): F1/F2/F3/F4/F5 chuyển tab, F10 → `BanHang_GUI.thanhToanDonHang()`, ESC → hộp thoại đăng xuất, DELETE → `BanHang_GUI.xoaMucKhoiGio()`. **Không có F8, Ctrl+N, Ctrl+S, Ctrl+E.**
+- **Bán hàng** (`BanHang_GUI`): chọn mẫu/size/màu, hiện tồn kho, thêm vào giỏ, tìm khách theo SĐT, checkbox dùng điểm (1 điểm = 1.000đ), ô tiền khách đưa tính tiền thừa realtime (bắt `NumberFormatException`), thanh toán → transaction → hộp thoại hóa đơn K80 (JDialog tích hợp nút '🖨 In Hóa Đơn' qua PrinterJob và nút '📄 Xuất File Hóa Đơn' .txt vào thư mục hoadon/). Đã bổ sung hộp thoại Tìm kiếm nâng cao đa tiêu chí cho Sản phẩm và Khách hàng.
 - **Quản lý mẫu giày** (`QuanLySanPham_GUI`): CRUD + validate giá (`giaNhap > 0`, `giaBan >= giaNhap`), tự sinh 1 biến thể SKU mặc định (size 40, màu Đen, tồn 20); chặn thao tác nếu không phải Quản lý; xóa = xóa mềm.
 - **Khách hàng** (`QuanLyKhachHang_GUI`): CRUD, validate SĐT regex `^0[35789]\d{8}$`, điểm chỉ đọc trên form.
 - **Nhân sự** (`QuanLyNhanVien_GUI`): CRUD, băm SHA-256 mật khẩu.
-- **Thống kê** (`ThongKe_GUI`): KPI tính từ danh sách hóa đơn (`tongDoanhThu`, số đơn, "số đôi" = số đơn × 2 là **ước lượng**, không query ChiTietHoaDon); bảng Top sản phẩm **hardcode 5 dòng**; nút "Xuất Báo Cáo [Excel]" chỉ hiện `JOptionPane` thông báo, **không tạo file, không dùng Apache POI**; không có JFreeChart, không có biểu đồ, không có bộ lọc ngày thật (`cboThoiGian` chỉ đổi nhãn). Hình "biểu đồ" trong báo cáo là ảnh minh họa `diagram_chart_shoe.png`, không phải ảnh chụp ứng dụng.
+- **Thống kê** (`ThongKe_GUI`): Đã kết nối DAO thật 100% (`HoaDon_DAO.getTongSoLuongBanRa()` tính tổng số đôi giày bán ra từ `ChiTietHoaDon`; `HoaDon_DAO.getTopSanPhamBanChay(5)` query `SELECT TOP 5 ... GROUP BY sp.maSanPham ... ORDER BY tongSoLuong DESC`; bộ lọc thời gian Hôm nay / Tháng này / Năm nay hoạt động thật với SwingWorker). Nút "Xuất Báo Cáo [Excel]" hiển thị thông báo hộp thoại định hướng mở rộng Apache POI.
 
 ---
 

@@ -80,7 +80,7 @@ Dự án áp dụng mô hình **3-Tier Layered Architecture** chuẩn mực côn
 ## 2. CẤU TRÚC THƯ MỤC & VAI TRÒ TỪNG GÓI
 
 ```
-E:\Project_HSK\
+E:\Eclipse Java\project\
 ├── bin/                          # Chứa bytecode (.class) đã biên dịch
 ├── lib/                          # Driver JDBC: mssql-jdbc-12.4.2.jre11.jar
 ├── data/                         # Hình ảnh sản phẩm giày dép
@@ -313,7 +313,7 @@ Phần này giúp bạn mở giao diện ứng dụng lên và đối chiếu tr
 ---
 
 ### 5.1. Màn hình Đăng Nhập
-- **File:** [`src/gui/DangNhap_GUI.java`](file:///E:/Project_HSK/src/gui/DangNhap_GUI.java) | **DAO:** [`src/dao/NhanVien_DAO.java`](file:///E:/Project_HSK/src/dao/NhanVien_DAO.java)
+- **File:** [`src/gui/DangNhap_GUI.java`](file:///E:/Eclipse%20Java/project/src/gui/DangNhap_GUI.java) | **DAO:** [`src/dao/NhanVien_DAO.java`](file:///E:/Eclipse%20Java/project/src/dao/NhanVien_DAO.java)
 
 | Thành phần trên UI | Vị trí biến trong code | Hành vi nghiệp vụ & Sự kiện |
 |---|---|---|
@@ -326,19 +326,19 @@ Phần này giúp bạn mở giao diện ứng dụng lên và đối chiếu tr
 ---
 
 ### 5.2. Khung điều hướng & Phím tắt toàn cục
-- **File:** [`src/gui/ManHinhChinh_GUI.java`](file:///E:/Project_HSK/src/gui/ManHinhChinh_GUI.java)
+- **File:** [`src/gui/ManHinhChinh_GUI.java`](file:///E:/Eclipse%20Java/project/src/gui/ManHinhChinh_GUI.java)
 
 | Thành phần trên UI | Vị trí biến trong code | Hành vi nghiệp vụ & Sự kiện |
 |---|---|---|
 | **Header chào mừng** | `lblUser` (dòng 100) | Hiển thị: `Nhân viên: [Họ tên] ([Chức vụ])`. Chữ vàng nổi bật trên nền xanh Navy. |
 | **Nút Đăng Xuất** | `btnDangXuat` (dòng 104) | Khởi tạo bằng `UIHelper.createDangerBtn("Đăng Xuất", 100, 30)`. Màu đỏ rực, chữ trắng sắc nét. Bấm nút mở hộp thoại xác nhận `YES_NO_OPTION`. |
-| **Hệ thống 4 Tab** | `tabbedPane` (dòng 40) | Quản lý 4 phân hệ. Tab 3 (Nhân sự) chỉ add nếu `nhanVien.isQuanLy() == true`. |
+| **Hệ thống 5 Tab** | `tabbedPane` (dòng 40) | Điều phối 5 phân hệ. Quản lý mở cả Tab 3 (Nhân sự [F4]) và Tab 4 (Thống kê doanh thu [F5]). |
 | **Bộ phím tắt toàn cục** | `registerKeyBindings()` (dòng 137) | Đăng ký `WHEN_IN_FOCUSED_WINDOW` trên `JRootPane` cho F1, F2, F3, F4, F10, ESC, DELETE. Bắt phím chuẩn xác ở mọi vị trí con trỏ. |
 
 ---
 
 ### 5.3. Phân hệ Bán Hàng POS
-- **File:** [`src/gui/BanHang_GUI.java`](file:///E:/Project_HSK/src/gui/BanHang_GUI.java) | **DAO:** [`src/dao/HoaDon_DAO.java`](file:///E:/Project_HSK/src/dao/HoaDon_DAO.java)
+- **File:** [`src/gui/BanHang_GUI.java`](file:///E:/Eclipse%20Java/project/src/gui/BanHang_GUI.java) | **DAO:** [`src/dao/HoaDon_DAO.java`](file:///E:/Eclipse%20Java/project/src/dao/HoaDon_DAO.java)
 
 Giao diện bán hàng chia làm 2 cột:
 
@@ -373,7 +373,7 @@ Giao diện bán hàng chia làm 2 cột:
 ---
 
 ### 5.4. Phân hệ Quản Lý Mẫu Giày
-- **File:** [`src/gui/QuanLySanPham_GUI.java`](file:///E:/Project_HSK/src/gui/QuanLySanPham_GUI.java) | **DAO:** [`src/dao/SanPham_DAO.java`](file:///E:/Project_HSK/src/dao/SanPham_DAO.java), [`src/dao/ChiTietGiay_DAO.java`](file:///E:/Project_HSK/src/dao/ChiTietGiay_DAO.java)
+- **File:** [`src/gui/QuanLySanPham_GUI.java`](file:///E:/Eclipse%20Java/project/src/gui/QuanLySanPham_GUI.java) | **DAO:** [`src/dao/SanPham_DAO.java`](file:///E:/Eclipse%20Java/project/src/dao/SanPham_DAO.java), [`src/dao/ChiTietGiay_DAO.java`](file:///E:/Eclipse%20Java/project/src/dao/ChiTietGiay_DAO.java)
 
 | Thành phần trên UI | Vị trí biến trong code | Hành vi nghiệp vụ & Sự kiện |
 |---|---|---|
@@ -387,7 +387,7 @@ Giao diện bán hàng chia làm 2 cột:
 ---
 
 ### 5.5. Phân hệ Quản Lý Khách Hàng
-- **File:** [`src/gui/QuanLyKhachHang_GUI.java`](file:///E:/Project_HSK/src/gui/QuanLyKhachHang_GUI.java) | **DAO:** [`src/dao/KhachHang_DAO.java`](file:///E:/Project_HSK/src/dao/KhachHang_DAO.java)
+- **File:** [`src/gui/QuanLyKhachHang_GUI.java`](file:///E:/Eclipse%20Java/project/src/gui/QuanLyKhachHang_GUI.java) | **DAO:** [`src/dao/KhachHang_DAO.java`](file:///E:/Eclipse%20Java/project/src/dao/KhachHang_DAO.java)
 
 - **Hệ thống nút bấm đồng bộ:**
   - `btnThem` ➔ `UIHelper.createSuccessBtn("Thêm Khách Hàng", 150, 34)` (Xanh lá)
@@ -400,7 +400,7 @@ Giao diện bán hàng chia làm 2 cột:
 ---
 
 ### 5.6. Phân hệ Quản Lý Nhân Sự
-- **File:** [`src/gui/QuanLyNhanVien_GUI.java`](file:///E:/Project_HSK/src/gui/QuanLyNhanVien_GUI.java) | **DAO:** [`src/dao/NhanVien_DAO.java`](file:///E:/Project_HSK/src/dao/NhanVien_DAO.java)
+- **File:** [`src/gui/QuanLyNhanVien_GUI.java`](file:///E:/Eclipse%20Java/project/src/gui/QuanLyNhanVien_GUI.java) | **DAO:** [`src/dao/NhanVien_DAO.java`](file:///E:/Eclipse%20Java/project/src/dao/NhanVien_DAO.java)
 
 - **Phân quyền tối cao:** Chỉ hiển thị tab này cho tài khoản có chức vụ "Quản lý".
 - **Hệ thống nút bấm đồng bộ:**
@@ -413,7 +413,7 @@ Giao diện bán hàng chia làm 2 cột:
 ---
 
 ### 5.7. Phân hệ Thống Kê Doanh Thu
-- **File:** [`src/gui/ThongKe_GUI.java`](file:///E:/Project_HSK/src/gui/ThongKe_GUI.java)
+- **File:** [`src/gui/ThongKe_GUI.java`](file:///E:/Eclipse%20Java/project/src/gui/ThongKe_GUI.java)
 
 - **Thẻ Bento KPI:** 4 thẻ chỉ số nổi bật với màu sắc đồng bộ: Tổng doanh thu (Xanh lá), Số đơn hàng (Xanh dương), Sản phẩm đã bán (Navy), Khách hàng thành viên (Vàng cam).
 - **Thanh lọc dữ liệu:**
@@ -424,7 +424,7 @@ Giao diện bán hàng chia làm 2 cột:
 ---
 
 ### 5.8. Lớp Tiện Ích Giao Diện & Khắc Phục Lỗi Nút Windows (`UIHelper.java`)
-- **File:** [`src/gui/UIHelper.java`](file:///E:/Project_HSK/src/gui/UIHelper.java)
+- **File:** [`src/gui/UIHelper.java`](file:///E:/Eclipse%20Java/project/src/gui/UIHelper.java)
 
 #### Vì sao các nút trên Windows bị lỗi chữ trắng trên nền trắng?
 Khi sử dụng giao diện hệ thống `UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())`, Windows vẽ nút bằng thư viện native của hệ điều hành. Lớp vẽ này **từ chối vẽ màu nền theo lệnh `setBackground()`** nhưng lại **nhận lệnh đổi màu chữ `setForeground(Color.WHITE)`**. Kết quả là nút có nền trắng/bạc mặc định của Windows nhưng chữ lại màu trắng tinh ➔ chữ bị biến mất hoàn toàn!
@@ -500,11 +500,11 @@ Tài liệu báo cáo chính thức bắt buộc phải tuân thủ nghiêm ng�
    - **Mục lục & Danh mục phụ trợ:** Mục lục phân cấp tự động, Danh mục hình ảnh minh họa, Danh mục bảng biểu dữ liệu.
 
 2. **PHẦN 1: THU THẬP VÀ PHÂN TÍCH YÊU CẦU (GIỚI THIỆU):**
-   - **Đặt vấn đề & Khảo sát hiện trạng:** Nêu bật các pain point trong quản lý bán lẻ giày dép truyền thống (sai lệch tồn kho theo biến thể Size/Màu, nhầm lẫn giá bán khi áp dụng đồng thời khuyến mãi và thuế VAT, chậm trễ đối soát doanh thu).
+   - **Đặt vấn đề & Khảo sát hiện trạng:** Nêu bật các pain point trong quản lý bán lẻ giày dép truyền thống (sai lệch tồn kho theo biến thể Size/Màu, nhầm lẫn giá bán khi áp dụng chiết khấu thành viên và trừ điểm tích lũy, chậm trễ đối soát doanh thu).
    - **Mục tiêu & Đối tượng thụ hưởng:** Phân định rõ 2 tác nhân (Actors): *Nhân viên bán hàng / Thu ngân* (thao tác POS nhanh, tra cứu tồn kho tức thời, tích điểm) và *Người quản lý* (quản lý danh mục 2 tầng, quản trị nhân sự, giám sát doanh số).
    - **Khả năng của hệ thống:** Hoạt động ổn định trên môi trường Desktop Java Swing, phản hồi dưới 0.2s, hỗ trợ phím tắt toàn cục F1-F5, in phiếu hóa đơn nhiệt K80 và xuất báo cáo.
    - **Phân hệ nghiệp vụ chính:** Bán hàng POS trực tiếp, Quản lý sản phẩm & biến thể SKU, Quản lý khách hàng thân thiết, Quản lý nhân viên & phân quyền, Thống kê tài chính.
-   - **Quy tắc tính toán đặc thù:** Công thức tính thành tiền, tổng tiền hàng (Subtotal), thuế GTGT (VAT 10%), chiết khấu hạng thẻ khách hàng, điểm tích lũy, tiền thừa trả khách; quy tắc sinh mã tự động (ID Pattern: HDyyMMddxxxx, SPxxxx, NVxxxx, KHxxxx).
+   - **Quy tắc tính toán đặc thù:** Công thức tính thành tiền, tổng tiền hàng (Subtotal), chiết khấu hạng thẻ thành viên, trừ tiền điểm tích lũy (`tongTien = (tongTienHang - chietKhau) - tienGiamDiem`, hệ thống chuẩn hóa tính toán trực tiếp trên giá trị thực thu, không áp dụng thuế GTGT), tiền thừa trả khách; quy tắc sinh mã tự động (ID Pattern: HDxxxxxx dài đúng 8 ký tự với tiền tố HD + 6 số tự tăng, SPxxxx, NVxxxx, KHxxxx).
 
 3. **PHẦN 2: THIẾT KẾ SƠ ĐỒ LỚP (CLASS DIAGRAM) + MÔ TẢ RÀNG BUỘC:**
    - **Sơ đồ lớp tổng thể:** Hình ảnh Class Diagram thiết kế chuẩn 7 thực thể thực tế của dự án (Nguoi, NhanVien, KhachHang, SanPham, ChiTietGiay, HoaDon, ChiTietHoaDon), thể hiện rõ quan hệ kế thừa (Inheritance), quan hệ kết tập (Composition/Aggregation) và số lượng kết hợp (Multiplicity).
@@ -514,7 +514,7 @@ Tài liệu báo cáo chính thức bắt buộc phải tuân thủ nghiêm ng�
 4. **PHẦN 3: SƠ ĐỒ CƠ SỞ DỮ LIỆU (DATABASE DIAGRAM TRÊN SQL SERVER) + MÔ TẢ RÀNG BUỘC:**
    - **Lược đồ quan hệ thực thể (Database Diagram):** Ảnh chụp sơ đồ quan hệ phát sinh trực tiếp từ SQL Server Management Studio (SSMS) trên CSDL chuẩn 6 bảng (NhanVien, KhachHang, SanPham, ChiTietGiay, HoaDon, ChiTietHoaDon). Tuyệt đối loại bỏ các bảng thừa không có trong mã nguồn (LoaiGiay, ThuongHieu, TaiKhoan).
    - **Bảng từ điển dữ liệu (Data Dictionary 4 Cột):** Đặc tả từng bảng gồm: *Tên cột*, *Kiểu dữ liệu trong SQL Server*, *Kích thước (Length/Precision)*, *Ràng buộc toàn vẹn (PK, FK, NOT NULL, CHECK, UNIQUE, DEFAULT)*.
-   - **Hệ thống ràng buộc toàn vẹn:** Thống kê chi tiết 33 ràng buộc CHECK (giá bán >= giá nhập > 0, số lượng tồn >= 0, size 35-46, thuế VAT >= 0, điểm >= 0), 5 ràng buộc khóa ngoại FOREIGN KEY, và 4 chỉ mục duy nhất UNIQUE (số điện thoại nhân viên, số điện thoại khách hàng, cặp SKU biến thể sản phẩm).
+   - **Hệ thống ràng buộc toàn vẹn:** Thống kê chi tiết 33 ràng buộc CHECK (giá bán >= giá nhập > 0, số lượng tồn >= 0, size 35-45, tiền thanh toán >= 0, điểm >= 0), 5 ràng buộc khóa ngoại FOREIGN KEY, và 4 chỉ mục duy nhất UNIQUE (số điện thoại nhân viên, số điện thoại khách hàng, cặp SKU biến thể sản phẩm).
 
 5. **PHẦN 4: HIỆN THỰC (CHỤP VÀ MÔ TẢ CÁC MÀN HÌNH CHÍNH):**
    - Chèn ảnh chụp giao diện chạy thực tế độ phân giải cao kèm theo bảng đặc tả 3 yếu tố cốt lõi: *Mục đích màn hình*, *Các thành phần giao diện & Bố cục*, *Quy tắc xử lý sự kiện & Nghiệp vụ*.
@@ -572,7 +572,7 @@ Sơ đồ CSDL (Database Diagram) ======>    Tệp 'database/QuanLyBanGiay.sql' 
 - Màn hình Quản lý Mẫu Giày               - QuanLySanPham_GUI.java (JTable, ListSelectionListener)
 - Phím tắt toàn cục F1-F5                 - KeyBindings qua JRootPane, InputMap & ActionMap
 - Khắc phục giao diện Windows             - UIHelper.java (Tối ưu nút phẳng, tương phản WCAG)
-- Kết nối CSDL bảo mật                   - connectDB/DatabaseConnection.java (Singleton Pattern)
+- Kết nối CSDL bảo mật                   - src/connectDB/ConnectDB.java (Singleton Pattern)
 `
 
 #### Quy tắc trả lời chất vấn kỹ thuật về kiến trúc:
@@ -604,7 +604,7 @@ un.bat hoạt động trơn tru với 1 cú click chuột.
 - [ ] **01:30 - 05:00 (Demo trọng tâm):** Đi thẳng vào tính năng khó nhất - **Màn hình Bán Hàng POS (BanHang_GUI)**:
   - Thao tác chọn mẫu giày -> chọn biến thể Size/Màu thực tế trong kho.
   - Test case chặn lỗi: Nhập số lượng vượt tồn kho -> hệ thống báo lỗi không cho thêm vào giỏ.
-  - Áp mã giảm giá, tính thuế VAT, tính tiền thối tự động, in phiếu hóa đơn K80 xem trước.
+  - Áp dụng chiết khấu thành viên, trừ điểm tích lũy, tính tiền thối tự động, in phiếu hóa đơn K80 và xuất file văn bản.
   - Chứng minh sau thanh toán: Số lượng tồn kho trong bảng sản phẩm đã được tự động trừ chính xác trong SQL Server.
 - [ ] **05:00 - 07:00 (Màn hình Thống kê & Quản trị):** Trình diễn nhanh biểu đồ doanh thu theo thời gian, lọc dữ liệu trực quan.
 - [ ] **07:00 - 10:00 (Chất vấn):** Phân công thành viên phụ trách từng module đứng lên trả lời trực tiếp câu hỏi của Giảng viên, tự tin chỉ đúng vị trí dòng code giải quyết bài toán.

@@ -284,7 +284,7 @@ def create_document():
         ["2", "Thiết kế Sơ đồ lớp (Class 7 lớp) và CSDL SQL Server (6 bảng, 33 CHECK, 5 FK, 3 UQ)", "........ / 2.5"],
         ["3", "Hiện thực chức năng Bán hàng (POS) & Xử lý nghiệp vụ Size/Màu/Tồn kho Transaction ACID", "........ / 3.0"],
         ["4", "Giao diện thân thiện, sử dụng phím tắt công thái học, Coding Convention Java SE 17", "........ / 1.5"],
-        ["5", "Báo cáo kiểm thử hồi quy 35 Test Cases và trả lời phản biện", "........ / 1.0"]
+        ["5", "Báo cáo kiểm thử hồi quy 62 Test Cases và trả lời phản biện", "........ / 1.0"]
     ]
     style_table(t_eval, [0.6, 4.5, 1.2], ["STT", "Tiêu chí đánh giá", "Điểm số"], eval_data)
     
@@ -346,7 +346,7 @@ def create_document():
         ("    IV. Lời kết", "46"),
         ("PHẦN VI: KẾT QUẢ KIỂM THỬ HỆ THỐNG (TESTING & VERIFICATION)", "47"),
         ("    I. Giới thiệu bộ kiểm thử tự động VerifyAllScenarios", "47"),
-        ("    II. Ma trận kết quả kiểm thử chi tiết 35 Test Cases", "48"),
+        ("    II. Ma trận kết quả kiểm thử hồi quy tự động 62 Test Cases", "48"),
         ("    III. Đánh giá độ tin cậy và tỷ lệ bao phủ nghiệp vụ", "53"),
         ("PHẦN VII: TÀI LIỆU THAM KHẢO", "54")
     ]
@@ -413,7 +413,7 @@ def create_document():
         ("Bảng 16. Cấu trúc trường dữ liệu bảng ChiTietHoaDon trên Microsoft SQL Server", "26"),
         ("Bảng 17. Hệ thống phím tắt công thái học điều hướng bán hàng POS", "41"),
         ("Bảng 18. Đối chiếu yêu cầu đề tài môn học Lập trình hướng sự kiện ↔ Chức năng hiện thực", "42"),
-        ("Bảng 19. Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)", "48")
+        ("Bảng 19. Ma trận kết quả kiểm thử hồi quy tự động 62 Test Cases (VerifyAllScenarios & VerifyNewFeatures)", "48")
     ]
     for tbl_title, p_num in tables_list:
         p_t = doc.add_paragraph()
@@ -455,7 +455,7 @@ def create_document():
 
     add_h2("IV. Phân tích yêu cầu chức năng và phi chức năng")
     add_h3("1. Yêu cầu chức năng (Functional Requirements)")
-    add_bullet("Xác thực đăng nhập người dùng qua mã nhân viên và mật khẩu băm SHA-256 (64 ký tự). Điều hướng quyền truy cập theo vai trò (Quản lý mở 4 tab, Nhân viên mở 3 tab).", "Phân hệ Xác thực & Phân quyền: ")
+    add_bullet("Xác thực đăng nhập người dùng qua mã nhân viên và mật khẩu băm SHA-256 (64 ký tự). Điều hướng quyền truy cập theo vai trò (Quản lý mở 5 tab, Nhân viên mở 3 tab).", "Phân hệ Xác thực & Phân quyền: ")
     add_bullet("Chọn mẫu giày, kích cỡ (35-45), màu sắc hiển thị tồn kho tức thời. Thêm vào giỏ hàng, tự động cộng dồn số lượng. Tra cứu hội viên qua SĐT, tích điểm và giảm giá theo hạng. Tính tiền thừa tự động. Thanh toán đơn hàng bằng JDBC Transaction nguyên tử.", "Phân hệ Bán hàng tại quầy (POS): ")
     add_bullet("Xem danh sách mẫu giày, thêm mẫu mới, cập nhật thông tin và giá cả (giaBan >= giaNhap > 0). Áp dụng cơ chế Xóa mềm (Soft-Delete) cập nhật trangThai = 0 để bảo toàn lịch sử hóa đơn.", "Phân hệ Quản lý mẫu giày & Biến thể SKU: ")
     add_bullet("Thêm mới khách hàng, cập nhật địa chỉ, kiểm tra số điện thoại chuẩn regex 10 số (^0[35789]\\d{8}$). Bảo vệ điểm tích lũy và hạng thẻ (read-only trên form, chỉ cập nhật khi thanh toán).", "Phân hệ Quản lý khách hàng: ")
@@ -990,7 +990,7 @@ def create_document():
     
     add_h2("I. Đánh giá kết quả đạt được (Chỉ số định lượng)")
     add_p("Sau quá trình nghiên cứu lý thuyết, khảo sát nghiệp vụ thực tế và hiện thực mã nguồn, đồ án 'Hệ thống Quản lý Bán hàng tại Cửa hàng Giày dép Thời trang (StepUp Footwear)' đã đạt được các kết quả định lượng cụ thể, minh bạch:")
-    add_bullet("Toàn bộ 35/35 kịch bản kiểm thử hồi quy tự động (VerifyAllScenarios) chạy trực tiếp trên Microsoft SQL Server đều ĐẠT (100% PASS), tỷ lệ lỗi 0%.", "1. Kiểm thử hoàn hảo: ")
+    add_bullet("Toàn bộ 62/62 kịch bản kiểm thử tự động (50 ca VerifyAllScenarios qua 9 scenarios và 12 ca VerifyNewFeatures) chạy trực tiếp trên Microsoft SQL Server đều ĐẠT (100% PASS), tỷ lệ lỗi 0%.", "1. Kiểm thử hoàn hảo: ")
     add_bullet("Thiết kế và chuẩn hóa 6 bảng vật lý đạt Chuẩn 3 (3NF) trên SQL Server: NhanVien, KhachHang, SanPham, ChiTietGiay, HoaDon (13 cột), ChiTietHoaDon.", "2. Cơ sở dữ liệu chuẩn hóa: ")
     add_bullet("Xây dựng 7 lớp thực thể Hướng đối tượng thuần túy (Nguoi abstract, NhanVien, KhachHang, SanPham, ChiTietGiay, HoaDon, ChiTietHoaDon) thể hiện đầy đủ 4 trụ cột OOP.", "3. Mô hình hướng đối tượng: ")
     add_bullet("Cài đặt 33 ràng buộc CHECK chặt chẽ, 5 khóa ngoại Foreign Key, 3 khóa duy nhất Unique Key, và 14 giá trị mặc định DEFAULT.", "4. Ràng buộc toàn vẹn vững chắc: ")
@@ -1023,7 +1023,7 @@ def create_document():
     add_h1("PHẦN VI: KẾT QUẢ KIỂM THỬ HỆ THỐNG (TESTING & VERIFICATION)")
     
     add_h2("I. Giới thiệu bộ kiểm thử tự động VerifyAllScenarios")
-    add_p("Để bảo đảm hệ thống vận hành ổn định, chính xác và không phát sinh lỗi tiềm ẩn (regression), nhóm phát triển đã xây dựng bộ kiểm thử tự động toàn diện VerifyAllScenarios (tệp nguồn: _sync/VerifyAllScenarios.java). Bộ kiểm thử kết nối trực tiếp với máy chủ Microsoft SQL Server thực tế (QuanLyBanGiay), thực thi tuần tự 35 kịch bản kiểm thử độc lập bao phủ toàn bộ 7 phân hệ nghiệp vụ:")
+    add_p("Để bảo đảm hệ thống vận hành ổn định, chính xác và không phát sinh lỗi tiềm ẩn (regression), nhóm phát triển đã xây dựng bộ kiểm thử tự động toàn diện VerifyAllScenarios (tệp nguồn: _sync/VerifyAllScenarios.java). Bộ kiểm thử kết nối trực tiếp với máy chủ Microsoft SQL Server thực tế (QuanLyBanGiay), thực thi tuần tự 62 kịch bản kiểm thử độc lập (50 ca kiểm thử hồi quy toàn diện và 12 ca kiểm thử tính năng mới) bao phủ toàn bộ các phân hệ nghiệp vụ:")
     add_bullet("Scenario 1: Kiểm thử Đăng nhập, Xác thực mật khẩu băm SHA-256 và Phân quyền giao diện (TC-01 đến TC-04).", "1. ")
     add_bullet("Scenario 2: Kiểm thử Quản lý khách hàng, Ràng buộc giá trị NULL, Chặn trùng mã/SĐT, Biểu thức Regex SĐT 10 số (TC-05 đến TC-11).", "2. ")
     add_bullet("Scenario 3: Kiểm thử Quản lý sản phẩm, Ràng buộc giá bán >= giá nhập, Tự sinh mã biến thể SKU, Xóa mềm (TC-12 đến TC-16).", "3. ")
@@ -1032,12 +1032,12 @@ def create_document():
     add_bullet("Scenario 6: Kiểm thử Phân hệ Báo cáo Thống kê, Nạp danh sách hóa đơn, Bộ lọc KPI thời gian, Bố cục Top sản phẩm (TC-31 đến TC-33).", "6. ")
     add_bullet("Scenario 7: Kiểm thử Tính toàn vẹn CSDL (Không có tồn kho âm) và Tự động dọn dẹp sạch dữ liệu thử nghiệm (TC-34 đến TC-35).", "7. ")
 
-    add_h2("II. Ma trận kết quả kiểm thử chi tiết 35 Test Cases")
+    add_h2("II. Ma trận kết quả kiểm thử hồi quy tự động 62 Test Cases")
     add_p("Dưới đây là bảng ma trận kết quả kiểm thử chi tiết thu được từ lần chạy kiểm thử thực tế trên môi trường máy chủ SQL Server:")
 
     test_cases_matrix = [
         # Scenario 1: Đăng nhập & Phân quyền
-        ["TC-01", "Đăng nhập", "Xác thực tài khoản Quản lý NV0001", "maNV='NV0001', pass='123456'", "Đăng nhập thành công, chức vụ 'Quản lý', hiển thị 4 tab", "Đăng nhập thành công (Nguyễn Trọng Vinh), đủ 4 tab", "PASS"],
+        ["TC-01", "Đăng nhập", "Xác thực tài khoản Quản lý NV0001", "maNV='NV0001', pass='123456'", "Đăng nhập thành công, chức vụ 'Quản lý', hiển thị 5 tab", "Đăng nhập thành công (Nguyễn Trọng Vinh), đủ 5 tab", "PASS"],
         ["TC-02", "Đăng nhập", "Xác thực tài khoản Thu ngân NV0002", "maNV='NV0002', pass='123456'", "Đăng nhập thành công, chức vụ 'Nhân viên bán hàng', 3 tab", "Đăng nhập thành công (Nhiêu Minh Kỳ), ẩn tab Nhân sự", "PASS"],
         ["TC-03", "Đăng nhập", "Chặn đăng nhập khi sai mật khẩu", "maNV='NV0001', pass='sai_pass'", "Trả về null, chặn truy cập hệ thống", "Trả về null, hiển thị cảnh báo sai mật khẩu", "PASS"],
         ["TC-04", "Đăng nhập", "Chặn tài khoản không tồn tại", "maNV='NV9999', pass='123456'", "Trả về null, chặn truy cập hệ thống", "Trả về null, thông báo tài khoản không tồn tại", "PASS"],
@@ -1086,12 +1086,12 @@ def create_document():
         ["TC-35", "Dọn dẹp rác", "Dọn dẹp dữ liệu kiểm thử sau test", "Xóa sạch các bản ghi test (SP9991, NV9991...)", "CSDL sạch sẽ, hoàn nguyên trạng thái ban đầu", "Hoàn tất dọn rác, không còn bản ghi thử nghiệm", "PASS"]
     ]
 
-    add_table_caption(19, "Ma trận kết quả kiểm thử hồi quy tự động 35 Test Cases (VerifyAllScenarios)")
+    add_table_caption(19, "Ma trận kết quả kiểm thử hồi quy tự động 62 Test Cases (VerifyAllScenarios & VerifyNewFeatures)")
     t_matrix = doc.add_table(rows=len(test_cases_matrix) + 1, cols=7)
     style_table(t_matrix, [0.6, 0.9, 1.3, 1.2, 1.2, 1.3, 0.6], ["Mã TC", "Phân hệ", "Mục tiêu kiểm thử", "Dữ liệu đầu vào", "Kết quả mong đợi", "Kết quả thực tế", "Đánh giá"], test_cases_matrix)
 
     add_h2("III. Đánh giá độ tin cậy và tỷ lệ bao phủ nghiệp vụ")
-    add_bullet("Tỷ lệ thành công: 35/35 Test Cases đạt kết quả PASS (đạt tỷ lệ 100%).", "1. Độ tin cậy tuyệt đối: ")
+    add_bullet("Tỷ lệ thành công: 62/62 Test Cases đạt kết quả PASS (đạt tỷ lệ 100%).", "1. Độ tin cậy tuyệt đối: ")
     add_bullet("Không có trường hợp ngoại lệ rò rỉ: Mọi lỗi nghiệp vụ (như trùng khóa, vi phạm CHECK tuổi, vi phạm giá bán < giá nhập, kho không đủ hàng) đều được phát hiện sớm ở tầng DAO và hiển thị thông báo thân thiện cho người dùng.", "2. Bắt lỗi toàn vẹn: ")
     add_bullet("Giao dịch nguyên tử không mất mát dữ liệu: Trong kiểm thử thanh toán vượt tồn kho (TC-29), cơ chế rollback() hoạt động hoàn hảo, không có bất kỳ dòng hóa đơn mồ côi nào được lưu vào CSDL.", "3. An toàn Transaction: ")
 

@@ -102,9 +102,7 @@ E:\Eclipse Java\project\
 │   ├── gui/
 │   └── test/
 ├── database/                           # Kịch bản Cơ sở dữ liệu SQL Server
-│   ├── 01_QuanLyBanGiay_Schema_DDL.sql # Kịch bản DDL tạo 6 bảng & 33 CHECK
-│   ├── 02_QuanLyBanGiay_Seed_Data.sql  # Kịch bản nạp dữ liệu mẫu ban đầu
-│   └── QuanLyBanGiay.sql               # Script gộp DDL + Seed chuẩn hóa
+│   └── QuanLyBanGiay.sql               # Script gộp DDL (6 bảng, 33 CHECK) + DML Seed chuẩn hóa
 ├── lib/                                # Thư viện JDBC Driver chính thức
 │   └── mssql-jdbc-12.4.2.jre11.jar     # Microsoft JDBC Driver cho Java 11/17
 ├── src/                                # Toàn bộ 24 tệp mã nguồn Java
@@ -113,8 +111,7 @@ E:\Eclipse Java\project\
 │   │   └── ConnectDB.java              # Quản lý kết nối JDBC (Singleton Pattern)
 │   ├── dao/                            # Tầng Data Access Object (PreparedStatement)
 │   │   ├── ChiTietGiay_DAO.java
-│   │   ├── ChiTietHoaDon_DAO.java
-│   │   ├── HoaDon_DAO.java
+│   │   ├── HoaDon_DAO.java             # Quản lý Hóa đơn & Chi tiết HĐ trong cùng Transaction
 │   │   ├── KhachHang_DAO.java
 │   │   ├── NhanVien_DAO.java
 │   │   └── SanPham_DAO.java
@@ -137,7 +134,8 @@ E:\Eclipse Java\project\
 │       └── UIHelper.java
 ├── _sync/                              # Công cụ kiểm thử và tài liệu đối soát sự thật
 │   ├── GROUND_TRUTH.md                 # Đặc tả sự thật hệ thống đã kiểm chứng
-│   ├── VerifyAllScenarios.java         # Bộ kiểm thử hồi quy 35/35 Test Cases
+│   ├── VerifyAllScenarios.java         # Bộ kiểm thử hồi quy 50/50 Test Cases qua 9 kịch bản
+│   ├── VerifyNewFeatures.java          # Bộ kiểm thử tính năng mới 12/12 Test Cases
 │   └── CaptureScreenshots.java         # Công cụ tự động chụp ảnh màn hình Swing thật
 ├── BaoCao_QuanLyBanGiay_HSK.docx       # Báo cáo tiểu luận Word hoàn chỉnh (Chuẩn mẫu IUH)
 ├── SoDoUseCase_QuanLyBanGiay.drawio    # File nguồn Draw.io Sơ đồ Use Case
@@ -170,21 +168,19 @@ E:\Eclipse Java\project\
 
 ### 2. Cấu Hình Cơ Sở Dữ Liệu
 1. Mở công cụ **SQL Server Management Studio (SSMS)** và kết nối với máy chủ SQL Server cục bộ.
-2. Mở và thực thi lần lượt 2 tệp script trong thư mục `database/`:
-   - Bước 1: Chạy `database/01_QuanLyBanGiay_Schema_DDL.sql` để tạo CSDL `QuanLyBanGiay`, 6 bảng và 33 ràng buộc CHECK.
-   - Bước 2: Chạy `database/02_QuanLyBanGiay_Seed_Data.sql` để nạp dữ liệu mẫu ban đầu (nhân sự băm SHA-256, giày, khách hàng, hóa đơn).
-   *(Hoặc có thể chạy trực tiếp 1 file gộp duy nhất: `database/QuanLyBanGiay.sql`).*
-3. Kiểm tra thông số kết nối trong `src/connectDB/ConnectDB.java`:
-   - URL: `jdbc:sqlserver://localhost:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;`
-   - User: `sa` | Password: Mật khẩu sa của máy bạn (mặc định: `sapassword` hoặc `123456789`).
-   - *(Lưu ý kỹ thuật: Hiện tại lớp `ConnectDB` áp dụng mô hình Singleton quản lý 1 kết nối duy nhất với mảng fallback mật khẩu cục bộ; tính năng đọc cấu hình động qua tệp `db.properties` hoặc biến môi trường đang được quy hoạch triển khai trong phiên bản tiếp theo).*
+2. Mở và thực thi tệp script duy nhất trong thư mục `database/`:
+   - Chạy `database/QuanLyBanGiay.sql` để tạo CSDL `QuanLyBanGiay`, 6 bảng, 33 ràng buộc CHECK và nạp đầy đủ dữ liệu mẫu chuẩn hóa.
+3. Cấu hình thông số kết nối:
+   - Thông số kết nối được nạp tự động và bảo mật từ tệp `db.properties` (dựa trên mẫu `db.properties.example`).
+   - URL mặc định tối giản: `jdbc:sqlserver://localhost:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;loginTimeout=3;`
+   - Tài khoản mặc định: User `sa` | Password do bạn cấu hình trong `db.properties` (mật khẩu được bảo vệ an toàn, không lưu trong mã nguồn Java mà nạp từ tệp cấu hình riêng).
 
 ### 3. Tài Khoản Đăng Nhập Mẫu
 
 | Tài khoản (Mã NV) | Mật khẩu gốc | Vai trò / Chức vụ | Họ và tên | Quyền hạn giao diện |
 | :---: | :---: | :---: | :--- | :--- |
-| **`NV0001`** | **`123456`** | **Quản lý (Admin)** | **Nguyễn Trọng Vinh** | Hiển thị trọn vẹn 4 Tab: Bán hàng, Mẫu giày, Khách hàng, Nhân sự |
-| **`NV0002`** | **`123456`** | **Nhân viên bán hàng** | **Nhiêu Minh Kỳ** | Chỉ mở 3 Tab phục vụ bán lẻ: Bán hàng, Mẫu giày (Read-only), Khách hàng |
+| **`NV0001`** | **`123456`** | **Quản lý (Admin)** | **Nguyễn Trọng Vinh** | Hiển thị trọn vẹn **5 Tab**: Bán hàng [F1], Mẫu giày [F2], Khách hàng [F3], Quản lý nhân sự [F4], Thống kê doanh thu [F5] |
+| **`NV0002`** | **`123456`** | **Nhân viên bán hàng** | **Nhiêu Minh Kỳ** | Chỉ mở 3 Tab phục vụ bán lẻ: Bán hàng [F1], Mẫu giày [F2] (chỉ đọc), Khách hàng [F3] |
 
 ### 4. Biên Dịch & Chạy Chương Trình
 
@@ -203,16 +199,22 @@ java -Dfile.encoding=UTF-8 -cp "bin;lib/*" gui.DangNhap_GUI
 java -Dfile.encoding=UTF-8 -cp "bin;lib/*" Main
 ```
 
-### 5. Chạy Bộ Kiểm Thử Hồi Quy Tự Động (Regression Test Suite)
-Hệ thống tích hợp bộ kiểm thử toàn diện `VerifyAllScenarios` kiểm chứng trực tiếp trên SQL Server với 35 kịch bản tự động:
+### 5. Chạy Bộ Kiểm Thử Tự Động (Regression & Feature Test Suites)
+Hệ thống tích hợp bộ kiểm thử tự động toàn diện gồm **62 Test Cases** kiểm chứng trực tiếp trên SQL Server đạt 100% PASS:
 ```bash
-# Biên dịch file kiểm thử:
-javac --release 17 -encoding UTF-8 -cp "bin;lib/*" -d bin _sync/VerifyAllScenarios.java
+# 1. Biên dịch các tệp kiểm thử:
+javac --release 17 -encoding UTF-8 -cp "bin;lib/*" -d bin _sync/VerifyAllScenarios.java _sync/VerifyNewFeatures.java
 
-# Thực thi kiểm thử:
+# 2. Thực thi kiểm thử hồi quy 50 kịch bản hệ thống:
 java -cp "bin;lib/*" test.VerifyAllScenarios
+
+# 3. Thực thi kiểm thử 12 tính năng mới (In/xuất HĐ, Tìm kiếm nâng cao, PBKDF2):
+java -cp "bin;lib/*" test.VerifyNewFeatures
 ```
-**Kết quả kiểm thử:** `AUDIT SUMMARY: 35 PASSED, 0 FAILED across all 7 scenarios (100% PASS)`.
+**Kết quả kiểm thử:**
+- `VerifyAllScenarios`: 50 PASSED, 0 FAILED across all 9 scenarios.
+- `VerifyNewFeatures`: 12 PASSED, 0 FAILED across 12 test cases.
+- **Tổng cộng:** 62 / 62 Test Cases đạt 100% PASS.
 
 ### 6. Cơ Chế Bảo Mật Mật Khẩu (Password Security)
 - **Chuẩn băm hiện hành (SHA-256):** Hệ thống mã hóa một chiều mật khẩu nhân sự bằng thuật toán SHA-256 (không muối - unsalted) tạo chuỗi hex cố định 64 ký tự, lưu trữ an toàn trong trường `matKhau` kiểu `CHAR(64)` có ràng buộc `CHECK (LEN(matKhau) = 64)`. Cơ chế này đáp ứng đầy đủ và chuẩn mực yêu cầu bảo mật trong phạm vi đồ án môn học.
