@@ -1,5 +1,7 @@
 package gui;
 
+import javax.swing.border.TitledBorder;
+
 import dao.KhachHang_DAO;
 import entity.KhachHang;
 
@@ -28,7 +30,10 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
     private JComboBox<String> cboHang;
     private JTextField txtDiem;
     private JTextField txtTimSDT;
-    private JButton btnThem, btnXoa, btnSua, btnXoaTrang, btnTim, btnTimNangCao, btnXoaLoc, btnXemChiTiet;
+    private JButton btnThem, btnXoa, btnSua, btnXoaTrang, btnTim, btnXemChiTiet;
+    private JComboBox<String> cboLocHang;
+    private JTextField txtLocDiemTu, txtLocDiemDen;
+    private JButton btnLocNangCao, btnBoLoc;
 
     private JTable tableKH;
     private DefaultTableModel modelKH;
@@ -90,6 +95,29 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         txtDiem.setEditable(false);
         g.gridx = 3; g.gridy = 2; pnlForm.add(txtDiem, g);
 
+        // THANH LỌC NÂNG CAO INLINE
+        JPanel pnlLoc = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
+        pnlLoc.setBackground(new Color(241, 245, 249));
+        pnlLoc.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225)),
+                "Lọc Nâng Cao Khách Hàng",
+                TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 12), new Color(30, 58, 138)
+        ));
+        pnlLoc.add(new JLabel("Hạng TV:"));
+        cboLocHang = new JComboBox<>(new String[]{"Tất cả", "Đồng", "Bạc", "Vàng", "Kim Cương"});
+        pnlLoc.add(cboLocHang);
+        pnlLoc.add(new JLabel("Điểm từ:"));
+        txtLocDiemTu = new JTextField(8);
+        pnlLoc.add(txtLocDiemTu);
+        pnlLoc.add(new JLabel("Đến:"));
+        txtLocDiemDen = new JTextField(8);
+        pnlLoc.add(txtLocDiemDen);
+        btnLocNangCao = UIHelper.createPrimaryBtn("Lọc", 75, 28);
+        btnBoLoc = UIHelper.createSecondaryBtn("Bỏ Lọc", 75, 28);
+        pnlLoc.add(btnLocNangCao);
+        pnlLoc.add(btnBoLoc);
+
         // NÚT CHỨC NĂNG
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         pnlButtons.setBackground(Color.WHITE);
@@ -98,8 +126,6 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         btnXoa = UIHelper.createDangerBtn("Xóa Khách", 105, 34);
         btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 100, 34);
         btnXemChiTiet = UIHelper.createButton("Xem Chi Tiết", UIHelper.PRIMARY_BLUE, Color.WHITE, 120, 34);
-        btnTimNangCao = UIHelper.createButton("Tìm Nâng Cao", UIHelper.TEXT_DARK, Color.WHITE, 125, 34);
-        btnXoaLoc = UIHelper.createSecondaryBtn("Xóa Lọc", 90, 34);
         btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 95, 34);
 
         JLabel lblTraCuu = new JLabel("Tìm SĐT:");
@@ -111,8 +137,6 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnSua);
         pnlButtons.add(btnXemChiTiet);
-        pnlButtons.add(btnTimNangCao);
-        pnlButtons.add(btnXoaLoc);
         pnlButtons.add(btnXoaTrang);
         pnlButtons.add(Box.createHorizontalStrut(10));
         pnlButtons.add(lblTraCuu);
@@ -125,9 +149,11 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
             btnXoa.setToolTipText("Chỉ Quản lý mới có quyền xóa khách hàng!");
         }
 
-        JPanel pnlTop = new JPanel(new BorderLayout());
-        pnlTop.add(pnlForm, BorderLayout.CENTER);
-        pnlTop.add(pnlButtons, BorderLayout.SOUTH);
+        JPanel pnlTop = new JPanel();
+        pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
+        pnlTop.add(pnlForm);
+        pnlTop.add(pnlLoc);
+        pnlTop.add(pnlButtons);
         add(pnlTop, BorderLayout.NORTH);
 
         // BẢNG DỮ LIỆU
@@ -147,11 +173,11 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         btnXoa.addActionListener(this);
         btnSua.addActionListener(this);
         btnXemChiTiet.addActionListener(this);
-        btnTimNangCao.addActionListener(this);
-        btnXoaLoc.addActionListener(this);
         btnXoaTrang.addActionListener(this);
         btnTim.addActionListener(this);
         txtTimSDT.addActionListener(this);
+        btnLocNangCao.addActionListener(this);
+        btnBoLoc.addActionListener(this);
         tableKH.addMouseListener(this);
 
         // C8: ListSelectionListener để điều hướng bàn phím mũi tên cũng nạp dữ liệu lên form
@@ -309,10 +335,40 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
                 String errMsg = kh_dao.getLastError();
                 JOptionPane.showMessageDialog(this, "Cập nhật thất bại: " + (errMsg.isEmpty() ? "Lỗi hệ thống!" : errMsg), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
-        } else if (o.equals(btnXoaTrang) || o.equals(btnXoaLoc)) {
+        } else if (o.equals(btnXoaTrang)) {
             xoaTrang();
-        } else if (o.equals(btnTimNangCao)) {
-            hienThiHopThoaiTimNangCao();
+        } else if (o.equals(btnLocNangCao)) {
+            String hang = cboLocHang.getSelectedItem().toString();
+            Integer diemTu = null;
+            Integer diemDen = null;
+            try {
+                String strTu = txtLocDiemTu.getText().trim();
+                if (!strTu.isEmpty()) diemTu = Integer.parseInt(strTu);
+                String strDen = txtLocDiemDen.getText().trim();
+                if (!strDen.isEmpty()) diemDen = Integer.parseInt(strDen);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(this, "Điểm tích lũy phải là số nguyên hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            ArrayList<KhachHang> ketQua = kh_dao.timKiemNangCao(hang, diemTu, diemDen, null);
+            if (ketQua.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng nào khớp với tiêu chí lọc nâng cao!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                modelKH.setRowCount(0);
+                int stt = 1;
+                for (KhachHang kh : ketQua) {
+                    modelKH.addRow(new Object[]{
+                        stt++, kh.getMaKhachHang(), kh.getHoTen(), kh.getSoDienThoai(),
+                        kh.getDiaChi(), kh.getDiemTichLuy(), kh.getHangThanhVien()
+                    });
+                }
+            }
+        } else if (o.equals(btnBoLoc)) {
+            cboLocHang.setSelectedIndex(0);
+            txtLocDiemTu.setText("");
+            txtLocDiemDen.setText("");
+            txtTimSDT.setText("");
+            docDuLieuVaoTable();
         } else if (o.equals(btnXemChiTiet)) {
             int row = tableKH.getSelectedRow();
             if (row < 0) {
@@ -341,86 +397,6 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
                 txtTimSDT.requestFocus();
             }
         }
-    }
-
-    /**
-     * Hộp thoại tìm kiếm nâng cao khách hàng: hạng thành viên, khoảng điểm tích lũy, giới tính.
-     */
-    private void hienThiHopThoaiTimNangCao() {
-        JDialog dlg = new JDialog(SwingUtilities.getWindowAncestor(this), "TÌM KIẾM NÂNG CAO KHÁCH HÀNG", Dialog.ModalityType.APPLICATION_MODAL);
-        dlg.setLayout(new BorderLayout(10, 10));
-        dlg.setSize(420, 280);
-        dlg.setLocationRelativeTo(this);
-
-        JPanel pnl = new JPanel(new GridBagLayout());
-        pnl.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
-        GridBagConstraints g = new GridBagConstraints();
-        g.insets = new Insets(6, 6, 6, 6);
-        g.fill = GridBagConstraints.HORIZONTAL;
-
-        JComboBox<String> cboLocHang = new JComboBox<>(new String[]{"Tất cả", "Đồng", "Bạc", "Vàng", "Bạch Kim", "Kim Cương"});
-        JTextField txtDiemTu = new JTextField(10);
-        JTextField txtDiemDen = new JTextField(10);
-        JComboBox<String> cboLocGT = new JComboBox<>(new String[]{"Tất cả", "Nam", "Nữ"});
-
-        g.gridx = 0; g.gridy = 0; pnl.add(new JLabel("Hạng thành viên:"), g);
-        g.gridx = 1; g.gridy = 0; pnl.add(cboLocHang, g);
-
-        g.gridx = 0; g.gridy = 1; pnl.add(new JLabel("Điểm tích lũy từ:"), g);
-        g.gridx = 1; g.gridy = 1; pnl.add(txtDiemTu, g);
-
-        g.gridx = 0; g.gridy = 2; pnl.add(new JLabel("Điểm tích lũy đến:"), g);
-        g.gridx = 1; g.gridy = 2; pnl.add(txtDiemDen, g);
-
-        g.gridx = 0; g.gridy = 3; pnl.add(new JLabel("Giới tính:"), g);
-        g.gridx = 1; g.gridy = 3; pnl.add(cboLocGT, g);
-
-        JPanel pnlAction = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
-        JButton btnLoc = UIHelper.createPrimaryBtn("Tìm Kiếm", 100, 32);
-        JButton btnHuy = UIHelper.createSecondaryBtn("Hủy", 80, 32);
-
-        btnLoc.addActionListener(e -> {
-            String hang = cboLocHang.getSelectedItem().toString();
-            Integer diemTu = null;
-            Integer diemDen = null;
-            try {
-                String strTu = txtDiemTu.getText().trim();
-                if (!strTu.isEmpty()) diemTu = Integer.parseInt(strTu);
-                String strDen = txtDiemDen.getText().trim();
-                if (!strDen.isEmpty()) diemDen = Integer.parseInt(strDen);
-            } catch (NumberFormatException nfe) {
-                JOptionPane.showMessageDialog(dlg, "Điểm tích lũy phải là số nguyên hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Boolean gt = null;
-            int idxGT = cboLocGT.getSelectedIndex();
-            if (idxGT == 1) gt = true;
-            else if (idxGT == 2) gt = false;
-
-            ArrayList<KhachHang> ketQua = kh_dao.timKiemNangCao(hang, diemTu, diemDen, gt);
-            if (ketQua.isEmpty()) {
-                JOptionPane.showMessageDialog(dlg, "Không tìm thấy khách hàng nào khớp với tiêu chí lọc nâng cao!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                modelKH.setRowCount(0);
-                int stt = 1;
-                for (KhachHang kh : ketQua) {
-                    modelKH.addRow(new Object[]{
-                        stt++, kh.getMaKhachHang(), kh.getHoTen(), kh.getSoDienThoai(),
-                        kh.getDiaChi(), kh.getDiemTichLuy(), kh.getHangThanhVien()
-                    });
-                }
-                dlg.dispose();
-            }
-        });
-
-        btnHuy.addActionListener(e -> dlg.dispose());
-        pnlAction.add(btnLoc);
-        pnlAction.add(btnHuy);
-
-        dlg.add(pnl, BorderLayout.CENTER);
-        dlg.add(pnlAction, BorderLayout.SOUTH);
-        dlg.setVisible(true);
     }
 
     /**

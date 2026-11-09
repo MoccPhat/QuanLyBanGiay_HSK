@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Bộ kiểm thử tự động toàn diện VerifyNewFeatures cho 12 tính năng mới & hồi quy:
  * 1. Xuất hóa đơn ra file .txt (kiểm tra file trong hoadon/, kiểm tra 11 trường nội dung cốt lõi).
- * 2. In hóa đơn (BanHang_GUI.inHoaDon không ném ngoại lệ khi thiếu máy in, fallback sang file text).
+ * 2. Lọc nâng cao sản phẩm (thanh lọc inline thương hiệu & khoảng giá).
  * 3. Tìm kiếm nâng cao sản phẩm theo thương hiệu (SanPham_DAO.timKiemNangCao).
  * 4. Tìm kiếm nâng cao sản phẩm theo khoảng giá (từ - đến).
  * 5. Tìm kiếm nâng cao sản phẩm "còn hàng / ngừng bán" (trạng thái trangThai & tồn kho).
@@ -71,7 +71,7 @@ public class VerifyNewFeatures {
 
             // 12 ca kiểm thử độc lập
             test01_XuatHoaDonRaFile();
-            test02_InHoaDon();
+            test02_LocNangCaoSanPhamThanhLoc();
             test03_TimKiemNangCaoSanPhamTheoThuongHieu();
             test04_TimKiemNangCaoSanPhamTheoKhoangGia();
             test05_TimKiemNangCaoSanPhamConHangNgungBan();
@@ -219,31 +219,20 @@ public class VerifyNewFeatures {
     }
 
     // =========================================================================
-    // CA 2: In hóa đơn (không ném exception khi không có máy in, fallback sang file)
+    // CA 2: Lọc nâng cao sản phẩm trên thanh lọc inline (thương hiệu + khoảng giá)
     // =========================================================================
-    private static void test02_InHoaDon() {
+    private static void test02_LocNangCaoSanPhamThanhLoc() {
         try {
-            String maHD = "HD_TEST_PRINT";
-            String billContent = "STEPUP FOOTWEAR POS - IN THU HOA DON TEST PRINT";
-
-            // Gọi inHoaDon với parent = null (chế độ non-interactive kiểm thử tự động)
-            boolean printRes = BanHang_GUI.inHoaDon(maHD, billContent, null);
-
-            // Ghi nhận file fallback nếu có tạo ra
-            File hoadonDir = new File("hoadon");
-            if (hoadonDir.exists() && hoadonDir.isDirectory()) {
-                File[] files = hoadonDir.listFiles((dir, name) -> name.startsWith(maHD));
-                if (files != null) {
-                    for (File fl : files) {
-                        testFilesCreated.add(fl);
-                    }
-                }
+            SanPham_DAO spDao = new SanPham_DAO();
+            ArrayList<SanPham> kq = spDao.timKiemNangCao("Nike", 2000000.0, 3000000.0, "Tất cả", null);
+            if (kq != null && !kq.isEmpty()) {
+                pass("2. Lọc nâng cao sản phẩm thanh lọc inline",
+                    "Lọc thương hiệu 'Nike' & khoảng giá 2.000.000 - 3.000.000 VNĐ trả về " + kq.size() + " sản phẩm khớp điều kiện");
+            } else {
+                fail("2. Lọc nâng cao sản phẩm thanh lọc inline", "Không tìm thấy sản phẩm khớp điều kiện");
             }
-
-            pass("2. In hóa đơn",
-                "Gọi BanHang_GUI.inHoaDon() chạy an toàn, không ném exception (kết quả in/fallback file: " + printRes + ")");
         } catch (Throwable t) {
-            fail("2. In hóa đơn", "Bị ném ngoại lệ không mong muốn: " + t.getMessage());
+            fail("2. Lọc nâng cao sản phẩm thanh lọc inline", "Bị ném ngoại lệ không mong muốn: " + t.getMessage());
         }
     }
 

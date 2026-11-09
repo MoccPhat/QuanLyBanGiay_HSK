@@ -34,7 +34,7 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
     private JComboBox<String> cboCaLam;
     private JComboBox<String> cboChucVu;
     private JRadioButton radNam, radNu;
-    private JButton btnThem, btnXoa, btnSua, btnDoiMatKhau, btnXemChiTiet, btnXoaTrang, btnTimNV;
+    private JButton btnThem, btnXoa, btnSua, btnXemChiTiet, btnXoaTrang, btnTimNV;
     private JTextField txtTimNV;
 
     private JTable tableNV;
@@ -124,7 +124,6 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         btnThem = UIHelper.createSuccessBtn("Thêm Nhân Viên", 140, 34);
         btnXoa = UIHelper.createDangerBtn("Thôi Việc", 100, 34);
         btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 95, 34);
-        btnDoiMatKhau = UIHelper.createButton("Đổi Mật Khẩu", UIHelper.WARN_AMBER, Color.WHITE, 120, 34);
         btnXemChiTiet = UIHelper.createButton("Xem Chi Tiết", UIHelper.PRIMARY_BLUE, Color.WHITE, 115, 34);
         btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 95, 34);
 
@@ -136,7 +135,6 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         pnlButtons.add(btnThem);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnSua);
-        pnlButtons.add(btnDoiMatKhau);
         pnlButtons.add(btnXemChiTiet);
         pnlButtons.add(btnXoaTrang);
         pnlButtons.add(Box.createHorizontalStrut(10));
@@ -165,7 +163,6 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         btnThem.addActionListener(this);
         btnXoa.addActionListener(this);
         btnSua.addActionListener(this);
-        btnDoiMatKhau.addActionListener(this);
         btnXemChiTiet.addActionListener(this);
         btnXoaTrang.addActionListener(this);
         btnTimNV.addActionListener(this);
@@ -434,8 +431,6 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             }
-        } else if (o.equals(btnDoiMatKhau)) {
-            hienThiDialogDoiMatKhau();
         } else if (o.equals(btnXemChiTiet)) {
             int row = tableNV.getSelectedRow();
             if (row < 0) {
@@ -470,88 +465,6 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         } else if (o.equals(btnXoaTrang)) {
             xoaTrang();
         }
-    }
-
-    private void hienThiDialogDoiMatKhau() {
-        int row = tableNV.getSelectedRow();
-        String ma = (row >= 0) ? (String) modelNV.getValueAt(row, 1) : txtMaNV.getText().trim();
-        if (ma.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần đổi mật khẩu từ bảng danh sách!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        Window parentWindow = SwingUtilities.getWindowAncestor(this);
-        JDialog dlg = new JDialog((Frame) (parentWindow instanceof Frame ? parentWindow : null), "Đổi Mật Khẩu - " + ma, true);
-        dlg.setLayout(new BorderLayout(10, 10));
-        dlg.setSize(380, 240);
-        dlg.setLocationRelativeTo(this);
-
-        JPanel pnlContent = new JPanel(new GridBagLayout());
-        pnlContent.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        pnlContent.setBackground(Color.WHITE);
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(5, 5, 5, 5);
-        gc.fill = GridBagConstraints.HORIZONTAL;
-
-        gc.gridx = 0; gc.gridy = 0; pnlContent.add(new JLabel("Mã nhân viên:"), gc);
-        JTextField txtMaDlg = new JTextField(ma, 15);
-        txtMaDlg.setEditable(false);
-        gc.gridx = 1; gc.gridy = 0; pnlContent.add(txtMaDlg, gc);
-
-        gc.gridx = 0; gc.gridy = 1; pnlContent.add(new JLabel("Mật khẩu cũ:"), gc);
-        JPasswordField txtOldPass = new JPasswordField(15);
-        gc.gridx = 1; gc.gridy = 1; pnlContent.add(txtOldPass, gc);
-
-        gc.gridx = 0; gc.gridy = 2; pnlContent.add(new JLabel("Mật khẩu mới:"), gc);
-        JPasswordField txtNewPass = new JPasswordField(15);
-        gc.gridx = 1; gc.gridy = 2; pnlContent.add(txtNewPass, gc);
-
-        gc.gridx = 0; gc.gridy = 3; pnlContent.add(new JLabel("Xác nhận MK mới:"), gc);
-        JPasswordField txtConfirmPass = new JPasswordField(15);
-        gc.gridx = 1; gc.gridy = 3; pnlContent.add(txtConfirmPass, gc);
-
-        JPanel pnlBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        JButton btnSave = UIHelper.createSuccessBtn("Lưu Thay Đổi", 120, 32);
-        JButton btnCancel = UIHelper.createSecondaryBtn("Đóng", 80, 32);
-        pnlBtn.add(btnSave);
-        pnlBtn.add(btnCancel);
-
-        btnSave.addActionListener(ev -> {
-            String oldP = new String(txtOldPass.getPassword()).trim();
-            String newP = new String(txtNewPass.getPassword()).trim();
-            String confP = new String(txtConfirmPass.getPassword()).trim();
-
-            if (oldP.isEmpty()) {
-                JOptionPane.showMessageDialog(dlg, "Vui lòng nhập mật khẩu cũ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                txtOldPass.requestFocus();
-                return;
-            }
-            if (newP.length() < 6) {
-                JOptionPane.showMessageDialog(dlg, "Mật khẩu mới phải từ 6 ký tự trở lên!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                txtNewPass.requestFocus();
-                return;
-            }
-            if (!newP.equals(confP)) {
-                JOptionPane.showMessageDialog(dlg, "Mật khẩu xác nhận không khớp với mật khẩu mới!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                txtConfirmPass.requestFocus();
-                return;
-            }
-
-            if (nv_dao.doiMatKhau(ma, oldP, newP)) {
-                JOptionPane.showMessageDialog(dlg, "Đổi mật khẩu cho nhân viên '" + ma + "' thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                dlg.dispose();
-            } else {
-                String err = nv_dao.getLastError();
-                JOptionPane.showMessageDialog(dlg, "Đổi mật khẩu thất bại: " + (err.isEmpty() ? "Lỗi hệ thống!" : err), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        btnCancel.addActionListener(ev -> dlg.dispose());
-
-        dlg.add(pnlContent, BorderLayout.CENTER);
-        dlg.add(pnlBtn, BorderLayout.SOUTH);
-        dlg.setVisible(true);
     }
 
     private void hienThiChiTietNhanVien(String maNV) {

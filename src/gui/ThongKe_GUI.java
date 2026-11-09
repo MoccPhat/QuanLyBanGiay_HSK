@@ -1,5 +1,7 @@
 package gui;
 
+import javax.swing.border.TitledBorder;
+
 import dao.HoaDon_DAO;
 import entity.ChiTietHoaDon;
 import entity.HoaDon;
@@ -23,8 +25,6 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     private JLabel lblTongSoLuongVal;
     private JLabel lblKhachHangVal;
 
-    private JComboBox<String> cboThoiGian;
-    private JButton btnLoc;
     private JButton btnLamMoi;
     private JButton btnXuatBaoCao;
 
@@ -35,8 +35,7 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     private JTable tableHoaDon;
     private DefaultTableModel modelHoaDon;
 
-    private JTable tableTopSP;
-    private DefaultTableModel modelTopSP;
+
 
     private HoaDon_DAO hd_dao;
     private DecimalFormat df = new DecimalFormat("#,### VNĐ");
@@ -81,19 +80,6 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
                 BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
 
-        JLabel lblKy = new JLabel("Kỳ thống kê:");
-        lblKy.setFont(new Font("Arial", Font.BOLD, 13));
-        LocalDate today = LocalDate.now();
-        int curThang = today.getMonthValue();
-        int curNam = today.getYear();
-        String strThang = (curThang < 10 ? "0" + curThang : "" + curThang) + "/" + curNam;
-        cboThoiGian = new JComboBox<>(new String[]{
-                "Toàn bộ thời gian", "Hôm nay", "Tháng này (" + strThang + ")", "Năm " + curNam
-        });
-        UIHelper.styleComboBox(cboThoiGian);
-        cboThoiGian.setPreferredSize(new Dimension(190, 32));
-
-        btnLoc = UIHelper.createPrimaryBtn("Lọc Dữ Liệu", 120, 34);
         btnLamMoi = UIHelper.createSecondaryBtn("Làm Mới", 100, 34);
         btnXuatBaoCao = UIHelper.createSuccessBtn("Xuất Báo Cáo [Excel]", 180, 34);
 
@@ -103,9 +89,6 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         btnTimHD = UIHelper.createPrimaryBtn("Tìm HĐ", 85, 34);
         btnXemChiTietHD = UIHelper.createSecondaryBtn("Xem Chi Tiết", 115, 34);
 
-        pnlFilterBar.add(lblKy);
-        pnlFilterBar.add(cboThoiGian);
-        pnlFilterBar.add(btnLoc);
         pnlFilterBar.add(btnLamMoi);
         pnlFilterBar.add(Box.createHorizontalStrut(12));
         pnlFilterBar.add(new JLabel("Tìm:"));
@@ -115,18 +98,14 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         pnlFilterBar.add(Box.createHorizontalStrut(12));
         pnlFilterBar.add(btnXuatBaoCao);
 
-        // Ghép KPI + Filter vào TopCenter
+        // Ghép KPI + Toolbar vào TopCenter
         JPanel pnlTopCenter = new JPanel(new BorderLayout(0, 10));
         pnlTopCenter.setOpaque(false);
         pnlTopCenter.add(pnlKPI, BorderLayout.NORTH);
         pnlTopCenter.add(pnlFilterBar, BorderLayout.SOUTH);
         pnlCenter.add(pnlTopCenter, BorderLayout.NORTH);
 
-        // C. Bảng hiển thị chi tiết (Tabbed: Hóa đơn & Top sản phẩm)
-        JTabbedPane tabTables = new JTabbedPane();
-        tabTables.setFont(new Font("Arial", Font.BOLD, 12));
-
-        // Tab 1: Danh sách hóa đơn
+        // C. Bảng hiển thị danh sách hóa đơn
         String[] headersHD = {"STT", "Mã Hóa Đơn", "Thời Gian Lập", "Thu Ngân Bán Hàng", "Khách Hàng", "Tổng Thanh Toán", "Phương Thức"};
         modelHoaDon = new DefaultTableModel(headersHD, 0) {
             @Override
@@ -147,26 +126,16 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
             }
         });
         JScrollPane scrollHD = new JScrollPane(tableHoaDon);
-        scrollHD.setBorder(BorderFactory.createEmptyBorder());
-        tabTables.addTab("📋 Danh Sách Hóa Đơn Bán Hàng", scrollHD);
-
-        // Tab 2: Top sản phẩm bán chạy
-        String[] headersTop = {"Hạng", "Mã Sản Phẩm", "Tên Mẫu Giày", "Thương Hiệu", "Số Lượng Bán (Đôi)", "Doanh Thu Đóng Góp", "Tỷ Lệ Doanh Thu"};
-        modelTopSP = new DefaultTableModel(headersTop, 0) {
-            @Override
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
-        tableTopSP = new JTable(modelTopSP);
-        UIHelper.styleTable(tableTopSP);
-        JScrollPane scrollTop = new JScrollPane(tableTopSP);
-        scrollTop.setBorder(BorderFactory.createEmptyBorder());
-        tabTables.addTab("🏆 Top Sản Phẩm Bán Chạy Nhất", scrollTop);
-
-        pnlCenter.add(tabTables, BorderLayout.CENTER);
+        scrollHD.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225)),
+                "Danh Sách Hóa Đơn Bán Hàng",
+                TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 13), new Color(30, 58, 138)
+        ));
+        pnlCenter.add(scrollHD, BorderLayout.CENTER);
         add(pnlCenter, BorderLayout.CENTER);
 
         // Đăng ký sự kiện
-        btnLoc.addActionListener(this);
         btnLamMoi.addActionListener(this);
         btnXuatBaoCao.addActionListener(this);
         btnTimHD.addActionListener(this);
@@ -201,7 +170,6 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         public ArrayList<HoaDon> dsHD;
         public int tongSL;
         public int tongKH;
-        public ArrayList<Object[]> topList;
     }
 
     /**
@@ -213,7 +181,6 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         data.dsHD = hd_dao.getAllHoaDon();
         data.tongSL = hd_dao.getTongSoLuongBanRa();
         data.tongKH = hd_dao.getTongKhachHang();
-        data.topList = hd_dao.getTopSanPhamBanChay(5);
         return data;
     }
 
@@ -222,7 +189,7 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
      * Tránh treo giao diện người dùng khi cơ sở dữ liệu có lượng hóa đơn lớn.
      */
     public void napDuLieuThongKe() {
-        if (btnLoc != null) btnLoc.setEnabled(false);
+        
         if (btnLamMoi != null) btnLamMoi.setEnabled(false);
 
         SwingWorker<ThongKeData, Void> worker = new SwingWorker<>() {
@@ -239,7 +206,7 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
-                    if (btnLoc != null) btnLoc.setEnabled(true);
+                    
                     if (btnLamMoi != null) btnLamMoi.setEnabled(true);
                 }
             }
@@ -259,29 +226,14 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
 
     public void capNhatGiaoDienThongKe(ThongKeData data) {
         modelHoaDon.setRowCount(0);
-        modelTopSP.setRowCount(0);
 
         ArrayList<HoaDon> dsHD = data.dsHD;
         double tongDoanhThu = 0;
         int stt = 1;
         int countDon = 0;
 
-        int filterIdx = (cboThoiGian != null) ? cboThoiGian.getSelectedIndex() : 0;
-        LocalDate now = LocalDate.now();
-
         if (dsHD != null && !dsHD.isEmpty()) {
             for (HoaDon hd : dsHD) {
-                if (hd.getNgayLap() != null) {
-                    LocalDate ngayLapDate = hd.getNgayLap().toLocalDate();
-                    if (filterIdx == 1 && !ngayLapDate.isEqual(now)) {
-                        continue; // Hôm nay
-                    } else if (filterIdx == 2 && (ngayLapDate.getYear() != now.getYear() || ngayLapDate.getMonthValue() != now.getMonthValue())) {
-                        continue; // Tháng này
-                    } else if (filterIdx == 3 && ngayLapDate.getYear() != now.getYear()) {
-                        continue; // Năm nay
-                    }
-                }
-
                 tongDoanhThu += hd.getTongTien();
                 countDon++;
                 String tenKH = (hd.getKhachHang() != null && hd.getKhachHang().getHoTen() != null)
@@ -312,19 +264,6 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         }
 
         lblKhachHangVal.setText(data.tongKH + " khách");
-
-        // L06: Bảng Top Sản Phẩm Bán Chạy từ CSDL thật (HoaDon_DAO.getTopSanPhamBanChay)
-        ArrayList<Object[]> topList = data.topList;
-        if (topList != null && !topList.isEmpty()) {
-            for (Object[] row : topList) {
-                int sl = (row[4] instanceof Number) ? ((Number) row[4]).intValue() : 0;
-                double dt = (row[5] instanceof Number) ? ((Number) row[5]).doubleValue() : 0.0;
-                String tyLe = (tongDoanhThu > 0) ? String.format(java.util.Locale.US, "%.1f%%", (dt / tongDoanhThu) * 100) : "0.0%";
-                modelTopSP.addRow(new Object[]{
-                    row[0], row[1], row[2], row[3], sl, df.format(dt), tyLe
-                });
-            }
-        }
     }
 
     public String taoNoiDungHoaDon(HoaDon hd) {
@@ -424,12 +363,10 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         scrollCT.setBorder(BorderFactory.createTitledBorder("Danh Sách Sản Phẩm Mua (" + (stt - 1) + " mặt hàng)"));
 
         JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
-        JButton btnIn = UIHelper.createPrimaryBtn("🖨 In Hóa Đơn", 130, 34);
         JButton btnXuat = UIHelper.createSuccessBtn("📄 Xuất File Hóa Đơn", 160, 34);
         JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 34);
 
         final String billText = taoNoiDungHoaDon(hd);
-        btnIn.addActionListener(ev -> BanHang_GUI.inHoaDon(hd.getMaHoaDon(), billText, dlg));
         btnXuat.addActionListener(ev -> {
             File f = BanHang_GUI.xuatHoaDonRaFile(hd.getMaHoaDon(), billText);
             if (f != null) {
@@ -440,7 +377,6 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         });
         btnDong.addActionListener(ev -> dlg.dispose());
 
-        pnlBot.add(btnIn);
         pnlBot.add(btnXuat);
         pnlBot.add(btnDong);
 
@@ -453,10 +389,11 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if (o.equals(btnLoc) || o.equals(btnLamMoi)) {
+        if (o.equals(btnLamMoi)) {
+            txtTimKiemHD.setText("");
             napDuLieuThongKe();
             JOptionPane.showMessageDialog(this,
-                    "Đã làm mới và cập nhật toàn bộ số liệu thống kê doanh thu theo: " + cboThoiGian.getSelectedItem(),
+                    "Đã làm mới và cập nhật toàn bộ số liệu thống kê doanh thu!",
                     "Thông Báo Thống Kê", JOptionPane.INFORMATION_MESSAGE);
         } else if (o.equals(btnXuatBaoCao)) {
             JOptionPane.showMessageDialog(this,

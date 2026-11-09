@@ -40,9 +40,10 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
     private JButton btnSua;
     private JButton btnXoaTrang;
     private JButton btnTim;
-    private JButton btnTimNangCao;
-    private JButton btnXoaLoc;
     private JButton btnXemChiTiet;
+    private JComboBox<String> cboLocThuongHieu;
+    private JTextField txtLocGiaTu, txtLocGiaDen;
+    private JButton btnLocNangCao, btnBoLoc;
 
     private JTable tableSP;
     private DefaultTableModel modelSP;
@@ -125,7 +126,32 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         pnlTim.add(btnTim, BorderLayout.EAST);
         g.gridx = 3; g.gridy = 3; pnlForm.add(pnlTim, g);
 
-        // 3. NÚT CHỨC NĂNG
+        // 3. THANH LỌC NÂNG CAO INLINE
+        JPanel pnlLoc = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
+        pnlLoc.setBackground(new Color(241, 245, 249));
+        pnlLoc.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225)),
+                "Lọc Nâng Cao Sản Phẩm",
+                TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 12), new Color(30, 58, 138)
+        ));
+        pnlLoc.add(new JLabel("Thương hiệu:"));
+        ArrayList<String> dsHang = sp_dao.getAllThuongHieu();
+        dsHang.add(0, "Tất cả");
+        cboLocThuongHieu = new JComboBox<>(dsHang.toArray(new String[0]));
+        pnlLoc.add(cboLocThuongHieu);
+        pnlLoc.add(new JLabel("Giá từ:"));
+        txtLocGiaTu = new JTextField(8);
+        pnlLoc.add(txtLocGiaTu);
+        pnlLoc.add(new JLabel("Đến:"));
+        txtLocGiaDen = new JTextField(8);
+        pnlLoc.add(txtLocGiaDen);
+        btnLocNangCao = UIHelper.createPrimaryBtn("Lọc", 75, 28);
+        btnBoLoc = UIHelper.createSecondaryBtn("Bỏ Lọc", 75, 28);
+        pnlLoc.add(btnLocNangCao);
+        pnlLoc.add(btnBoLoc);
+
+        // 4. NÚT CHỨC NĂNG
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         pnlButtons.setBackground(Color.WHITE);
 
@@ -133,21 +159,19 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         btnXoa = UIHelper.createDangerBtn("Xóa (Ngừng)", 115, 34);
         btnSua = UIHelper.createPrimaryBtn("Cập Nhật", 105, 34);
         btnXemChiTiet = UIHelper.createButton("Xem Chi Tiết", UIHelper.PRIMARY_BLUE, Color.WHITE, 120, 34);
-        btnTimNangCao = UIHelper.createButton("Tìm Nâng Cao", UIHelper.TEXT_DARK, Color.WHITE, 125, 34);
-        btnXoaLoc = UIHelper.createSecondaryBtn("Xóa Lọc", 95, 34);
         btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 100, 34);
 
         pnlButtons.add(btnThem);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnSua);
         pnlButtons.add(btnXemChiTiet);
-        pnlButtons.add(btnTimNangCao);
-        pnlButtons.add(btnXoaLoc);
         pnlButtons.add(btnXoaTrang);
 
-        JPanel pnlTop = new JPanel(new BorderLayout());
-        pnlTop.add(pnlForm, BorderLayout.CENTER);
-        pnlTop.add(pnlButtons, BorderLayout.SOUTH);
+        JPanel pnlTop = new JPanel();
+        pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
+        pnlTop.add(pnlForm);
+        pnlTop.add(pnlLoc);
+        pnlTop.add(pnlButtons);
         add(pnlTop, BorderLayout.NORTH);
 
         // 4. BẢNG HIỂN THỊ JTABLE
@@ -175,11 +199,11 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         btnXoa.addActionListener(this);
         btnSua.addActionListener(this);
         btnXemChiTiet.addActionListener(this);
-        btnTimNangCao.addActionListener(this);
-        btnXoaLoc.addActionListener(this);
         btnXoaTrang.addActionListener(this);
         btnTim.addActionListener(this);
         txtTimKiem.addActionListener(this);
+        btnLocNangCao.addActionListener(this);
+        btnBoLoc.addActionListener(this);
         tableSP.addMouseListener(this);
 
         // C8: Thêm ListSelectionListener để điều hướng bàn phím mũi tên cũng nạp dữ liệu lên form
@@ -365,11 +389,41 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
                 JOptionPane.showMessageDialog(this, "Lỗi cập nhật dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
 
-        } else if (o.equals(btnXoaTrang) || o.equals(btnXoaLoc)) {
+        } else if (o.equals(btnXoaTrang)) {
             xoaTrang();
 
-        } else if (o.equals(btnTimNangCao)) {
-            hienThiHopThoaiTimNangCao();
+        } else if (o.equals(btnLocNangCao)) {
+            String hang = cboLocThuongHieu.getSelectedItem().toString();
+            Double giaTu = null;
+            Double giaDen = null;
+            try {
+                String strTu = txtLocGiaTu.getText().trim();
+                if (!strTu.isEmpty()) giaTu = Double.parseDouble(strTu);
+                String strDen = txtLocGiaDen.getText().trim();
+                if (!strDen.isEmpty()) giaDen = Double.parseDouble(strDen);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(this, "Giá bán tìm kiếm phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            ArrayList<SanPham> ketQua = sp_dao.timKiemNangCao(hang, giaTu, giaDen, "Tất cả", null);
+            if (ketQua.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm nào khớp với tiêu chí lọc nâng cao!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                modelSP.setRowCount(0);
+                int stt = 1;
+                for (SanPham sp : ketQua) {
+                    modelSP.addRow(new Object[]{
+                        stt++, sp.getMaSanPham(), sp.getTenSanPham(), sp.getLoaiGiay(),
+                        sp.getThuongHieu(), df.format(sp.getGiaNhap()), df.format(sp.getGiaBan()), sp.getChatLieu()
+                    });
+                }
+            }
+        } else if (o.equals(btnBoLoc)) {
+            cboLocThuongHieu.setSelectedIndex(0);
+            txtLocGiaTu.setText("");
+            txtLocGiaDen.setText("");
+            txtTimKiem.setText("");
+            DocDuLieuDatabaseVaoTable();
 
         } else if (o.equals(btnXemChiTiet)) {
             int row = tableSP.getSelectedRow();
@@ -402,98 +456,6 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
                 DocDuLieuDatabaseVaoTable();
             }
         }
-    }
-
-    /**
-     * Hộp thoại tìm kiếm nâng cao đa tiêu chí: thương hiệu, loại giày, khoảng giá bán, tình trạng kho.
-     */
-    private void hienThiHopThoaiTimNangCao() {
-        JDialog dlg = new JDialog(SwingUtilities.getWindowAncestor(this), "TÌM KIẾM NÂNG CAO SẢN PHẨM", Dialog.ModalityType.APPLICATION_MODAL);
-        dlg.setLayout(new BorderLayout(10, 10));
-        dlg.setSize(440, 320);
-        dlg.setLocationRelativeTo(this);
-
-        JPanel pnl = new JPanel(new GridBagLayout());
-        pnl.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
-        GridBagConstraints g = new GridBagConstraints();
-        g.insets = new Insets(6, 6, 6, 6);
-        g.fill = GridBagConstraints.HORIZONTAL;
-
-        ArrayList<String> dsHang = sp_dao.getAllThuongHieu();
-        dsHang.add(0, "Tất cả");
-        JComboBox<String> cboLocHang = new JComboBox<>(dsHang.toArray(new String[0]));
-
-        ArrayList<String> dsLoai = sp_dao.getAllLoaiGiay();
-        dsLoai.add(0, "Tất cả");
-        JComboBox<String> cboLocLoai = new JComboBox<>(dsLoai.toArray(new String[0]));
-
-        JTextField txtGiaTu = new JTextField(10);
-        JTextField txtGiaDen = new JTextField(10);
-
-        JComboBox<String> cboLocTon = new JComboBox<>(new String[]{"Tất cả", "Còn hàng trong kho", "Hết hàng / Ngừng bán"});
-
-        g.gridx = 0; g.gridy = 0; pnl.add(new JLabel("Thương hiệu:"), g);
-        g.gridx = 1; g.gridy = 0; pnl.add(cboLocHang, g);
-
-        g.gridx = 0; g.gridy = 1; pnl.add(new JLabel("Phân loại:"), g);
-        g.gridx = 1; g.gridy = 1; pnl.add(cboLocLoai, g);
-
-        g.gridx = 0; g.gridy = 2; pnl.add(new JLabel("Giá bán từ (VNĐ):"), g);
-        g.gridx = 1; g.gridy = 2; pnl.add(txtGiaTu, g);
-
-        g.gridx = 0; g.gridy = 3; pnl.add(new JLabel("Giá bán đến (VNĐ):"), g);
-        g.gridx = 1; g.gridy = 3; pnl.add(txtGiaDen, g);
-
-        g.gridx = 0; g.gridy = 4; pnl.add(new JLabel("Tình trạng kho:"), g);
-        g.gridx = 1; g.gridy = 4; pnl.add(cboLocTon, g);
-
-        JPanel pnlAction = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
-        JButton btnLoc = UIHelper.createPrimaryBtn("Tìm Kiếm", 100, 32);
-        JButton btnHuy = UIHelper.createSecondaryBtn("Hủy", 80, 32);
-
-        btnLoc.addActionListener(e -> {
-            String hang = cboLocHang.getSelectedItem().toString();
-            String loai = cboLocLoai.getSelectedItem().toString();
-            Double giaTu = null;
-            Double giaDen = null;
-            try {
-                String strTu = txtGiaTu.getText().trim();
-                if (!strTu.isEmpty()) giaTu = Double.parseDouble(strTu);
-                String strDen = txtGiaDen.getText().trim();
-                if (!strDen.isEmpty()) giaDen = Double.parseDouble(strDen);
-            } catch (NumberFormatException nfe) {
-                JOptionPane.showMessageDialog(dlg, "Giá bán tìm kiếm phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Boolean conHang = null;
-            int idxTon = cboLocTon.getSelectedIndex();
-            if (idxTon == 1) conHang = true;
-            else if (idxTon == 2) conHang = false;
-
-            ArrayList<SanPham> ketQua = sp_dao.timKiemNangCao(hang, giaTu, giaDen, loai, conHang);
-            if (ketQua.isEmpty()) {
-                JOptionPane.showMessageDialog(dlg, "Không tìm thấy sản phẩm nào khớp với tiêu chí lọc nâng cao!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                modelSP.setRowCount(0);
-                int stt = 1;
-                for (SanPham sp : ketQua) {
-                    modelSP.addRow(new Object[]{
-                        stt++, sp.getMaSanPham(), sp.getTenSanPham(), sp.getLoaiGiay(),
-                        sp.getThuongHieu(), df.format(sp.getGiaNhap()), df.format(sp.getGiaBan()), sp.getChatLieu()
-                    });
-                }
-                dlg.dispose();
-            }
-        });
-
-        btnHuy.addActionListener(e -> dlg.dispose());
-        pnlAction.add(btnLoc);
-        pnlAction.add(btnHuy);
-
-        dlg.add(pnl, BorderLayout.CENTER);
-        dlg.add(pnlAction, BorderLayout.SOUTH);
-        dlg.setVisible(true);
     }
 
     /**

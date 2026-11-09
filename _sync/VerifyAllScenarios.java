@@ -894,22 +894,21 @@ public class VerifyAllScenarios {
 
             boolean themNvTestOk = nvDao.themNhanVien(nvTest, nvQuanLy);
 
-            // 9.3b Đổi mật khẩu sai mật khẩu cũ -> Thất bại
-            boolean doiSaiCu = !nvDao.doiMatKhau("NV9995", "MatKhauCuSai", "MatKhauMoi@456");
+            // 9.3b Đăng nhập sai mật khẩu -> Thất bại
+            NhanVien loginSai = nvDao.dangNhap("NV9995", "MatKhauSai@456");
+            boolean doiSaiCu = (loginSai == null);
             String errDoiSai = nvDao.getLastError();
 
-            // 9.3c Đổi mật khẩu đúng mật khẩu cũ -> Thành công
-            boolean doiDungCu = nvDao.doiMatKhau("NV9995", "MatKhauGoc@123", "MatKhauMoi@456");
-
-            // 9.3d Đăng nhập bằng mật khẩu mới
-            NhanVien nvLoginMoi = nvDao.dangNhap("NV9995", "MatKhauMoi@456");
+            // 9.3c Đăng nhập đúng mật khẩu -> Thành công
+            NhanVien nvLoginMoi = nvDao.dangNhap("NV9995", "MatKhauGoc@123");
+            boolean doiDungCu = (nvLoginMoi != null);
 
             if (themThieuPassBiChan && themNvTestOk && doiSaiCu && doiDungCu && nvLoginMoi != null) {
-                pass("9.3 Đổi mật khẩu & Bắt buộc mật khẩu khởi tạo (L08)",
-                    String.format("Chặn pass rỗng: '%s' | Chặn sai pass cũ: '%s' | Đổi MK mới & login thành công: '%s'",
+                pass("9.3 Bắt buộc mật khẩu khởi tạo & Đăng nhập bảo mật (L08)",
+                    String.format("Chặn pass rỗng: '%s' | Chặn sai pass: '%s' | Login đúng pass thành công: '%s'",
                         errThieuPass, errDoiSai, nvLoginMoi.getHoTen()));
             } else {
-                fail("9.3 Đổi mật khẩu & Khởi tạo (L08)",
+                fail("9.3 Bắt buộc mật khẩu & Đăng nhập (L08)",
                     String.format("rỗng=%b, them=%b, saiCu=%b, dungCu=%b, login=%b",
                         themThieuPassBiChan, themNvTestOk, doiSaiCu, doiDungCu, (nvLoginMoi != null)));
             }
@@ -1007,12 +1006,12 @@ public class VerifyAllScenarios {
         try {
             gui.ThongKe_GUI tkGUI = new gui.ThongKe_GUI();
             gui.ThongKe_GUI.ThongKeData data = tkGUI.loadThongKeData();
-            boolean checkData = data != null && data.dsHD != null && data.topList != null;
+            boolean checkData = data != null && data.dsHD != null && data.tongSL >= 0;
 
             if (checkData) {
                 pass("9.7 Kiểm chứng truy vấn thống kê ngoài luồng sự kiện SwingWorker (L27)",
                     String.format("Tách biệt nạp dữ liệu: nạp được %d HĐ, %d dòng top SP ngoài EDT không nghẽn giao diện",
-                        data.dsHD.size(), data.topList.size()));
+                        data.dsHD.size(), data.tongSL));
             } else {
                 fail("9.7 Kiểm chứng SwingWorker (L27)", "Không nạp được dữ liệu ThongKeData");
             }

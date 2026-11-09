@@ -202,57 +202,6 @@ public class NhanVien_DAO {
     }
 
     /**
-     * Đổi mật khẩu nhân viên (L08):
-     * Bắt buộc kiểm tra mật khẩu cũ. Băm mật khẩu mới bằng PBKDF2 (nếu cột hỗ trợ) hoặc SHA-256.
-     */
-    public boolean doiMatKhau(String maNV, String matKhauCu, String matKhauMoi) {
-        lastError = "";
-        if (maNV == null || maNV.trim().isEmpty()) {
-            lastError = "Mã nhân viên không hợp lệ!";
-            return false;
-        }
-        if (matKhauMoi == null || matKhauMoi.trim().length() < 6) {
-            lastError = "Mật khẩu mới phải từ 6 ký tự trở lên!";
-            return false;
-        }
-        try {
-            Connection con = getConnection();
-            String selectSql = "SELECT matKhau FROM NhanVien WHERE maNhanVien = ?";
-            String storedHash = null;
-            try (PreparedStatement pstmt = con.prepareStatement(selectSql)) {
-                pstmt.setString(1, maNV);
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        storedHash = rs.getString("matKhau");
-                    } else {
-                        lastError = "Không tìm thấy nhân viên có mã: " + maNV;
-                        return false;
-                    }
-                }
-            }
-
-            if (!verifyPassword(matKhauCu, storedHash)) {
-                lastError = "Mật khẩu cũ không chính xác!";
-                return false;
-            }
-
-            boolean canUsePBKDF2 = isColumnLargeEnoughForPBKDF2(con);
-            String newHash = canUsePBKDF2 ? hashPBKDF2(matKhauMoi) : hashSHA256(matKhauMoi);
-
-            String updateSql = "UPDATE NhanVien SET matKhau = ? WHERE maNhanVien = ?";
-            try (PreparedStatement pstmt = con.prepareStatement(updateSql)) {
-                pstmt.setString(1, newHash);
-                pstmt.setString(2, maNV);
-                return pstmt.executeUpdate() > 0;
-            }
-        } catch (SQLException e) {
-            handleSQLException(e);
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
      * Xác thực đăng nhập (L08 & L10):
      * Phân biệt rõ ràng 3 trường hợp khi thất bại:
      * 1. Không tìm thấy mã nhân viên (hoặc tài khoản bị ngừng hoạt động).

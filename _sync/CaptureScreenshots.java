@@ -1,97 +1,95 @@
 package test;
 
-import connectDB.ConnectDB;
-import dao.NhanVien_DAO;
+import gui.DangNhap_GUI;
+import gui.ManHinhChinh_GUI;
 import entity.NhanVien;
-import gui.*;
+import dao.NhanVien_DAO;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.lang.reflect.Field;
-import java.time.LocalDate;
 
 public class CaptureScreenshots {
     public static void main(String[] args) {
+        System.out.println(">>> Bắt đầu chụp 3 màn hình sau khi thu gọn chức năng...");
         try {
-            System.out.println(">>> Đang kết nối CSDL và khởi tạo giao diện Swing...");
-            ConnectDB.getInstance().connect();
-            NhanVien_DAO nvDao = new NhanVien_DAO();
-            NhanVien admin = nvDao.dangNhap("NV0001", "123456");
-            if (admin == null) {
-                admin = new NhanVien("NV0001", "Nguyễn Trọng Vinh", "0901234567", LocalDate.of(1990, 1, 1), true, "123 Quang Trung, Gò Vấp", "vinh@stepup.vn", "Quản lý", 15000000, "Toàn thời gian", "123456", true);
-            }
+            // Set look and feel
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {}
 
-            // 1. Chụp màn hình Đăng Nhập
-            DangNhap_GUI dangNhap = new DangNhap_GUI();
+        SwingUtilities.invokeLater(() -> {
             try {
-                Field fMa = DangNhap_GUI.class.getDeclaredField("txtMaNV");
-                fMa.setAccessible(true);
-                JTextField txtMa = (JTextField) fMa.get(dangNhap);
-                txtMa.setText("NV0001");
+                // 1. Chụp màn đăng nhập
+                DangNhap_GUI loginGui = new DangNhap_GUI();
+                loginGui.setSize(850, 520);
+                loginGui.setLocationRelativeTo(null);
+                loginGui.setVisible(true);
 
-                Field fMk = DangNhap_GUI.class.getDeclaredField("txtMatKhau");
-                fMk.setAccessible(true);
-                JPasswordField txtMk = (JPasswordField) fMk.get(dangNhap);
-                txtMk.setText("123456");
-            } catch (Exception ignored) {}
+                // Render loginGui to image
+                BufferedImage imgLogin = new BufferedImage(loginGui.getWidth(), loginGui.getHeight(), BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2Login = imgLogin.createGraphics();
+                loginGui.paint(g2Login);
+                g2Login.dispose();
+                ImageIO.write(imgLogin, "png", new File("_sync/after_trim_login.png"));
+                System.out.println("  [OK] Đã lưu _sync/after_trim_login.png");
+                loginGui.dispose();
 
-            dangNhap.pack();
-            dangNhap.setSize(480, 320);
-            dangNhap.setLocationRelativeTo(null);
-            dangNhap.setVisible(true);
-            Thread.sleep(700);
-            saveComponent(dangNhap, "screenshot_dangnhap.png");
-            dangNhap.dispose();
+                // 2. Chụp màn hình Sản phẩm với thanh lọc nâng cao inline
+                NhanVien_DAO nvDao = new NhanVien_DAO();
+                NhanVien nvQuanLy = nvDao.getNhanVienTheoMa("NV0001");
+                if (nvQuanLy == null) {
+                    nvQuanLy = new NhanVien("NV0001", "Nguyễn Trọng Vinh", "0901234567",
+                            java.time.LocalDate.of(1990, 1, 1), true, "TP.HCM", "vinh@stepup.vn",
+                            "Quản lý", 15000000, "Toàn thời gian", "123456", true);
+                }
 
-            // 2. Chụp các tab Màn Hình Chính
-            ManHinhChinh_GUI mainFrame = new ManHinhChinh_GUI(admin);
-            mainFrame.setSize(1350, 800);
-            mainFrame.setLocationRelativeTo(null);
-            mainFrame.setVisible(true);
-            Thread.sleep(1200);
+                ManHinhChinh_GUI mhc = new ManHinhChinh_GUI(nvQuanLy);
+                mhc.setSize(1280, 800);
+                mhc.setLocationRelativeTo(null);
+                mhc.setVisible(true);
 
-            Field fTab = ManHinhChinh_GUI.class.getDeclaredField("tabbedPane");
-            fTab.setAccessible(true);
-            JTabbedPane tabs = (JTabbedPane) fTab.get(mainFrame);
+                // Chuyển sang Tab 1: Sản phẩm (index 1)
+                JTabbedPane tabbedPane = null;
+                for (Component comp : mhc.getContentPane().getComponents()) {
+                    if (comp instanceof JTabbedPane) {
+                        tabbedPane = (JTabbedPane) comp;
+                        break;
+                    }
+                }
+                if (tabbedPane != null) {
+                    tabbedPane.setSelectedIndex(1); // Tab Sản phẩm
+                }
+                Thread.sleep(800);
 
-            // Tab 0: Bán hàng (POS)
-            tabs.setSelectedIndex(0);
-            Thread.sleep(800);
-            saveComponent(mainFrame, "screenshot_banhang.png");
+                BufferedImage imgSP = new BufferedImage(mhc.getWidth(), mhc.getHeight(), BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2SP = imgSP.createGraphics();
+                mhc.paint(g2SP);
+                g2SP.dispose();
+                ImageIO.write(imgSP, "png", new File("_sync/after_trim_sanpham.png"));
+                System.out.println("  [OK] Đã lưu _sync/after_trim_sanpham.png");
 
-            // Tab 1: Mẫu giày
-            tabs.setSelectedIndex(1);
-            Thread.sleep(800);
-            saveComponent(mainFrame, "screenshot_sanpham.png");
+                // 3. Chụp màn hình Thống kê rút gọn (Tab 4: index 4)
+                if (tabbedPane != null) {
+                    tabbedPane.setSelectedIndex(4); // Tab Thống kê
+                }
+                Thread.sleep(800);
 
-            // Tab 2: Khách hàng
-            tabs.setSelectedIndex(2);
-            Thread.sleep(800);
-            saveComponent(mainFrame, "screenshot_khachhang.png");
+                BufferedImage imgTK = new BufferedImage(mhc.getWidth(), mhc.getHeight(), BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2TK = imgTK.createGraphics();
+                mhc.paint(g2TK);
+                g2TK.dispose();
+                ImageIO.write(imgTK, "png", new File("_sync/after_trim_thongke.png"));
+                System.out.println("  [OK] Đã lưu _sync/after_trim_thongke.png");
 
-            // Tab 3: Nhân sự
-            tabs.setSelectedIndex(3);
-            Thread.sleep(800);
-            saveComponent(mainFrame, "screenshot_nhanvien.png");
-
-            mainFrame.dispose();
-            System.out.println("=== TOÀN BỘ 5 ẢNH CHỤP ỨNG DỤNG THẬT ĐÃ HOÀN TẤT ===");
-            System.exit(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    private static void saveComponent(Component comp, String filename) throws Exception {
-        BufferedImage img = new BufferedImage(comp.getWidth(), comp.getHeight(), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2 = img.createGraphics();
-        comp.paint(g2);
-        g2.dispose();
-        ImageIO.write(img, "png", new File(filename));
-        System.out.println(" [PASS] Đã chụp: " + filename + " (" + comp.getWidth() + "x" + comp.getHeight() + ")");
+                mhc.dispose();
+                System.out.println(">>> HOÀN TẤT CHỤP ẢNH MINH CHỨNG THÀNH CÔNG!");
+                System.exit(0);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.exit(1);
+            }
+        });
     }
 }

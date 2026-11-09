@@ -12,10 +12,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.print.PrinterJob;
-import java.awt.print.Printable;
-import java.awt.print.PageFormat;
-import java.awt.print.PrinterException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -874,11 +870,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
             JPanel pnlBillBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
             pnlBillBtns.setBackground(Color.WHITE);
 
-            JButton btnIn = UIHelper.createPrimaryBtn("🖨 In Hóa Đơn", 130, 34);
             JButton btnXuat = UIHelper.createSuccessBtn("📄 Xuất File Hóa Đơn", 160, 34);
             JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 34);
 
-            btnIn.addActionListener(ev -> inHoaDon(finalMaHD, billContent, dlgHoaDon));
             btnXuat.addActionListener(ev -> {
                 File f = xuatHoaDonRaFile(finalMaHD, billContent);
                 if (f != null) {
@@ -892,7 +886,6 @@ public class BanHang_GUI extends JPanel implements ActionListener {
             });
             btnDong.addActionListener(ev -> dlgHoaDon.dispose());
 
-            pnlBillBtns.add(btnIn);
             pnlBillBtns.add(btnXuat);
             pnlBillBtns.add(btnDong);
             dlgHoaDon.add(pnlBillBtns, BorderLayout.SOUTH);
@@ -966,81 +959,6 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        }
-    }
-
-    /**
-     * In hóa đơn bằng java.awt.print.PrinterJob + Printable.
-     * Bắt PrinterException, nếu không có máy in hoặc xảy ra lỗi thì thông báo thân thiện và tự động fallback sang xuất file.
-     */
-    public static boolean inHoaDon(String maHD, String noiDungBill, Component parent) {
-        try {
-            PrinterJob job = PrinterJob.getPrinterJob();
-            job.setJobName("HoaDon_" + maHD);
-
-            job.setPrintable(new Printable() {
-                @Override
-                public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-                    if (pageIndex > 0) {
-                        return NO_SUCH_PAGE;
-                    }
-                    Graphics2D g2d = (Graphics2D) graphics;
-                    g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-                    g2d.setFont(new Font("Monospaced", Font.PLAIN, 9));
-                    int y = 20;
-                    String[] lines = noiDungBill.split("\n");
-                    for (String line : lines) {
-                        g2d.drawString(line, 10, y);
-                        y += 12;
-                    }
-                    return PAGE_EXISTS;
-                }
-            });
-
-            boolean doPrint = true;
-            if (!GraphicsEnvironment.isHeadless()) {
-                if (parent != null) {
-                    doPrint = job.printDialog();
-                } else {
-                    String pName = (job.getPrintService() != null) ? job.getPrintService().getName().toLowerCase() : "";
-                    if (pName.contains("pdf") || pName.contains("onenote") || pName.contains("xps") || job.getPrintService() == null) {
-                        File f = xuatHoaDonRaFile(maHD, noiDungBill);
-                        return f != null;
-                    }
-                }
-            }
-
-            if (doPrint) {
-                job.print();
-                if (parent != null) {
-                    JOptionPane.showMessageDialog(parent, "Lệnh in hóa đơn " + maHD + " đã được gửi tới máy in thành công!", "In hóa đơn", JOptionPane.INFORMATION_MESSAGE);
-                }
-                return true;
-            }
-            return false;
-        } catch (PrinterException pe) {
-            System.err.println("Lỗi máy in: " + pe.getMessage() + ". Tự động chuyển sang xuất file text.");
-            File f = xuatHoaDonRaFile(maHD, noiDungBill);
-            if (parent != null) {
-                String pathStr = (f != null) ? f.getAbsolutePath() : "thư mục hoadon/";
-                JOptionPane.showMessageDialog(parent, 
-                    "Không thể kết nối hoặc máy in gặp sự cố (" + pe.getMessage() + ")!\n" +
-                    "Hệ thống đã tự động xuất hóa đơn lưu tại:\n" + pathStr, 
-                    "Thông báo máy in & Xuất file dự phòng", 
-                    JOptionPane.WARNING_MESSAGE);
-            }
-            return false;
-        } catch (Exception ex) {
-            System.err.println("Không tìm thấy dịch vụ in hoặc môi trường không hỗ trợ: " + ex.getMessage());
-            File f = xuatHoaDonRaFile(maHD, noiDungBill);
-            if (parent != null) {
-                String pathStr = (f != null) ? f.getAbsolutePath() : "thư mục hoadon/";
-                JOptionPane.showMessageDialog(parent, 
-                    "Hệ thống không tìm thấy máy in kết nối. Đã tự động xuất hóa đơn lưu tại:\n" + pathStr, 
-                    "Xuất hóa đơn", 
-                    JOptionPane.INFORMATION_MESSAGE);
-            }
-            return false;
         }
     }
 }
