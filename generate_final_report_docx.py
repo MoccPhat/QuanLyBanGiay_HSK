@@ -374,11 +374,11 @@ def create_document():
     figures = [
         ("Hình 1. Sơ đồ Use Case tổng thể hệ thống Quản lý bán giày thời trang", "10"),
         ("Hình 2. Sơ đồ kiến trúc hệ thống 3 tầng (3-Tier Architecture)", "12"),
-        ("Hình 3. Sơ đồ lớp thực thể hướng đối tượng (OOP Entity Class Diagram) chuẩn UML", "14"),
-        ("Hình 4. Sơ đồ cơ sở dữ liệu quan hệ trên Microsoft SQL Server (Database ERD 6 bảng)", "21"),
+        ("Hình 3. Sơ đồ lớp hướng đối tượng (Visual Paradigm 18)", "14"),
+        ("Hình 4. Lược đồ cơ sở dữ liệu quan hệ phát sinh từ Microsoft SQL Server (Database Diagram SSMS 6 bảng)", "21"),
         ("Hình 5. Giao diện Đăng nhập hệ thống (chụp thật ngày 07/11/2026)", "29"),
         ("Hình 6. Giao diện Bán hàng tại quầy POS với đầy đủ thông tin tồn kho và giỏ hàng (chụp thật ngày 07/11/2026)", "31"),
-        ("Hình 7. Sơ đồ tuần tự (Sequence Diagram) luồng giao dịch thanh toán tại quầy POS", "32"),
+        ("Hình 7. Sơ đồ tuần tự nghiệp vụ thanh toán POS (Visual Paradigm 18)", "32"),
         ("Hình 8. Hộp thoại xem trước Hóa đơn K80 tích hợp chức năng In máy in và Xuất file văn bản (chụp thật ngày 07/11/2026)", "33"),
         ("Hình 9. Giao diện Quản lý danh mục mẫu giày (chụp thật ngày 07/11/2026)", "35"),
         ("Hình 10. Hộp thoại Tìm kiếm nâng cao Sản phẩm theo đa tiêu chí (chụp thật ngày 07/11/2026)", "36"),
@@ -519,18 +519,18 @@ def create_document():
     add_h2("I. Kiến trúc Sơ đồ lớp tổng thể theo chuẩn OOP (7 Lớp thực thể)")
     add_p("Khác với cách tiếp cận ánh xạ phẳng từ các bảng cơ sở dữ liệu vật lý, sơ đồ lớp của hệ thống được nhóm chúng em thiết kế chuẩn mực theo đúng 4 trụ cột của Lập trình hướng đối tượng (OOP: Kế thừa, Đóng gói, Trừu tượng và Đa hình). Đồng thời, sơ đồ tập trung vào 7 lớp đối tượng quan trọng nhất, gắn liền trực tiếp với bản sắc của bài toán Quản lý bán hàng giày dép thời trang, lược bỏ bớt các lớp cấu hình phụ trợ để bức tranh nghiệp vụ trở nên mạch lạc, rõ ràng và dễ bảo vệ trước Hội đồng chấm thi.")
     
-    if os.path.exists("SoDoLop_QuanLyBanGiay.png"):
+    if os.path.exists("vp_class_diagram.png"):
+        doc.add_picture("vp_class_diagram.png", width=Inches(5.8))
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_c = p_cap.add_run("Hình 3. Sơ đồ lớp hướng đối tượng (Visual Paradigm 18)")
+        set_font(r_c, size=10, italic=True, color_rgb=(0, 0, 0))
+    elif os.path.exists("SoDoLop_QuanLyBanGiay.png"):
         doc.add_picture("SoDoLop_QuanLyBanGiay.png", width=Inches(6.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 3. Sơ đồ lớp thực thể hướng đối tượng (OOP Entity Class Diagram) chuẩn UML")
-        set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
-    elif os.path.exists("diagram_class_shoe.png"):
-        doc.add_picture("diagram_class_shoe.png", width=Inches(6.5))
-        p_cap = doc.add_paragraph()
-        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 3. Sơ đồ lớp thực thể hướng đối tượng (OOP Entity Class Diagram) chuẩn UML")
-        set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
+        r_c = p_cap.add_run("Hình 3. Sơ đồ lớp hướng đối tượng (Visual Paradigm 18)")
+        set_font(r_c, size=10, italic=True, color_rgb=(0, 0, 0))
 
     add_h2("II. Phân tích 4 đặc trưng Hướng đối tượng (OOP) áp dụng trong hệ thống")
     add_bullet("Hệ thống xây dựng lớp cơ sở trừu tượng Nguoi (Person) gom chung các thuộc tính nhân thân (hoTen, soDienThoai, ngaySinh, gioiTinh, diaChi, email). Cả NhanVien và KhachHang đều kế thừa từ Nguoi thông qua mối quan hệ Tổng quát hóa (Generalization ──▷). Điều này giúp tái sử dụng mã nguồn tối đa và phản ánh đúng bản chất thế giới thực.", "1. Tính Kế thừa (Inheritance): ")
@@ -816,12 +816,18 @@ def create_document():
 
     add_p("Sơ đồ Tuần tự (Sequence Diagram) mô tả chi tiết tương tác thời gian thực giữa Thu ngân, Giao diện POS (BanHang_GUI), Tầng DAO (HoaDon_DAO, ChiTietGiay_DAO) và Cơ sở dữ liệu Microsoft SQL Server trong một phiên giao dịch thanh toán chuẩn ACID:")
 
-    if os.path.exists("diagram_sequence_shoe.png"):
+    if os.path.exists("vp_sequence_diagram.png"):
+        doc.add_picture("vp_sequence_diagram.png", width=Inches(6.0))
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_c = p_cap.add_run("Hình 7. Sơ đồ tuần tự nghiệp vụ thanh toán POS (Visual Paradigm 18)")
+        set_font(r_c, size=10, italic=True, color_rgb=(0, 0, 0))
+    elif os.path.exists("diagram_sequence_shoe.png"):
         doc.add_picture("diagram_sequence_shoe.png", width=Inches(6.5))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_c = p_cap.add_run("Hình 7. Sơ đồ tuần tự (Sequence Diagram) luồng giao dịch thanh toán tại quầy POS")
-        set_font(r_c, size=10, italic=True, color_rgb=(71, 85, 105))
+        r_c = p_cap.add_run("Hình 7. Sơ đồ tuần tự nghiệp vụ thanh toán POS (Visual Paradigm 18)")
+        set_font(r_c, size=10, italic=True, color_rgb=(0, 0, 0))
 
     add_p("Hộp thoại xem trước phiếu Hóa đơn K80 tương tác (JDialog) tích hợp nút In máy in và nút Xuất file văn bản:")
     if os.path.exists("screenshot_hoadon_k80.png"):
