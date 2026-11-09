@@ -98,17 +98,17 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         // Cột trái: Chọn sản phẩm & Giỏ hàng
-        JPanel pnlTrai = new JPanel(new BorderLayout(0, 8));
-        pnlTrai.setOpaque(false);
-        pnlTrai.add(buildChonSanPhamPanel(), BorderLayout.NORTH);
-        pnlTrai.add(buildGioHangPanel(), BorderLayout.CENTER);
+        JPanel pTrai = new JPanel(new BorderLayout(0, 8));
+        pTrai.setOpaque(false);
+        pTrai.add(buildChonSanPhamPanel(), BorderLayout.NORTH);
+        pTrai.add(buildGioHangPanel(), BorderLayout.CENTER);
 
         // Cột phải: Thông tin khách hàng & Khung tính tiền
-        JPanel pnlPhai = buildThanhToanPanel();
-        pnlPhai.setPreferredSize(new Dimension(420, 0));
+        JPanel pPhai = buildThanhToanPanel();
+        pPhai.setPreferredSize(new Dimension(420, 0));
 
-        add(pnlTrai, BorderLayout.CENTER);
-        add(pnlPhai, BorderLayout.EAST);
+        add(pTrai, BorderLayout.CENTER);
+        add(pPhai, BorderLayout.EAST);
 
         // Đăng ký sự kiện và phím tắt đa tầng
         registerEvents();
@@ -126,96 +126,96 @@ public class BanHang_GUI extends JPanel implements ActionListener {
      * Vùng chọn sản phẩm mẫu, kích cỡ, màu sắc và số lượng mua.
      */
     private JPanel buildChonSanPhamPanel() {
-        JPanel pnl = new JPanel(new BorderLayout());
-        pnl.setBackground(Color.WHITE);
-        pnl.setBorder(BorderFactory.createTitledBorder(
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(Color.WHITE);
+        p.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(203, 213, 225)),
                 "1. CHỌN MẪU GIÀY & KÍCH CỠ",
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 13), new Color(30, 58, 138)
         ));
 
-        JPanel pnlChon = new JPanel(new GridBagLayout());
-        pnlChon.setOpaque(false);
+        JPanel pChon = new JPanel(new GridBagLayout());
+        pChon.setOpaque(false);
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(4, 8, 4, 8);
         g.fill = GridBagConstraints.HORIZONTAL;
 
         // Dòng 1: Mẫu giày
         g.gridx = 0; g.gridy = 0;
-        pnlChon.add(new JLabel("Mẫu giày:"), g);
+        pChon.add(new JLabel("Mẫu giày:"), g);
 
         cboSanPham = new JComboBox<>();
         cboSanPham.setFont(new Font("Arial", Font.PLAIN, 13));
         cboSanPham.setPreferredSize(new Dimension(280, 30));
 
         g.gridx = 1; g.gridy = 0; g.gridwidth = 3;
-        pnlChon.add(cboSanPham, g);
+        pChon.add(cboSanPham, g);
 
         // Dòng 2: Kích cỡ & Màu sắc
         g.gridwidth = 1;
         g.gridx = 0; g.gridy = 1;
-        pnlChon.add(new JLabel("Kích cỡ (Size):"), g);
+        pChon.add(new JLabel("Kích cỡ (Size):"), g);
 
         cboSize = new JComboBox<>();
         cboSize.setFont(new Font("Arial", Font.BOLD, 13));
         cboSize.setPreferredSize(new Dimension(100, 30));
         g.gridx = 1; g.gridy = 1;
-        pnlChon.add(cboSize, g);
+        pChon.add(cboSize, g);
 
         g.gridx = 2; g.gridy = 1;
-        pnlChon.add(new JLabel("Màu sắc:"), g);
+        pChon.add(new JLabel("Màu sắc:"), g);
 
         cboMauSac = new JComboBox<>();
         cboMauSac.setFont(new Font("Arial", Font.BOLD, 13));
         cboMauSac.setPreferredSize(new Dimension(140, 30));
         g.gridx = 3; g.gridy = 1;
-        pnlChon.add(cboMauSac, g);
+        pChon.add(cboMauSac, g);
 
         // Dòng 3: Tồn kho & Đơn giá
         g.gridx = 0; g.gridy = 2;
-        pnlChon.add(new JLabel("Tồn kho hiện có:"), g);
+        pChon.add(new JLabel("Tồn kho hiện có:"), g);
 
         lblTonKhoVal = new JLabel("0 đôi");
         lblTonKhoVal.setFont(new Font("Arial", Font.BOLD, 13));
         lblTonKhoVal.setForeground(new Color(37, 99, 235));
         g.gridx = 1; g.gridy = 2;
-        pnlChon.add(lblTonKhoVal, g);
+        pChon.add(lblTonKhoVal, g);
 
         g.gridx = 2; g.gridy = 2;
-        pnlChon.add(new JLabel("Đơn giá:"), g);
+        pChon.add(new JLabel("Đơn giá:"), g);
 
         lblDonGiaVal = new JLabel("0 VNĐ");
         lblDonGiaVal.setFont(new Font("Arial", Font.BOLD, 14));
         lblDonGiaVal.setForeground(new Color(185, 28, 28));
         g.gridx = 3; g.gridy = 2;
-        pnlChon.add(lblDonGiaVal, g);
+        pChon.add(lblDonGiaVal, g);
 
         // Dòng 4: Số lượng mua & Nút thêm giỏ
         g.gridx = 0; g.gridy = 3;
-        pnlChon.add(new JLabel("Số lượng mua:"), g);
+        pChon.add(new JLabel("Số lượng mua:"), g);
 
         spnSoLuong = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
         spnSoLuong.setFont(new Font("Arial", Font.BOLD, 13));
         spnSoLuong.setPreferredSize(new Dimension(80, 30));
         g.gridx = 1; g.gridy = 3;
-        pnlChon.add(spnSoLuong, g);
+        pChon.add(spnSoLuong, g);
 
         btnThemGio = UIHelper.createPrimaryBtn("+ Thêm Vào Giỏ", 180, 34);
         g.gridx = 2; g.gridy = 3; g.gridwidth = 2;
-        pnlChon.add(btnThemGio, g);
+        pChon.add(btnThemGio, g);
 
-        pnl.add(pnlChon, BorderLayout.CENTER);
-        return pnl;
+        p.add(pChon, BorderLayout.CENTER);
+        return p;
     }
 
     /**
      * Vùng giỏ hàng chứa danh sách sản phẩm khách chọn mua.
      */
     private JPanel buildGioHangPanel() {
-        JPanel pnl = new JPanel(new BorderLayout(5, 5));
-        pnl.setBackground(Color.WHITE);
-        pnl.setBorder(BorderFactory.createTitledBorder(
+        JPanel p = new JPanel(new BorderLayout(5, 5));
+        p.setBackground(Color.WHITE);
+        p.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(203, 213, 225)),
                 "2. GIỎ HÀNG ĐANG CHỜ THANH TOÁN",
                 TitledBorder.LEFT, TitledBorder.TOP,
@@ -242,11 +242,11 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         tableGioHang.getColumnModel().getColumn(5).setCellRenderer(center);
 
         JScrollPane scroll = new JScrollPane(tableGioHang);
-        pnl.add(scroll, BorderLayout.CENTER);
+        p.add(scroll, BorderLayout.CENTER);
 
         // Nút thao tác trên giỏ hàng
-        JPanel pnlActionGio = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        pnlActionGio.setBackground(Color.WHITE);
+        JPanel pActionGio = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        pActionGio.setBackground(Color.WHITE);
 
         btnXoaKhoiGio = UIHelper.createSecondaryBtn("Xóa Mục Đang Chọn [Del]", 180, 32);
         btnXoaKhoiGio.setFont(new Font("Arial", Font.BOLD, 12));
@@ -254,118 +254,118 @@ public class BanHang_GUI extends JPanel implements ActionListener {
         btnXoaTrangGio = UIHelper.createSecondaryBtn("Làm Trống Giỏ", 120, 32);
         btnXoaTrangGio.setFont(new Font("Arial", Font.BOLD, 12));
 
-        pnlActionGio.add(btnXoaKhoiGio);
-        pnlActionGio.add(btnXoaTrangGio);
-        pnl.add(pnlActionGio, BorderLayout.SOUTH);
+        pActionGio.add(btnXoaKhoiGio);
+        pActionGio.add(btnXoaTrangGio);
+        p.add(pActionGio, BorderLayout.SOUTH);
 
-        return pnl;
+        return p;
     }
 
     /**
      * Vùng thông tin khách hàng, chiết khấu và tính toán thanh toán.
      */
     private JPanel buildThanhToanPanel() {
-        JPanel pnl = new JPanel(new BorderLayout(8, 8));
-        pnl.setBackground(Color.WHITE);
-        pnl.setBorder(BorderFactory.createTitledBorder(
+        JPanel p = new JPanel(new BorderLayout(8, 8));
+        p.setBackground(Color.WHITE);
+        p.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(203, 213, 225)),
                 "3. THÔNG TIN KHÁCH HÀNG & THANH TOÁN",
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 13), new Color(30, 58, 138)
         ));
 
-        JPanel pnlContent = new JPanel();
-        pnlContent.setLayout(new BoxLayout(pnlContent, BoxLayout.Y_AXIS));
-        pnlContent.setOpaque(false);
-        pnlContent.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+        JPanel pContent = new JPanel();
+        pContent.setLayout(new BoxLayout(pContent, BoxLayout.Y_AXIS));
+        pContent.setOpaque(false);
+        pContent.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
 
         // Khối Tra cứu khách hàng
-        JPanel pnlKhach = new JPanel(new GridLayout(4, 2, 6, 6));
-        pnlKhach.setOpaque(false);
-        pnlKhach.setBorder(BorderFactory.createTitledBorder("Thành viên tích điểm"));
+        JPanel pKhach = new JPanel(new GridLayout(4, 2, 6, 6));
+        pKhach.setOpaque(false);
+        pKhach.setBorder(BorderFactory.createTitledBorder("Thành viên tích điểm"));
 
-        pnlKhach.add(new JLabel("Số điện thoại:"));
-        JPanel pnlTim = new JPanel(new BorderLayout(4, 0));
-        pnlTim.setOpaque(false);
+        pKhach.add(new JLabel("Số điện thoại:"));
+        JPanel pTim = new JPanel(new BorderLayout(4, 0));
+        pTim.setOpaque(false);
         txtSDTKhach = new JTextField();
         btnTimKhach = UIHelper.createDarkBtn("Tìm", 65, 28);
-        pnlTim.add(txtSDTKhach, BorderLayout.CENTER);
-        pnlTim.add(btnTimKhach, BorderLayout.EAST);
-        pnlKhach.add(pnlTim);
+        pTim.add(txtSDTKhach, BorderLayout.CENTER);
+        pTim.add(btnTimKhach, BorderLayout.EAST);
+        pKhach.add(pTim);
 
-        pnlKhach.add(new JLabel("Họ tên:"));
+        pKhach.add(new JLabel("Họ tên:"));
         lblTenKhachVal = new JLabel("Khách vãng lai");
         lblTenKhachVal.setFont(new Font("Arial", Font.BOLD, 13));
-        pnlKhach.add(lblTenKhachVal);
+        pKhach.add(lblTenKhachVal);
 
-        pnlKhach.add(new JLabel("Hạng thành viên:"));
+        pKhach.add(new JLabel("Hạng thành viên:"));
         lblHangTheVal = new JLabel("Chưa có");
         lblHangTheVal.setFont(new Font("Arial", Font.BOLD, 13));
         lblHangTheVal.setForeground(new Color(202, 138, 4));
-        pnlKhach.add(lblHangTheVal);
+        pKhach.add(lblHangTheVal);
 
-        pnlKhach.add(new JLabel("Điểm tích lũy:"));
-        JPanel pnlDiem = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-        pnlDiem.setOpaque(false);
+        pKhach.add(new JLabel("Điểm tích lũy:"));
+        JPanel pDiem = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        pDiem.setOpaque(false);
         lblDiemVal = new JLabel("0 điểm");
         lblDiemVal.setFont(new Font("Arial", Font.BOLD, 13));
         chkDungDiem = new JCheckBox("Dùng điểm");
         chkDungDiem.setOpaque(false);
-        pnlDiem.add(lblDiemVal);
-        pnlDiem.add(chkDungDiem);
-        pnlKhach.add(pnlDiem);
+        pDiem.add(lblDiemVal);
+        pDiem.add(chkDungDiem);
+        pKhach.add(pDiem);
 
-        pnlContent.add(pnlKhach);
-        pnlContent.add(Box.createVerticalStrut(10));
+        pContent.add(pKhach);
+        pContent.add(Box.createVerticalStrut(10));
 
         // Khối Tính tiền hóa đơn
-        JPanel pnlTien = new JPanel(new GridLayout(6, 2, 8, 8));
-        pnlTien.setOpaque(false);
-        pnlTien.setBorder(BorderFactory.createTitledBorder("Chi tiết thanh toán"));
+        JPanel pTien = new JPanel(new GridLayout(6, 2, 8, 8));
+        pTien.setOpaque(false);
+        pTien.setBorder(BorderFactory.createTitledBorder("Chi tiết thanh toán"));
 
-        pnlTien.add(new JLabel("Tổng tiền hàng:"));
+        pTien.add(new JLabel("Tổng tiền hàng:"));
         lblTongTienHangVal = new JLabel("0 VNĐ", JLabel.RIGHT);
         lblTongTienHangVal.setFont(new Font("Arial", Font.BOLD, 13));
-        pnlTien.add(lblTongTienHangVal);
+        pTien.add(lblTongTienHangVal);
 
-        pnlTien.add(new JLabel("Chiết khấu & Giảm giá:"));
+        pTien.add(new JLabel("Chiết khấu & Giảm giá:"));
         lblChietKhauVal = new JLabel("0 VNĐ", JLabel.RIGHT);
         lblChietKhauVal.setFont(new Font("Arial", Font.BOLD, 13));
         lblChietKhauVal.setForeground(new Color(220, 38, 38));
-        pnlTien.add(lblChietKhauVal);
+        pTien.add(lblChietKhauVal);
 
-        pnlTien.add(new JLabel("KHÁCH CẦN TRẢ:"));
+        pTien.add(new JLabel("KHÁCH CẦN TRẢ:"));
         lblKhachCanTraVal = new JLabel("0 VNĐ", JLabel.RIGHT);
         lblKhachCanTraVal.setFont(new Font("Arial", Font.BOLD, 16));
         lblKhachCanTraVal.setForeground(new Color(185, 28, 28));
-        pnlTien.add(lblKhachCanTraVal);
+        pTien.add(lblKhachCanTraVal);
 
-        pnlTien.add(new JLabel("Hình thức thanh toán:"));
+        pTien.add(new JLabel("Hình thức thanh toán:"));
         cboPhuongThuc = new JComboBox<>(new String[]{"Tiền mặt", "Chuyển khoản QR"});
         cboPhuongThuc.setFont(new Font("Arial", Font.PLAIN, 12));
-        pnlTien.add(cboPhuongThuc);
+        pTien.add(cboPhuongThuc);
 
-        pnlTien.add(new JLabel("Tiền khách đưa:"));
+        pTien.add(new JLabel("Tiền khách đưa:"));
         txtTienKhachDua = new JTextField("");
         txtTienKhachDua.setHorizontalAlignment(JTextField.RIGHT);
         txtTienKhachDua.setFont(new Font("Arial", Font.BOLD, 14));
-        pnlTien.add(txtTienKhachDua);
+        pTien.add(txtTienKhachDua);
 
-        pnlTien.add(new JLabel("Tiền thừa trả khách:"));
+        pTien.add(new JLabel("Tiền thừa trả khách:"));
         lblTienThuaVal = new JLabel("0 VNĐ", JLabel.RIGHT);
         lblTienThuaVal.setFont(new Font("Arial", Font.BOLD, 14));
         lblTienThuaVal.setForeground(new Color(22, 163, 74));
-        pnlTien.add(lblTienThuaVal);
+        pTien.add(lblTienThuaVal);
 
-        pnlContent.add(pnlTien);
-        pnl.add(pnlContent, BorderLayout.CENTER);
+        pContent.add(pTien);
+        p.add(pContent, BorderLayout.CENTER);
 
         // Nút Thanh Toán lớn
         btnThanhToan = UIHelper.createSuccessBtn("THANH TOÁN & IN HÓA ĐƠN [F10]", 0, 50);
         btnThanhToan.setFont(new Font("Arial", Font.BOLD, 14));
-        pnl.add(btnThanhToan, BorderLayout.SOUTH);
+        p.add(btnThanhToan, BorderLayout.SOUTH);
 
-        return pnl;
+        return p;
     }
 
     /**
@@ -867,8 +867,8 @@ public class BanHang_GUI extends JPanel implements ActionListener {
             dlgHoaDon.setLayout(new BorderLayout(10, 10));
             dlgHoaDon.add(scrollBill, BorderLayout.CENTER);
 
-            JPanel pnlBillBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-            pnlBillBtns.setBackground(Color.WHITE);
+            JPanel pBillBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+            pBillBtns.setBackground(Color.WHITE);
 
             JButton btnXuat = UIHelper.createSuccessBtn("📄 Xuất File Hóa Đơn", 160, 34);
             JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 34);
@@ -886,9 +886,9 @@ public class BanHang_GUI extends JPanel implements ActionListener {
             });
             btnDong.addActionListener(ev -> dlgHoaDon.dispose());
 
-            pnlBillBtns.add(btnXuat);
-            pnlBillBtns.add(btnDong);
-            dlgHoaDon.add(pnlBillBtns, BorderLayout.SOUTH);
+            pBillBtns.add(btnXuat);
+            pBillBtns.add(btnDong);
+            dlgHoaDon.add(pBillBtns, BorderLayout.SOUTH);
 
             dlgHoaDon.pack();
             dlgHoaDon.setLocationRelativeTo(this);

@@ -32,8 +32,8 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
         panelMain.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         // Tiêu đề
-        JPanel pnlTitle = new JPanel(new GridLayout(2, 1));
-        pnlTitle.setBackground(Color.WHITE);
+        JPanel pTitle = new JPanel(new GridLayout(2, 1));
+        pTitle.setBackground(Color.WHITE);
         JLabel lblTitle = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG GIÀY DÉP", JLabel.CENTER);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
         lblTitle.setForeground(new Color(185, 28, 28)); // Đỏ rượu phong cách shop giày
@@ -42,13 +42,13 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
         lblSub.setFont(new Font("Arial", Font.PLAIN, 12));
         lblSub.setForeground(Color.GRAY);
 
-        pnlTitle.add(lblTitle);
-        pnlTitle.add(lblSub);
-        panelMain.add(pnlTitle, BorderLayout.NORTH);
+        pTitle.add(lblTitle);
+        pTitle.add(lblSub);
+        panelMain.add(pTitle, BorderLayout.NORTH);
 
         // Form nhập liệu
-        JPanel pnlForm = new JPanel(new GridBagLayout());
-        pnlForm.setBackground(Color.WHITE);
+        JPanel pForm = new JPanel(new GridBagLayout());
+        pForm.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -56,37 +56,37 @@ public class DangNhap_GUI extends JFrame implements ActionListener {
         JLabel lblMaNV = new JLabel("Mã nhân viên:");
         lblMaNV.setFont(new Font("Arial", Font.BOLD, 13));
         gbc.gridx = 0; gbc.gridy = 0;
-        pnlForm.add(lblMaNV, gbc);
+        pForm.add(lblMaNV, gbc);
 
         txtMaNV = new JTextField(15);
         txtMaNV.setText("NV0001"); // Mặc định quản lý mẫu
         txtMaNV.setFont(new Font("Arial", Font.PLAIN, 13));
         gbc.gridx = 1; gbc.gridy = 0;
-        pnlForm.add(txtMaNV, gbc);
+        pForm.add(txtMaNV, gbc);
 
         JLabel lblMatKhau = new JLabel("Mật khẩu:");
         lblMatKhau.setFont(new Font("Arial", Font.BOLD, 13));
         gbc.gridx = 0; gbc.gridy = 1;
-        pnlForm.add(lblMatKhau, gbc);
+        pForm.add(lblMatKhau, gbc);
 
         txtMatKhau = new JPasswordField(15);
         txtMatKhau.setText("123456");
         txtMatKhau.setFont(new Font("Arial", Font.PLAIN, 13));
         gbc.gridx = 1; gbc.gridy = 1;
-        pnlForm.add(txtMatKhau, gbc);
+        pForm.add(txtMatKhau, gbc);
 
-        panelMain.add(pnlForm, BorderLayout.CENTER);
+        panelMain.add(pForm, BorderLayout.CENTER);
 
         // Nút bấm
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        pnlButtons.setBackground(Color.WHITE);
+        JPanel pButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        pButtons.setBackground(Color.WHITE);
 
         btnDangNhap = UIHelper.createPrimaryBtn("Đăng Nhập", 130, 36);
         btnThoat = UIHelper.createSecondaryBtn("Thoát", 100, 36);
 
-        pnlButtons.add(btnDangNhap);
-        pnlButtons.add(btnThoat);
-        panelMain.add(pnlButtons, BorderLayout.SOUTH);
+        pButtons.add(btnDangNhap);
+        pButtons.add(btnThoat);
+        panelMain.add(pButtons, BorderLayout.SOUTH);
 
         add(panelMain);
 

@@ -56,70 +56,70 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         add(lblHeader, BorderLayout.NORTH);
 
         // FORM NHẬP LIỆU
-        JPanel pnlForm = new JPanel(new GridBagLayout());
-        pnlForm.setBackground(Color.WHITE);
-        pnlForm.setBorder(UIHelper.createTitledPanel("Thông Tin Chi Tiết Nhân Viên", UIHelper.PRIMARY_BLUE).getBorder());
+        JPanel pForm = new JPanel(new GridBagLayout());
+        pForm.setBackground(Color.WHITE);
+        pForm.setBorder(UIHelper.createTitledPanel("Thông Tin Chi Tiết Nhân Viên", UIHelper.PRIMARY_BLUE).getBorder());
 
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(6, 12, 6, 12);
         g.fill = GridBagConstraints.HORIZONTAL;
 
         // Cột 1
-        g.gridx = 0; g.gridy = 0; pnlForm.add(new JLabel("Mã nhân viên:"), g);
+        g.gridx = 0; g.gridy = 0; pForm.add(new JLabel("Mã nhân viên:"), g);
         txtMaNV = new JTextField(15);
-        g.gridx = 1; g.gridy = 0; pnlForm.add(txtMaNV, g);
+        g.gridx = 1; g.gridy = 0; pForm.add(txtMaNV, g);
 
-        g.gridx = 0; g.gridy = 1; pnlForm.add(new JLabel("Họ và tên:"), g);
+        g.gridx = 0; g.gridy = 1; pForm.add(new JLabel("Họ và tên:"), g);
         txtHoTen = new JTextField(15);
-        g.gridx = 1; g.gridy = 1; pnlForm.add(txtHoTen, g);
+        g.gridx = 1; g.gridy = 1; pForm.add(txtHoTen, g);
 
-        g.gridx = 0; g.gridy = 2; pnlForm.add(new JLabel("Số điện thoại:"), g);
+        g.gridx = 0; g.gridy = 2; pForm.add(new JLabel("Số điện thoại:"), g);
         txtSDT = new JTextField(15);
-        g.gridx = 1; g.gridy = 2; pnlForm.add(txtSDT, g);
+        g.gridx = 1; g.gridy = 2; pForm.add(txtSDT, g);
 
-        g.gridx = 0; g.gridy = 3; pnlForm.add(new JLabel("Giới tính:"), g);
-        JPanel pnlGender = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        pnlGender.setOpaque(false);
+        g.gridx = 0; g.gridy = 3; pForm.add(new JLabel("Giới tính:"), g);
+        JPanel pGender = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        pGender.setOpaque(false);
         radNam = new JRadioButton("Nam", true);
         radNu = new JRadioButton("Nữ");
         ButtonGroup bgGender = new ButtonGroup();
         bgGender.add(radNam); bgGender.add(radNu);
-        pnlGender.add(radNam); pnlGender.add(radNu);
-        g.gridx = 1; g.gridy = 3; pnlForm.add(pnlGender, g);
+        pGender.add(radNam); pGender.add(radNu);
+        g.gridx = 1; g.gridy = 3; pForm.add(pGender, g);
 
-        g.gridx = 0; g.gridy = 4; pnlForm.add(new JLabel("Ngày sinh (dd/MM/yyyy):"), g);
+        g.gridx = 0; g.gridy = 4; pForm.add(new JLabel("Ngày sinh (dd/MM/yyyy):"), g);
         txtNgaySinh = new JTextField(15);
         txtNgaySinh.setToolTipText("dd/MM/yyyy");
-        g.gridx = 1; g.gridy = 4; pnlForm.add(txtNgaySinh, g);
+        g.gridx = 1; g.gridy = 4; pForm.add(txtNgaySinh, g);
 
-        g.gridx = 0; g.gridy = 5; pnlForm.add(new JLabel("Mật khẩu khởi tạo:"), g);
+        g.gridx = 0; g.gridy = 5; pForm.add(new JLabel("Mật khẩu khởi tạo:"), g);
         txtMatKhau = new JPasswordField(15);
-        g.gridx = 1; g.gridy = 5; pnlForm.add(txtMatKhau, g);
+        g.gridx = 1; g.gridy = 5; pForm.add(txtMatKhau, g);
 
         // Cột 2
-        g.gridx = 2; g.gridy = 0; pnlForm.add(new JLabel("Chức vụ:"), g);
+        g.gridx = 2; g.gridy = 0; pForm.add(new JLabel("Chức vụ:"), g);
         cboChucVu = new JComboBox<>(new String[]{"Nhân viên bán hàng", "Quản lý"});
-        g.gridx = 3; g.gridy = 0; pnlForm.add(cboChucVu, g);
+        g.gridx = 3; g.gridy = 0; pForm.add(cboChucVu, g);
 
-        g.gridx = 2; g.gridy = 1; pnlForm.add(new JLabel("Lương cơ bản (VNĐ):"), g);
+        g.gridx = 2; g.gridy = 1; pForm.add(new JLabel("Lương cơ bản (VNĐ):"), g);
         txtLuong = new JTextField(15);
-        g.gridx = 3; g.gridy = 1; pnlForm.add(txtLuong, g);
+        g.gridx = 3; g.gridy = 1; pForm.add(txtLuong, g);
 
-        g.gridx = 2; g.gridy = 2; pnlForm.add(new JLabel("Ca làm việc:"), g);
+        g.gridx = 2; g.gridy = 2; pForm.add(new JLabel("Ca làm việc:"), g);
         cboCaLam = new JComboBox<>(new String[]{"Toàn thời gian", "Ca sáng", "Ca chiều", "Ca tối"});
-        g.gridx = 3; g.gridy = 2; pnlForm.add(cboCaLam, g);
+        g.gridx = 3; g.gridy = 2; pForm.add(cboCaLam, g);
 
-        g.gridx = 2; g.gridy = 3; pnlForm.add(new JLabel("Địa chỉ:"), g);
+        g.gridx = 2; g.gridy = 3; pForm.add(new JLabel("Địa chỉ:"), g);
         txtDiaChi = new JTextField(15);
-        g.gridx = 3; g.gridy = 3; pnlForm.add(txtDiaChi, g);
+        g.gridx = 3; g.gridy = 3; pForm.add(txtDiaChi, g);
 
-        g.gridx = 2; g.gridy = 4; pnlForm.add(new JLabel("Email:"), g);
+        g.gridx = 2; g.gridy = 4; pForm.add(new JLabel("Email:"), g);
         txtEmail = new JTextField(15);
-        g.gridx = 3; g.gridy = 4; pnlForm.add(txtEmail, g);
+        g.gridx = 3; g.gridy = 4; pForm.add(txtEmail, g);
 
         // NÚT CHỨC NĂNG
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
-        pnlButtons.setBackground(Color.WHITE);
+        JPanel pButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
+        pButtons.setBackground(Color.WHITE);
 
         btnThem = UIHelper.createSuccessBtn("Thêm Nhân Viên", 140, 34);
         btnXoa = UIHelper.createDangerBtn("Thôi Việc", 100, 34);
@@ -132,20 +132,20 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         txtTimNV = new JTextField(9);
         btnTimNV = UIHelper.createDarkBtn("Tìm", 60, 28);
 
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXemChiTiet);
-        pnlButtons.add(btnXoaTrang);
-        pnlButtons.add(Box.createHorizontalStrut(10));
-        pnlButtons.add(lblTim);
-        pnlButtons.add(txtTimNV);
-        pnlButtons.add(btnTimNV);
+        pButtons.add(btnThem);
+        pButtons.add(btnXoa);
+        pButtons.add(btnSua);
+        pButtons.add(btnXemChiTiet);
+        pButtons.add(btnXoaTrang);
+        pButtons.add(Box.createHorizontalStrut(10));
+        pButtons.add(lblTim);
+        pButtons.add(txtTimNV);
+        pButtons.add(btnTimNV);
 
-        JPanel pnlTop = new JPanel(new BorderLayout());
-        pnlTop.add(pnlForm, BorderLayout.CENTER);
-        pnlTop.add(pnlButtons, BorderLayout.SOUTH);
-        add(pnlTop, BorderLayout.NORTH);
+        JPanel pTop = new JPanel(new BorderLayout());
+        pTop.add(pForm, BorderLayout.CENTER);
+        pTop.add(pButtons, BorderLayout.SOUTH);
+        add(pTop, BorderLayout.NORTH);
 
         // BẢNG NHÂN VIÊN
         String[] headers = {"STT", "Mã NV", "Họ Tên", "Giới Tính", "Số Điện Thoại", "Chức Vụ", "Lương Cơ Bản", "Ca Làm Việc", "Địa Chỉ"};
@@ -480,25 +480,25 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         dlg.setSize(680, 520);
         dlg.setLocationRelativeTo(this);
 
-        JPanel pnlInfo = new JPanel(new GridLayout(6, 2, 10, 6));
-        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+        JPanel pInfo = new JPanel(new GridLayout(6, 2, 10, 6));
+        pInfo.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder("Thông Tin Nhân Viên"),
             BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
-        pnlInfo.setBackground(Color.WHITE);
+        pInfo.setBackground(Color.WHITE);
 
-        pnlInfo.add(new JLabel("Mã nhân viên: " + nv.getMaNhanVien()));
-        pnlInfo.add(new JLabel("Họ và tên: " + nv.getHoTen()));
-        pnlInfo.add(new JLabel("Giới tính: " + (nv.isGioiTinh() ? "Nam" : "Nữ")));
-        pnlInfo.add(new JLabel("Ngày sinh: " + (nv.getNgaySinh() != null ? nv.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa rõ")));
-        pnlInfo.add(new JLabel("Số điện thoại: " + nv.getSoDienThoai()));
-        pnlInfo.add(new JLabel("Email: " + (nv.getEmail() != null ? nv.getEmail() : "Chưa cập nhật")));
-        pnlInfo.add(new JLabel("Địa chỉ: " + (nv.getDiaChi() != null ? nv.getDiaChi() : "Chưa cập nhật")));
-        pnlInfo.add(new JLabel("Chức vụ: " + nv.getChucVu()));
-        pnlInfo.add(new JLabel("Ca làm việc: " + (nv.getCaLamViec() != null ? nv.getCaLamViec() : "Toàn thời gian")));
-        pnlInfo.add(new JLabel("Lương cơ bản: " + df.format(nv.getLuongCoBan()) + " VNĐ"));
-        pnlInfo.add(new JLabel("Trạng thái: " + (nv.isTrangThai() ? "Đang làm việc" : "Đã nghỉ việc")));
-        pnlInfo.add(new JLabel("Vai trò hệ thống: " + (nv.isQuanLy() ? "Quản lý cấp cao" : "Nhân viên bán hàng")));
+        pInfo.add(new JLabel("Mã nhân viên: " + nv.getMaNhanVien()));
+        pInfo.add(new JLabel("Họ và tên: " + nv.getHoTen()));
+        pInfo.add(new JLabel("Giới tính: " + (nv.isGioiTinh() ? "Nam" : "Nữ")));
+        pInfo.add(new JLabel("Ngày sinh: " + (nv.getNgaySinh() != null ? nv.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa rõ")));
+        pInfo.add(new JLabel("Số điện thoại: " + nv.getSoDienThoai()));
+        pInfo.add(new JLabel("Email: " + (nv.getEmail() != null ? nv.getEmail() : "Chưa cập nhật")));
+        pInfo.add(new JLabel("Địa chỉ: " + (nv.getDiaChi() != null ? nv.getDiaChi() : "Chưa cập nhật")));
+        pInfo.add(new JLabel("Chức vụ: " + nv.getChucVu()));
+        pInfo.add(new JLabel("Ca làm việc: " + (nv.getCaLamViec() != null ? nv.getCaLamViec() : "Toàn thời gian")));
+        pInfo.add(new JLabel("Lương cơ bản: " + df.format(nv.getLuongCoBan()) + " VNĐ"));
+        pInfo.add(new JLabel("Trạng thái: " + (nv.isTrangThai() ? "Đang làm việc" : "Đã nghỉ việc")));
+        pInfo.add(new JLabel("Vai trò hệ thống: " + (nv.isQuanLy() ? "Quản lý cấp cao" : "Nhân viên bán hàng")));
 
         // Bảng hóa đơn do nhân viên đã lập
         dao.HoaDon_DAO hd_dao = new dao.HoaDon_DAO();
@@ -526,14 +526,14 @@ public class QuanLyNhanVien_GUI extends JPanel implements ActionListener, MouseL
         JScrollPane scrollHD = new JScrollPane(tableHD);
         scrollHD.setBorder(BorderFactory.createTitledBorder("Doanh Số Đã Lập (" + (stt - 1) + " hóa đơn)"));
 
-        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel pBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 32);
         btnDong.addActionListener(e -> dlg.dispose());
-        pnlBot.add(btnDong);
+        pBot.add(btnDong);
 
-        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(pInfo, BorderLayout.NORTH);
         dlg.add(scrollHD, BorderLayout.CENTER);
-        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.add(pBot, BorderLayout.SOUTH);
         dlg.setVisible(true);
     }
 

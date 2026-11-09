@@ -73,9 +73,9 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         add(lblHeader, BorderLayout.NORTH);
 
         // 2. VÙNG NHẬP LIỆU (FORM)
-        JPanel pnlForm = new JPanel(new GridBagLayout());
-        pnlForm.setBackground(Color.WHITE);
-        pnlForm.setBorder(BorderFactory.createTitledBorder(
+        JPanel pForm = new JPanel(new GridBagLayout());
+        pForm.setBackground(Color.WHITE);
+        pForm.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(203, 213, 225)),
                 "Thông Tin Sản Phẩm Mẫu",
                 TitledBorder.LEFT, TitledBorder.TOP,
@@ -87,73 +87,73 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         g.fill = GridBagConstraints.HORIZONTAL;
 
         // Cột 1
-        g.gridx = 0; g.gridy = 0; pnlForm.add(new JLabel("Mã sản phẩm:"), g);
+        g.gridx = 0; g.gridy = 0; pForm.add(new JLabel("Mã sản phẩm:"), g);
         txtMaSP = new JTextField(15);
-        g.gridx = 1; g.gridy = 0; pnlForm.add(txtMaSP, g);
+        g.gridx = 1; g.gridy = 0; pForm.add(txtMaSP, g);
 
-        g.gridx = 0; g.gridy = 1; pnlForm.add(new JLabel("Tên sản phẩm:"), g);
+        g.gridx = 0; g.gridy = 1; pForm.add(new JLabel("Tên sản phẩm:"), g);
         txtTenSP = new JTextField(15);
-        g.gridx = 1; g.gridy = 1; pnlForm.add(txtTenSP, g);
+        g.gridx = 1; g.gridy = 1; pForm.add(txtTenSP, g);
 
-        g.gridx = 0; g.gridy = 2; pnlForm.add(new JLabel("Phân loại:"), g);
+        g.gridx = 0; g.gridy = 2; pForm.add(new JLabel("Phân loại:"), g);
         cboLoai = new JComboBox<>(new String[]{"Sneaker", "Chạy bộ", "Sandal", "Giày Da", "Tập gym"});
-        g.gridx = 1; g.gridy = 2; pnlForm.add(cboLoai, g);
+        g.gridx = 1; g.gridy = 2; pForm.add(cboLoai, g);
 
-        g.gridx = 0; g.gridy = 3; pnlForm.add(new JLabel("Thương hiệu:"), g);
+        g.gridx = 0; g.gridy = 3; pForm.add(new JLabel("Thương hiệu:"), g);
         cboThuongHieu = new JComboBox<>(new String[]{"Nike", "Adidas", "Vans", "Converse", "Biti's", "Puma"});
-        g.gridx = 1; g.gridy = 3; pnlForm.add(cboThuongHieu, g);
+        g.gridx = 1; g.gridy = 3; pForm.add(cboThuongHieu, g);
 
         // Cột 2
-        g.gridx = 2; g.gridy = 0; pnlForm.add(new JLabel("Giá nhập (VNĐ):"), g);
+        g.gridx = 2; g.gridy = 0; pForm.add(new JLabel("Giá nhập (VNĐ):"), g);
         txtGiaNhap = new JTextField(15);
-        g.gridx = 3; g.gridy = 0; pnlForm.add(txtGiaNhap, g);
+        g.gridx = 3; g.gridy = 0; pForm.add(txtGiaNhap, g);
 
-        g.gridx = 2; g.gridy = 1; pnlForm.add(new JLabel("Giá bán niêm yết:"), g);
+        g.gridx = 2; g.gridy = 1; pForm.add(new JLabel("Giá bán niêm yết:"), g);
         txtGiaBan = new JTextField(15);
-        g.gridx = 3; g.gridy = 1; pnlForm.add(txtGiaBan, g);
+        g.gridx = 3; g.gridy = 1; pForm.add(txtGiaBan, g);
 
-        g.gridx = 2; g.gridy = 2; pnlForm.add(new JLabel("Chất liệu:"), g);
+        g.gridx = 2; g.gridy = 2; pForm.add(new JLabel("Chất liệu:"), g);
         txtChatLieu = new JTextField(15);
-        g.gridx = 3; g.gridy = 2; pnlForm.add(txtChatLieu, g);
+        g.gridx = 3; g.gridy = 2; pForm.add(txtChatLieu, g);
 
         // Tìm kiếm
-        g.gridx = 2; g.gridy = 3; pnlForm.add(new JLabel("Tìm kiếm (Tên/Mã):"), g);
-        JPanel pnlTim = new JPanel(new BorderLayout(4, 0));
-        pnlTim.setOpaque(false);
+        g.gridx = 2; g.gridy = 3; pForm.add(new JLabel("Tìm kiếm (Tên/Mã):"), g);
+        JPanel pTim = new JPanel(new BorderLayout(4, 0));
+        pTim.setOpaque(false);
         txtTimKiem = new JTextField(10);
         btnTim = UIHelper.createDarkBtn("Tìm", 65, 28);
-        pnlTim.add(txtTimKiem, BorderLayout.CENTER);
-        pnlTim.add(btnTim, BorderLayout.EAST);
-        g.gridx = 3; g.gridy = 3; pnlForm.add(pnlTim, g);
+        pTim.add(txtTimKiem, BorderLayout.CENTER);
+        pTim.add(btnTim, BorderLayout.EAST);
+        g.gridx = 3; g.gridy = 3; pForm.add(pTim, g);
 
         // 3. THANH LỌC NÂNG CAO INLINE
-        JPanel pnlLoc = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
-        pnlLoc.setBackground(new Color(241, 245, 249));
-        pnlLoc.setBorder(BorderFactory.createTitledBorder(
+        JPanel pLoc = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
+        pLoc.setBackground(new Color(241, 245, 249));
+        pLoc.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(203, 213, 225)),
                 "Lọc Nâng Cao Sản Phẩm",
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 12), new Color(30, 58, 138)
         ));
-        pnlLoc.add(new JLabel("Thương hiệu:"));
+        pLoc.add(new JLabel("Thương hiệu:"));
         ArrayList<String> dsHang = sp_dao.getAllThuongHieu();
         dsHang.add(0, "Tất cả");
         cboLocThuongHieu = new JComboBox<>(dsHang.toArray(new String[0]));
-        pnlLoc.add(cboLocThuongHieu);
-        pnlLoc.add(new JLabel("Giá từ:"));
+        pLoc.add(cboLocThuongHieu);
+        pLoc.add(new JLabel("Giá từ:"));
         txtLocGiaTu = new JTextField(8);
-        pnlLoc.add(txtLocGiaTu);
-        pnlLoc.add(new JLabel("Đến:"));
+        pLoc.add(txtLocGiaTu);
+        pLoc.add(new JLabel("Đến:"));
         txtLocGiaDen = new JTextField(8);
-        pnlLoc.add(txtLocGiaDen);
+        pLoc.add(txtLocGiaDen);
         btnLocNangCao = UIHelper.createPrimaryBtn("Lọc", 75, 28);
         btnBoLoc = UIHelper.createSecondaryBtn("Bỏ Lọc", 75, 28);
-        pnlLoc.add(btnLocNangCao);
-        pnlLoc.add(btnBoLoc);
+        pLoc.add(btnLocNangCao);
+        pLoc.add(btnBoLoc);
 
         // 4. NÚT CHỨC NĂNG
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        pnlButtons.setBackground(Color.WHITE);
+        JPanel pButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        pButtons.setBackground(Color.WHITE);
 
         btnThem = UIHelper.createSuccessBtn("Thêm Mới", 110, 34);
         btnXoa = UIHelper.createDangerBtn("Xóa (Ngừng)", 115, 34);
@@ -161,18 +161,18 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         btnXemChiTiet = UIHelper.createButton("Xem Chi Tiết", UIHelper.PRIMARY_BLUE, Color.WHITE, 120, 34);
         btnXoaTrang = UIHelper.createSecondaryBtn("Xóa Trắng", 100, 34);
 
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXemChiTiet);
-        pnlButtons.add(btnXoaTrang);
+        pButtons.add(btnThem);
+        pButtons.add(btnXoa);
+        pButtons.add(btnSua);
+        pButtons.add(btnXemChiTiet);
+        pButtons.add(btnXoaTrang);
 
-        JPanel pnlTop = new JPanel();
-        pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
-        pnlTop.add(pnlForm);
-        pnlTop.add(pnlLoc);
-        pnlTop.add(pnlButtons);
-        add(pnlTop, BorderLayout.NORTH);
+        JPanel pTop = new JPanel();
+        pTop.setLayout(new BoxLayout(pTop, BoxLayout.Y_AXIS));
+        pTop.add(pForm);
+        pTop.add(pLoc);
+        pTop.add(pButtons);
+        add(pTop, BorderLayout.NORTH);
 
         // 4. BẢNG HIỂN THỊ JTABLE
         String[] headers = {"STT", "Mã Sản Phẩm", "Tên Sản Phẩm", "Phân Loại", "Thương Hiệu", "Giá Nhập", "Giá Bán", "Chất Liệu"};
@@ -474,19 +474,19 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         dlg.setSize(650, 420);
         dlg.setLocationRelativeTo(this);
 
-        JPanel pnlInfo = new JPanel(new GridLayout(4, 2, 8, 4));
-        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+        JPanel pInfo = new JPanel(new GridLayout(4, 2, 8, 4));
+        pInfo.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(10, 10, 10, 10),
             BorderFactory.createTitledBorder("Thông Tin Chung Mẫu Giày")
         ));
-        pnlInfo.add(new JLabel("Mã sản phẩm: " + sp.getMaSanPham()));
-        pnlInfo.add(new JLabel("Tên sản phẩm: " + sp.getTenSanPham()));
-        pnlInfo.add(new JLabel("Phân loại: " + sp.getLoaiGiay()));
-        pnlInfo.add(new JLabel("Thương hiệu: " + sp.getThuongHieu()));
-        pnlInfo.add(new JLabel("Giá nhập: " + df.format(sp.getGiaNhap())));
-        pnlInfo.add(new JLabel("Giá bán: " + df.format(sp.getGiaBan())));
-        pnlInfo.add(new JLabel("Chất liệu: " + (sp.getChatLieu() != null ? sp.getChatLieu() : "Đang cập nhật")));
-        pnlInfo.add(new JLabel("Trạng thái: " + (sp.isTrangThai() ? "Đang kinh doanh" : "Ngừng kinh doanh")));
+        pInfo.add(new JLabel("Mã sản phẩm: " + sp.getMaSanPham()));
+        pInfo.add(new JLabel("Tên sản phẩm: " + sp.getTenSanPham()));
+        pInfo.add(new JLabel("Phân loại: " + sp.getLoaiGiay()));
+        pInfo.add(new JLabel("Thương hiệu: " + sp.getThuongHieu()));
+        pInfo.add(new JLabel("Giá nhập: " + df.format(sp.getGiaNhap())));
+        pInfo.add(new JLabel("Giá bán: " + df.format(sp.getGiaBan())));
+        pInfo.add(new JLabel("Chất liệu: " + (sp.getChatLieu() != null ? sp.getChatLieu() : "Đang cập nhật")));
+        pInfo.add(new JLabel("Trạng thái: " + (sp.isTrangThai() ? "Đang kinh doanh" : "Ngừng kinh doanh")));
 
         String[] headers = {"STT", "Mã SKU (CTG)", "Size", "Màu Sắc", "Tồn Kho", "Tình Trạng Kho"};
         DefaultTableModel modelCTG = new DefaultTableModel(headers, 0) {
@@ -508,14 +508,14 @@ public class QuanLySanPham_GUI extends JPanel implements ActionListener, MouseLi
         JScrollPane scrollCTG = new JScrollPane(tableCTG);
         scrollCTG.setBorder(BorderFactory.createTitledBorder("Danh Sách Biến Thể Kích Thước & Màu Sắc (SKU)"));
 
-        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel pBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 32);
         btnDong.addActionListener(e -> dlg.dispose());
-        pnlBot.add(btnDong);
+        pBot.add(btnDong);
 
-        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(pInfo, BorderLayout.NORTH);
         dlg.add(scrollCTG, BorderLayout.CENTER);
-        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.add(pBot, BorderLayout.SOUTH);
         dlg.setVisible(true);
     }
 

@@ -55,27 +55,27 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         add(lblHeader, BorderLayout.NORTH);
 
         // 2. KHUNG TRUNG TÂM (KPI CARDS + FILTER + TABLES)
-        JPanel pnlCenter = new JPanel(new BorderLayout(10, 10));
-        pnlCenter.setOpaque(false);
+        JPanel pCenter = new JPanel(new BorderLayout(10, 10));
+        pCenter.setOpaque(false);
 
         // A. Thẻ KPI (Bento Cards)
-        JPanel pnlKPI = new JPanel(new GridLayout(1, 4, 12, 0));
-        pnlKPI.setOpaque(false);
+        JPanel pKPI = new JPanel(new GridLayout(1, 4, 12, 0));
+        pKPI.setOpaque(false);
 
         lblTongDoanhThuVal = new JLabel("0 VNĐ", JLabel.CENTER);
         lblTongDonHangVal  = new JLabel("0 đơn", JLabel.CENTER);
         lblTongSoLuongVal  = new JLabel("0 đôi", JLabel.CENTER);
         lblKhachHangVal    = new JLabel("4 khách", JLabel.CENTER);
 
-        pnlKPI.add(createKPICard("TỔNG DOANH THU", lblTongDoanhThuVal, UIHelper.SUCCESS_GREEN, new Color(240, 253, 244)));
-        pnlKPI.add(createKPICard("SỐ HÓA ĐƠN ĐÃ LẬP", lblTongDonHangVal, UIHelper.ACCENT_BLUE, new Color(239, 246, 255)));
-        pnlKPI.add(createKPICard("SẢN PHẨM ĐÃ BÁN", lblTongSoLuongVal, UIHelper.PRIMARY_BLUE, new Color(241, 245, 249)));
-        pnlKPI.add(createKPICard("KHÁCH HÀNG THÀNH VIÊN", lblKhachHangVal, UIHelper.WARN_AMBER, new Color(254, 243, 199)));
+        pKPI.add(createKPICard("TỔNG DOANH THU", lblTongDoanhThuVal, UIHelper.SUCCESS_GREEN, new Color(240, 253, 244)));
+        pKPI.add(createKPICard("SỐ HÓA ĐƠN ĐÃ LẬP", lblTongDonHangVal, UIHelper.ACCENT_BLUE, new Color(239, 246, 255)));
+        pKPI.add(createKPICard("SẢN PHẨM ĐÃ BÁN", lblTongSoLuongVal, UIHelper.PRIMARY_BLUE, new Color(241, 245, 249)));
+        pKPI.add(createKPICard("KHÁCH HÀNG THÀNH VIÊN", lblKhachHangVal, UIHelper.WARN_AMBER, new Color(254, 243, 199)));
 
         // B. Thanh lọc dữ liệu
-        JPanel pnlFilterBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
-        pnlFilterBar.setBackground(Color.WHITE);
-        pnlFilterBar.setBorder(BorderFactory.createCompoundBorder(
+        JPanel pFilterBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        pFilterBar.setBackground(Color.WHITE);
+        pFilterBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIHelper.BORDER_GRAY, 1, true),
                 BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
@@ -89,21 +89,21 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         btnTimHD = UIHelper.createPrimaryBtn("Tìm HĐ", 85, 34);
         btnXemChiTietHD = UIHelper.createSecondaryBtn("Xem Chi Tiết", 115, 34);
 
-        pnlFilterBar.add(btnLamMoi);
-        pnlFilterBar.add(Box.createHorizontalStrut(12));
-        pnlFilterBar.add(new JLabel("Tìm:"));
-        pnlFilterBar.add(txtTimKiemHD);
-        pnlFilterBar.add(btnTimHD);
-        pnlFilterBar.add(btnXemChiTietHD);
-        pnlFilterBar.add(Box.createHorizontalStrut(12));
-        pnlFilterBar.add(btnXuatBaoCao);
+        pFilterBar.add(btnLamMoi);
+        pFilterBar.add(Box.createHorizontalStrut(12));
+        pFilterBar.add(new JLabel("Tìm:"));
+        pFilterBar.add(txtTimKiemHD);
+        pFilterBar.add(btnTimHD);
+        pFilterBar.add(btnXemChiTietHD);
+        pFilterBar.add(Box.createHorizontalStrut(12));
+        pFilterBar.add(btnXuatBaoCao);
 
         // Ghép KPI + Toolbar vào TopCenter
-        JPanel pnlTopCenter = new JPanel(new BorderLayout(0, 10));
-        pnlTopCenter.setOpaque(false);
-        pnlTopCenter.add(pnlKPI, BorderLayout.NORTH);
-        pnlTopCenter.add(pnlFilterBar, BorderLayout.SOUTH);
-        pnlCenter.add(pnlTopCenter, BorderLayout.NORTH);
+        JPanel pTopCenter = new JPanel(new BorderLayout(0, 10));
+        pTopCenter.setOpaque(false);
+        pTopCenter.add(pKPI, BorderLayout.NORTH);
+        pTopCenter.add(pFilterBar, BorderLayout.SOUTH);
+        pCenter.add(pTopCenter, BorderLayout.NORTH);
 
         // C. Bảng hiển thị danh sách hóa đơn
         String[] headersHD = {"STT", "Mã Hóa Đơn", "Thời Gian Lập", "Thu Ngân Bán Hàng", "Khách Hàng", "Tổng Thanh Toán", "Phương Thức"};
@@ -132,8 +132,8 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 13), new Color(30, 58, 138)
         ));
-        pnlCenter.add(scrollHD, BorderLayout.CENTER);
-        add(pnlCenter, BorderLayout.CENTER);
+        pCenter.add(scrollHD, BorderLayout.CENTER);
+        add(pCenter, BorderLayout.CENTER);
 
         // Đăng ký sự kiện
         btnLamMoi.addActionListener(this);
@@ -315,28 +315,28 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         dlg.setSize(760, 560);
         dlg.setLocationRelativeTo(this);
 
-        JPanel pnlInfo = new JPanel(new GridLayout(6, 2, 10, 6));
-        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+        JPanel pInfo = new JPanel(new GridLayout(6, 2, 10, 6));
+        pInfo.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder("Thông Tin Hóa Đơn & Thanh Toán"),
             BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
-        pnlInfo.setBackground(Color.WHITE);
+        pInfo.setBackground(Color.WHITE);
 
         String tenNV = (hd.getNhanVien() != null && hd.getNhanVien().getHoTen() != null) ? hd.getNhanVien().getHoTen() : (hd.getNhanVien() != null ? hd.getNhanVien().getMaNhanVien() : "N/A");
         String tenKH = (hd.getKhachHang() != null && hd.getKhachHang().getHoTen() != null) ? hd.getKhachHang().getHoTen() : "Khách lẻ vãng lai";
 
-        pnlInfo.add(new JLabel("Mã hóa đơn: " + hd.getMaHoaDon()));
-        pnlInfo.add(new JLabel("Thời gian lập: " + ((hd.getNgayLap() != null) ? dtf.format(hd.getNgayLap()) : "")));
-        pnlInfo.add(new JLabel("Thu ngân lập đơn: " + tenNV));
-        pnlInfo.add(new JLabel("Khách hàng: " + tenKH));
-        pnlInfo.add(new JLabel("Tổng tiền hàng: " + df.format(hd.getTongTienHang())));
-        pnlInfo.add(new JLabel("Chiết khấu hạng thẻ: " + (hd.getChietKhau() > 0 ? "-" : "") + df.format(hd.getChietKhau())));
-        pnlInfo.add(new JLabel("Điểm sử dụng: " + hd.getDiemSuDung() + " điểm"));
-        pnlInfo.add(new JLabel("Tiền giảm từ điểm: " + (hd.getTienGiamDiem() > 0 ? "-" : "") + df.format(hd.getTienGiamDiem())));
-        pnlInfo.add(new JLabel("Tổng thanh toán: " + df.format(hd.getTongTien())));
-        pnlInfo.add(new JLabel("Phương thức thanh toán: " + (hd.getPhuongThucTT() != null ? hd.getPhuongThucTT() : "Tiền mặt")));
-        pnlInfo.add(new JLabel("Tiền khách đưa / Tiền thừa: " + df.format(hd.getTienKhachDua()) + " / " + df.format(hd.getTienThua())));
-        pnlInfo.add(new JLabel("Điểm thưởng tích lũy thêm: +" + hd.getDiemCong() + " điểm"));
+        pInfo.add(new JLabel("Mã hóa đơn: " + hd.getMaHoaDon()));
+        pInfo.add(new JLabel("Thời gian lập: " + ((hd.getNgayLap() != null) ? dtf.format(hd.getNgayLap()) : "")));
+        pInfo.add(new JLabel("Thu ngân lập đơn: " + tenNV));
+        pInfo.add(new JLabel("Khách hàng: " + tenKH));
+        pInfo.add(new JLabel("Tổng tiền hàng: " + df.format(hd.getTongTienHang())));
+        pInfo.add(new JLabel("Chiết khấu hạng thẻ: " + (hd.getChietKhau() > 0 ? "-" : "") + df.format(hd.getChietKhau())));
+        pInfo.add(new JLabel("Điểm sử dụng: " + hd.getDiemSuDung() + " điểm"));
+        pInfo.add(new JLabel("Tiền giảm từ điểm: " + (hd.getTienGiamDiem() > 0 ? "-" : "") + df.format(hd.getTienGiamDiem())));
+        pInfo.add(new JLabel("Tổng thanh toán: " + df.format(hd.getTongTien())));
+        pInfo.add(new JLabel("Phương thức thanh toán: " + (hd.getPhuongThucTT() != null ? hd.getPhuongThucTT() : "Tiền mặt")));
+        pInfo.add(new JLabel("Tiền khách đưa / Tiền thừa: " + df.format(hd.getTienKhachDua()) + " / " + df.format(hd.getTienThua())));
+        pInfo.add(new JLabel("Điểm thưởng tích lũy thêm: +" + hd.getDiemCong() + " điểm"));
 
         String[] headers = {"STT", "Mã Chi Tiết", "Tên Sản Phẩm", "Size", "Màu Sắc", "Số Lượng", "Đơn Giá", "Thành Tiền"};
         DefaultTableModel modelCT = new DefaultTableModel(headers, 0) {
@@ -362,7 +362,7 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         JScrollPane scrollCT = new JScrollPane(tableCT);
         scrollCT.setBorder(BorderFactory.createTitledBorder("Danh Sách Sản Phẩm Mua (" + (stt - 1) + " mặt hàng)"));
 
-        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
+        JPanel pBot = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
         JButton btnXuat = UIHelper.createSuccessBtn("📄 Xuất File Hóa Đơn", 160, 34);
         JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 34);
 
@@ -377,12 +377,12 @@ public class ThongKe_GUI extends JPanel implements ActionListener {
         });
         btnDong.addActionListener(ev -> dlg.dispose());
 
-        pnlBot.add(btnXuat);
-        pnlBot.add(btnDong);
+        pBot.add(btnXuat);
+        pBot.add(btnDong);
 
-        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(pInfo, BorderLayout.NORTH);
         dlg.add(scrollCT, BorderLayout.CENTER);
-        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.add(pBot, BorderLayout.SOUTH);
         dlg.setVisible(true);
     }
 

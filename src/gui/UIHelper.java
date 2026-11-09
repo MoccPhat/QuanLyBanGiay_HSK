@@ -209,17 +209,17 @@ public class UIHelper {
      * Tạo Panel có khung TitledBorder chuẩn đồng bộ
      */
     public static JPanel createTitledPanel(String title, Color titleColor) {
-        JPanel pnl = new JPanel();
-        pnl.setBackground(Color.WHITE);
+        JPanel p = new JPanel();
+        p.setBackground(Color.WHITE);
         Border line = BorderFactory.createLineBorder(BORDER_GRAY, 1, true);
         TitledBorder border = BorderFactory.createTitledBorder(
                 line, " " + title + " ",
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 13), titleColor
         );
-        pnl.setBorder(BorderFactory.createCompoundBorder(
+        p.setBorder(BorderFactory.createCompoundBorder(
                 border, BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
-        return pnl;
+        return p;
     }
 }

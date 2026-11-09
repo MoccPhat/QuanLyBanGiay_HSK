@@ -34,8 +34,8 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
 
         // 1. Header trên cùng
-        JPanel pnlHeader = buildHeaderPanel();
-        add(pnlHeader, BorderLayout.NORTH);
+        JPanel pHeader = buildHeaderPanel();
+        add(pHeader, BorderLayout.NORTH);
 
         // 2. JTabbedPane chứa các phân hệ
         tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -72,29 +72,29 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         registerKeyBindings();
 
         // 4. Footer dưới cùng
-        JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 4));
-        pnlFooter.setBackground(new Color(241, 245, 249));
+        JPanel pFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 4));
+        pFooter.setBackground(new Color(241, 245, 249));
         JLabel lblHotkeys = new JLabel("Phím tắt: [F1] Bán hàng | [F2] Mẫu giày | [F3] Khách hàng | [F4] Nhân sự | [F5] Thống kê | [F10] Thanh toán | [Del] Xóa giỏ");
         lblHotkeys.setFont(new Font("Arial", Font.ITALIC, 11));
         lblHotkeys.setForeground(new Color(100, 116, 139));
-        pnlFooter.add(lblHotkeys);
-        add(pnlFooter, BorderLayout.SOUTH);
+        pFooter.add(lblHotkeys);
+        add(pFooter, BorderLayout.SOUTH);
     }
 
     private JPanel buildHeaderPanel() {
-        JPanel pnl = new JPanel(new BorderLayout());
-        pnl.setBackground(new Color(30, 58, 138)); // Xanh navy đậm phong cách IUH
-        pnl.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(new Color(30, 58, 138)); // Xanh navy đậm phong cách IUH
+        p.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
 
         // Logo & Tên cửa hàng
         JLabel lblBrand = new JLabel("QUẢN LÝ BÁN HÀNG GIÀY DÉP");
         lblBrand.setFont(new Font("Arial", Font.BOLD, 16));
         lblBrand.setForeground(Color.WHITE);
-        pnl.add(lblBrand, BorderLayout.WEST);
+        p.add(lblBrand, BorderLayout.WEST);
 
         // Thông tin thu ngân
-        JPanel pnlUser = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
-        pnlUser.setOpaque(false);
+        JPanel pUser = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        pUser.setOpaque(false);
 
         String hoTen = (nhanVien != null) ? nhanVien.getHoTen() : "Nhân viên";
         String chucVu = (nhanVien != null) ? nhanVien.getChucVu() : "";
@@ -106,11 +106,11 @@ public class ManHinhChinh_GUI extends JFrame implements ActionListener {
         btnDangXuat = UIHelper.createDangerBtn("Đăng Xuất", 100, 30);
         btnDangXuat.addActionListener(this);
 
-        pnlUser.add(lblUser);
-        pnlUser.add(btnDangXuat);
-        pnl.add(pnlUser, BorderLayout.EAST);
+        pUser.add(lblUser);
+        pUser.add(btnDangXuat);
+        p.add(pUser, BorderLayout.EAST);
 
-        return pnl;
+        return p;
     }
 
     @Override

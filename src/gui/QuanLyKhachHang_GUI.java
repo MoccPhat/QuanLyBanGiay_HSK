@@ -59,68 +59,68 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         add(lblHeader, BorderLayout.NORTH);
 
         // FORM NHẬP LIỆU
-        JPanel pnlForm = new JPanel(new GridBagLayout());
-        pnlForm.setBackground(Color.WHITE);
-        pnlForm.setBorder(UIHelper.createTitledPanel("Thông Tin Thành Viên", UIHelper.PRIMARY_BLUE).getBorder());
+        JPanel pForm = new JPanel(new GridBagLayout());
+        pForm.setBackground(Color.WHITE);
+        pForm.setBorder(UIHelper.createTitledPanel("Thông Tin Thành Viên", UIHelper.PRIMARY_BLUE).getBorder());
 
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(6, 12, 6, 12);
         g.fill = GridBagConstraints.HORIZONTAL;
 
         // Cột 1
-        g.gridx = 0; g.gridy = 0; pnlForm.add(new JLabel("Mã khách hàng:"), g);
+        g.gridx = 0; g.gridy = 0; pForm.add(new JLabel("Mã khách hàng:"), g);
         txtMaKH = new JTextField(15);
-        g.gridx = 1; g.gridy = 0; pnlForm.add(txtMaKH, g);
+        g.gridx = 1; g.gridy = 0; pForm.add(txtMaKH, g);
 
-        g.gridx = 0; g.gridy = 1; pnlForm.add(new JLabel("Họ và tên:"), g);
+        g.gridx = 0; g.gridy = 1; pForm.add(new JLabel("Họ và tên:"), g);
         txtHoTen = new JTextField(15);
-        g.gridx = 1; g.gridy = 1; pnlForm.add(txtHoTen, g);
+        g.gridx = 1; g.gridy = 1; pForm.add(txtHoTen, g);
 
-        g.gridx = 0; g.gridy = 2; pnlForm.add(new JLabel("Số điện thoại:"), g);
+        g.gridx = 0; g.gridy = 2; pForm.add(new JLabel("Số điện thoại:"), g);
         txtSDT = new JTextField(15);
-        g.gridx = 1; g.gridy = 2; pnlForm.add(txtSDT, g);
+        g.gridx = 1; g.gridy = 2; pForm.add(txtSDT, g);
 
         // Cột 2
-        g.gridx = 2; g.gridy = 0; pnlForm.add(new JLabel("Địa chỉ:"), g);
+        g.gridx = 2; g.gridy = 0; pForm.add(new JLabel("Địa chỉ:"), g);
         txtDiaChi = new JTextField(15);
-        g.gridx = 3; g.gridy = 0; pnlForm.add(txtDiaChi, g);
+        g.gridx = 3; g.gridy = 0; pForm.add(txtDiaChi, g);
 
-        g.gridx = 2; g.gridy = 1; pnlForm.add(new JLabel("Hạng thành viên:"), g);
+        g.gridx = 2; g.gridy = 1; pForm.add(new JLabel("Hạng thành viên:"), g);
         cboHang = new JComboBox<>(new String[]{"Đồng", "Bạc", "Vàng", "Kim Cương"});
         cboHang.setEnabled(false); // Khóa hạng thẻ, hệ thống tự động tính theo điểm tích lũy (chống gian lận VIP)
-        g.gridx = 3; g.gridy = 1; pnlForm.add(cboHang, g);
+        g.gridx = 3; g.gridy = 1; pForm.add(cboHang, g);
 
-        g.gridx = 2; g.gridy = 2; pnlForm.add(new JLabel("Điểm tích lũy:"), g);
+        g.gridx = 2; g.gridy = 2; pForm.add(new JLabel("Điểm tích lũy:"), g);
         txtDiem = new JTextField("0", 15);
         txtDiem.setEditable(false);
-        g.gridx = 3; g.gridy = 2; pnlForm.add(txtDiem, g);
+        g.gridx = 3; g.gridy = 2; pForm.add(txtDiem, g);
 
         // THANH LỌC NÂNG CAO INLINE
-        JPanel pnlLoc = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
-        pnlLoc.setBackground(new Color(241, 245, 249));
-        pnlLoc.setBorder(BorderFactory.createTitledBorder(
+        JPanel pLoc = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
+        pLoc.setBackground(new Color(241, 245, 249));
+        pLoc.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(203, 213, 225)),
                 "Lọc Nâng Cao Khách Hàng",
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 12), new Color(30, 58, 138)
         ));
-        pnlLoc.add(new JLabel("Hạng TV:"));
+        pLoc.add(new JLabel("Hạng TV:"));
         cboLocHang = new JComboBox<>(new String[]{"Tất cả", "Đồng", "Bạc", "Vàng", "Kim Cương"});
-        pnlLoc.add(cboLocHang);
-        pnlLoc.add(new JLabel("Điểm từ:"));
+        pLoc.add(cboLocHang);
+        pLoc.add(new JLabel("Điểm từ:"));
         txtLocDiemTu = new JTextField(8);
-        pnlLoc.add(txtLocDiemTu);
-        pnlLoc.add(new JLabel("Đến:"));
+        pLoc.add(txtLocDiemTu);
+        pLoc.add(new JLabel("Đến:"));
         txtLocDiemDen = new JTextField(8);
-        pnlLoc.add(txtLocDiemDen);
+        pLoc.add(txtLocDiemDen);
         btnLocNangCao = UIHelper.createPrimaryBtn("Lọc", 75, 28);
         btnBoLoc = UIHelper.createSecondaryBtn("Bỏ Lọc", 75, 28);
-        pnlLoc.add(btnLocNangCao);
-        pnlLoc.add(btnBoLoc);
+        pLoc.add(btnLocNangCao);
+        pLoc.add(btnBoLoc);
 
         // NÚT CHỨC NĂNG
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
-        pnlButtons.setBackground(Color.WHITE);
+        JPanel pButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
+        pButtons.setBackground(Color.WHITE);
 
         btnThem = UIHelper.createSuccessBtn("Thêm Khách Hàng", 145, 34);
         btnXoa = UIHelper.createDangerBtn("Xóa Khách", 105, 34);
@@ -133,15 +133,15 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         txtTimSDT = new JTextField(9);
         btnTim = UIHelper.createDarkBtn("Tìm", 60, 28);
 
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXemChiTiet);
-        pnlButtons.add(btnXoaTrang);
-        pnlButtons.add(Box.createHorizontalStrut(10));
-        pnlButtons.add(lblTraCuu);
-        pnlButtons.add(txtTimSDT);
-        pnlButtons.add(btnTim);
+        pButtons.add(btnThem);
+        pButtons.add(btnXoa);
+        pButtons.add(btnSua);
+        pButtons.add(btnXemChiTiet);
+        pButtons.add(btnXoaTrang);
+        pButtons.add(Box.createHorizontalStrut(10));
+        pButtons.add(lblTraCuu);
+        pButtons.add(txtTimSDT);
+        pButtons.add(btnTim);
 
         // L14: Phân quyền - Thu ngân không được phép xóa khách hàng
         if (nhanVienDangNhap != null && !nhanVienDangNhap.isQuanLy()) {
@@ -149,12 +149,12 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
             btnXoa.setToolTipText("Chỉ Quản lý mới có quyền xóa khách hàng!");
         }
 
-        JPanel pnlTop = new JPanel();
-        pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
-        pnlTop.add(pnlForm);
-        pnlTop.add(pnlLoc);
-        pnlTop.add(pnlButtons);
-        add(pnlTop, BorderLayout.NORTH);
+        JPanel pTop = new JPanel();
+        pTop.setLayout(new BoxLayout(pTop, BoxLayout.Y_AXIS));
+        pTop.add(pForm);
+        pTop.add(pLoc);
+        pTop.add(pButtons);
+        add(pTop, BorderLayout.NORTH);
 
         // BẢNG DỮ LIỆU
         String[] headers = {"STT", "Mã KH", "Họ Tên", "Số Điện Thoại", "Địa Chỉ", "Điểm Tích Lũy", "Hạng Thành Viên"};
@@ -414,21 +414,21 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         dlg.setSize(620, 420);
         dlg.setLocationRelativeTo(this);
 
-        JPanel pnlInfo = new JPanel(new GridLayout(5, 2, 8, 4));
-        pnlInfo.setBorder(BorderFactory.createCompoundBorder(
+        JPanel pInfo = new JPanel(new GridLayout(5, 2, 8, 4));
+        pInfo.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(10, 10, 10, 10),
             BorderFactory.createTitledBorder("Thông Tin Khách Hàng")
         ));
-        pnlInfo.add(new JLabel("Mã khách hàng: " + kh.getMaKhachHang()));
-        pnlInfo.add(new JLabel("Họ tên: " + kh.getHoTen()));
-        pnlInfo.add(new JLabel("Giới tính: " + (kh.isGioiTinh() ? "Nam" : "Nữ")));
-        pnlInfo.add(new JLabel("Ngày sinh: " + (kh.getNgaySinh() != null ? kh.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa cập nhật")));
-        pnlInfo.add(new JLabel("Số điện thoại: " + kh.getSoDienThoai()));
-        pnlInfo.add(new JLabel("Email: " + (kh.getEmail() != null ? kh.getEmail() : "Chưa cập nhật")));
-        pnlInfo.add(new JLabel("Địa chỉ: " + (kh.getDiaChi() != null ? kh.getDiaChi() : "Chưa cập nhật")));
-        pnlInfo.add(new JLabel("Hạng thành viên: " + kh.getHangThanhVien()));
-        pnlInfo.add(new JLabel("Điểm tích lũy hiện tại: " + kh.getDiemTichLuy() + " điểm"));
-        pnlInfo.add(new JLabel("Ưu đãi giảm giá: " + ((int)(kh.tinhChietKhau() * 100)) + "%"));
+        pInfo.add(new JLabel("Mã khách hàng: " + kh.getMaKhachHang()));
+        pInfo.add(new JLabel("Họ tên: " + kh.getHoTen()));
+        pInfo.add(new JLabel("Giới tính: " + (kh.isGioiTinh() ? "Nam" : "Nữ")));
+        pInfo.add(new JLabel("Ngày sinh: " + (kh.getNgaySinh() != null ? kh.getNgaySinh().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa cập nhật")));
+        pInfo.add(new JLabel("Số điện thoại: " + kh.getSoDienThoai()));
+        pInfo.add(new JLabel("Email: " + (kh.getEmail() != null ? kh.getEmail() : "Chưa cập nhật")));
+        pInfo.add(new JLabel("Địa chỉ: " + (kh.getDiaChi() != null ? kh.getDiaChi() : "Chưa cập nhật")));
+        pInfo.add(new JLabel("Hạng thành viên: " + kh.getHangThanhVien()));
+        pInfo.add(new JLabel("Điểm tích lũy hiện tại: " + kh.getDiemTichLuy() + " điểm"));
+        pInfo.add(new JLabel("Ưu đãi giảm giá: " + ((int)(kh.tinhChietKhau() * 100)) + "%"));
 
         // Lấy lịch sử hóa đơn của khách
         dao.HoaDon_DAO hd_dao = new dao.HoaDon_DAO();
@@ -456,14 +456,14 @@ public class QuanLyKhachHang_GUI extends JPanel implements ActionListener, Mouse
         JScrollPane scrollHD = new JScrollPane(tableHD);
         scrollHD.setBorder(BorderFactory.createTitledBorder("Lịch Sử Mua Hàng (" + (stt - 1) + " hóa đơn)"));
 
-        JPanel pnlBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel pBot = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnDong = UIHelper.createSecondaryBtn("Đóng", 90, 32);
         btnDong.addActionListener(e -> dlg.dispose());
-        pnlBot.add(btnDong);
+        pBot.add(btnDong);
 
-        dlg.add(pnlInfo, BorderLayout.NORTH);
+        dlg.add(pInfo, BorderLayout.NORTH);
         dlg.add(scrollHD, BorderLayout.CENTER);
-        dlg.add(pnlBot, BorderLayout.SOUTH);
+        dlg.add(pBot, BorderLayout.SOUTH);
         dlg.setVisible(true);
     }
 
