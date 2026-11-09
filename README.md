@@ -95,16 +95,18 @@ Dự án được xây dựng chuẩn mực theo mô hình 3 tầng phân tách 
 
 ```
 E:\Eclipse Java\project\
-├── bin/                                # Mã Bytecode (.class) sau khi biên dịch
+├── bin/                                # Mã Bytecode (.class) sau khi biên dịch (Java 17, major=61)
 │   ├── connectDB/
 │   ├── dao/
 │   ├── entity/
-│   ├── gui/
-│   └── test/
-├── database/                           # Kịch bản Cơ sở dữ liệu SQL Server
+│   └── gui/
+├── data/                               # Dữ liệu kịch bản CSDL bổ trợ
+│   └── QuanLyBanGiay.sql
+├── database/                           # Kịch bản Cơ sở dữ liệu SQL Server chính thức
 │   └── QuanLyBanGiay.sql               # Script gộp DDL (6 bảng, 33 CHECK) + DML Seed chuẩn hóa
+├── hoadon/                             # Thư mục xuất file hóa đơn bán hàng (.txt)
 ├── lib/                                # Thư viện JDBC Driver chính thức
-│   └── mssql-jdbc-12.4.2.jre11.jar     # Microsoft JDBC Driver cho Java 11/17
+│   └── sqljdbc42.jar                   # Microsoft JDBC Driver 4.2 cho SQL Server
 ├── src/                                # Toàn bộ 24 tệp mã nguồn Java
 │   ├── Main.java                       # Điểm khởi chạy chương trình (Entry point)
 │   ├── connectDB/
@@ -132,29 +134,18 @@ E:\Eclipse Java\project\
 │       ├── QuanLyNhanVien_GUI.java
 │       ├── ThongKe_GUI.java
 │       └── UIHelper.java
+├── _memory/                            # Tri thức dài hạn hệ thống (Obsidian Memory)
 ├── _sync/                              # Công cụ kiểm thử và tài liệu đối soát sự thật
 │   ├── GROUND_TRUTH.md                 # Đặc tả sự thật hệ thống đã kiểm chứng
 │   ├── VerifyAllScenarios.java         # Bộ kiểm thử hồi quy 50/50 Test Cases qua 9 kịch bản
-│   ├── VerifyNewFeatures.java          # Bộ kiểm thử tính năng mới 12/12 Test Cases
-│   └── CaptureScreenshots.java         # Công cụ tự động chụp ảnh màn hình Swing thật
+│   └── VerifyNewFeatures.java          # Bộ kiểm thử tính năng mới 12/12 Test Cases
 ├── BaoCao_QuanLyBanGiay_HSK.docx       # Báo cáo tiểu luận Word hoàn chỉnh (Chuẩn mẫu IUH)
-├── SoDoUseCase_QuanLyBanGiay.drawio    # File nguồn Draw.io Sơ đồ Use Case
-├── SoDoSequence_QuanLyBanGiay.drawio   # File nguồn Draw.io Sơ đồ Tuần tự
-├── SoDoKienTruc_QuanLyBanGiay.drawio   # File nguồn Draw.io Sơ đồ Kiến trúc 3 tầng
-├── SoDoLop_QuanLyBanGiay.drawio        # File nguồn Draw.io Sơ đồ Lớp OOP 7 lớp
-├── SoDoERD_QuanLyBanGiay.drawio        # File nguồn Draw.io Sơ đồ CSDL ERD 6 bảng
-├── diagram_usecase_shoe.png            # Sơ đồ Use Case độ phân giải cao (Hình 1)
-├── diagram_architecture_shoe.png       # Sơ đồ Kiến trúc 3 tầng độ phân giải cao (Hình 2)
-├── diagram_class_shoe.png              # Sơ đồ Lớp OOP 7 lớp độ phân giải cao (Hình 3)
-├── diagram_erd_shoe.png                # Sơ đồ ERD CSDL 6 bảng độ phân giải cao (Hình 4)
-├── diagram_sequence_shoe.png           # Sơ đồ Tuần tự thanh toán POS độ phân giải cao (Hình 5)
-├── screenshot_dangnhap.png             # Ảnh chụp thật giao diện Đăng nhập (Hình 6)
-├── screenshot_banhang.png              # Ảnh chụp thật giao diện Bán hàng POS (Hình 7)
-├── screenshot_sanpham.png              # Ảnh chụp thật giao diện Mẫu giày (Hình 8)
-├── screenshot_khachhang.png            # Ảnh chụp thật giao diện Khách hàng (Hình 9)
-├── screenshot_nhanvien.png             # Ảnh chụp thật giao diện Nhân sự (Hình 10)
+├── database_diagram_ssms.png           # Sơ đồ quan hệ CSDL chụp từ SSMS
+├── logo_iuh_new.png                    # Logo Đại học Công nghiệp TP.HCM chuẩn
 ├── run.bat                             # Script 1-Click tự động biên dịch và khởi chạy
-└── README.md
+├── AGENTS.md                           # Quy định hoạt động của hệ thống tác tử AI
+├── HUONG_DAN_KIEN_TRUC_VA_CODE.md      # Cẩm nang kiến trúc hệ thống và giải thích mã nguồn
+└── README.md                           # Tài liệu tổng quan dự án
 ```
 
 ---
@@ -171,9 +162,9 @@ E:\Eclipse Java\project\
 2. Mở và thực thi tệp script duy nhất trong thư mục `database/`:
    - Chạy `database/QuanLyBanGiay.sql` để tạo CSDL `QuanLyBanGiay`, 6 bảng, 33 ràng buộc CHECK và nạp đầy đủ dữ liệu mẫu chuẩn hóa.
 3. Cấu hình thông số kết nối:
-   - Thông số kết nối được nạp tự động và bảo mật từ tệp `db.properties` (dựa trên mẫu `db.properties.example`).
-   - URL mặc định tối giản: `jdbc:sqlserver://localhost:1433;databaseName=QuanLyBanGiay;encrypt=false;trustServerCertificate=true;loginTimeout=3;`
-   - Tài khoản mặc định: User `sa` | Password do bạn cấu hình trong `db.properties` (mật khẩu được bảo vệ an toàn, không lưu trong mã nguồn Java mà nạp từ tệp cấu hình riêng).
+   - Kết nối được thiết lập theo mẫu thiết kế Singleton chuẩn giảng dạy trong `src/connectDB/ConnectDB.java`.
+   - Chuỗi kết nối mặc định: `jdbc:sqlserver://localhost:1433;databaseName=QuanLyBanGiay`
+   - Tài khoản mặc định: User `sa` | Password `123456789` (có thể điều chỉnh trực tiếp trong `ConnectDB.java` cho phù hợp với máy cá nhân).
 
 ### 3. Tài Khoản Đăng Nhập Mẫu
 

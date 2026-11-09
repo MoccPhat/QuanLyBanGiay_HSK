@@ -81,37 +81,47 @@ Dự án áp dụng mô hình **3-Tier Layered Architecture** chuẩn mực côn
 
 ```
 E:\Eclipse Java\project\
-├── bin/                          # Chứa bytecode (.class) đã biên dịch
-├── lib/                          # Driver JDBC: mssql-jdbc-12.4.2.jre11.jar
-├── data/                         # Hình ảnh sản phẩm giày dép
-├── SoiLoi_QuanLyBanGiay/         # Kịch bản kiểm thử tự động (KiemThu.java)
-└── src/                          # Mã nguồn chương trình
-    ├── Main.java                 # Khởi chạy ứng dụng (Mở DangNhap_GUI)
-    ├── connectDB/
-    │   └── ConnectDB.java        # Quản lý kết nối SQL Server (Mô hình Singleton)
-    ├── entity/                   # Các lớp thực thể đối tượng
-    │   ├── Nguoi.java            # Lớp trừu tượng: họ tên, sdt, ngày sinh, địa chỉ
-    │   ├── NhanVien.java         # Kế thừa Nguoi: chức vụ, lương, mật khẩu hash
-    │   ├── KhachHang.java        # Kế thừa Nguoi: điểm tích lũy, hạng thành viên
-    │   ├── SanPham.java          # Mẫu giày: tên, loại, thương hiệu, giá nhập/bán
-    │   ├── ChiTietGiay.java      # Biến thể SKU: mã SKU, size, màu, số lượng tồn
-    │   ├── HoaDon.java           # Hóa đơn: tổng hàng, chiết khấu, điểm, tổng trả
-    │   └── ChiTietHoaDon.java    # Dòng hóa đơn: SKU, số lượng, đơn giá, thành tiền
-    ├── dao/                      # Các lớp truy xuất CSDL (Data Access Objects)
-    │   ├── NhanVien_DAO.java     # Đăng nhập SHA-256, phân quyền, CRUD nhân viên
-    │   ├── SanPham_DAO.java      # CRUD mẫu giày, kiểm tra mã sản phẩm
-    │   ├── ChiTietGiay_DAO.java  # Quản lý tồn kho theo SKU, sinh mã tự động
-    │   ├── KhachHang_DAO.java    # Tìm khách theo SĐT, tích điểm, đổi hạng thẻ
-    │   └── HoaDon_DAO.java       # Lưu hóa đơn bán hàng bằng Transaction ACID
-    └── gui/                      # Giao diện đồ họa Swing
-        ├── UIHelper.java         # Tiện ích giao diện: Nút bấm, bảng, ô nhập, màu sắc
-        ├── DangNhap_GUI.java     # Cửa sổ đăng nhập xác thực tài khoản
-        ├── ManHinhChinh_GUI.java # Cửa sổ chính chứa Tab chức năng & Hotkeys
-        ├── BanHang_GUI.java      # Phân hệ POS bán hàng, thanh toán, hộp thoại xem trước hóa đơn K80
-        ├── QuanLySanPham_GUI.java# Phân hệ quản lý mẫu giày & tạo biến thể SKU
-        ├── QuanLyKhachHang_GUI.java # Phân hệ quản lý khách hàng & lịch sử điểm
-        ├── QuanLyNhanVien_GUI.java  # Phân hệ quản lý nhân sự (chỉ Quản lý)
-        └── ThongKe_GUI.java      # Phân hệ thống kê doanh thu & top bán chạy
+├── bin/                          # Chứa bytecode (.class) đã biên dịch (Java 17, major=61)
+├── data/                         # Dữ liệu kịch bản CSDL bổ trợ (QuanLyBanGiay.sql)
+├── database/                     # Kịch bản Cơ sở dữ liệu SQL Server (QuanLyBanGiay.sql)
+├── hoadon/                       # Thư mục xuất file hóa đơn bán hàng (.txt)
+├── lib/                          # Driver JDBC: sqljdbc42.jar
+├── src/                          # Mã nguồn chương trình (24 tệp Java)
+│   ├── Main.java                 # Khởi chạy ứng dụng (Mở DangNhap_GUI)
+│   ├── connectDB/
+│   │   └── ConnectDB.java        # Quản lý kết nối SQL Server (Mô hình Singleton)
+│   ├── entity/                   # Các lớp thực thể đối tượng
+│   │   ├── Nguoi.java            # Lớp trừu tượng: họ tên, sdt, ngày sinh, địa chỉ
+│   │   ├── NhanVien.java         # Kế thừa Nguoi: chức vụ, lương, mật khẩu hash
+│   │   ├── KhachHang.java        # Kế thừa Nguoi: điểm tích lũy, hạng thành viên
+│   │   ├── SanPham.java          # Mẫu giày: tên, loại, thương hiệu, giá nhập/bán
+│   │   ├── ChiTietGiay.java      # Biến thể SKU: mã SKU, size, màu, số lượng tồn
+│   │   ├── HoaDon.java           # Hóa đơn: tổng hàng, chiết khấu, điểm, tổng trả
+│   │   └── ChiTietHoaDon.java    # Dòng hóa đơn: SKU, số lượng, đơn giá, thành tiền
+│   ├── dao/                      # Các lớp truy xuất CSDL (Data Access Objects)
+│   │   ├── NhanVien_DAO.java     # Đăng nhập SHA-256, phân quyền, CRUD nhân viên
+│   │   ├── SanPham_DAO.java      # CRUD mẫu giày, kiểm tra mã sản phẩm
+│   │   ├── ChiTietGiay_DAO.java  # Quản lý tồn kho theo SKU, sinh mã tự động
+│   │   ├── KhachHang_DAO.java    # Tìm khách theo SĐT, tích điểm, đổi hạng thẻ
+│   │   └── HoaDon_DAO.java       # Lưu hóa đơn bán hàng bằng Transaction ACID
+│   └── gui/                      # Giao diện đồ họa Swing
+│       ├── UIHelper.java         # Tiện ích giao diện: Nút bấm, bảng, ô nhập, màu sắc
+│       ├── DangNhap_GUI.java     # Cửa sổ đăng nhập xác thực tài khoản
+│       ├── ManHinhChinh_GUI.java # Cửa sổ chính chứa Tab chức năng & Hotkeys
+│       ├── BanHang_GUI.java      # Phân hệ POS bán hàng, thanh toán, hộp thoại xem trước hóa đơn K80
+│       ├── QuanLySanPham_GUI.java# Phân hệ quản lý mẫu giày & tạo biến thể SKU
+│       ├── QuanLyKhachHang_GUI.java # Phân hệ quản lý khách hàng & lịch sử điểm
+│       ├── QuanLyNhanVien_GUI.java  # Phân hệ quản lý nhân sự (chỉ Quản lý)
+│       └── ThongKe_GUI.java      # Phân hệ thống kê doanh thu & top bán chạy
+├── _memory/                      # Tri thức dài hạn hệ thống (Obsidian Memory)
+├── _sync/                        # Bộ kiểm thử tự động và tài liệu đối soát sự thật
+├── BaoCao_QuanLyBanGiay_HSK.docx # Báo cáo tiểu luận Word hoàn chỉnh (Chuẩn mẫu IUH)
+├── database_diagram_ssms.png     # Sơ đồ quan hệ CSDL chụp từ SSMS
+├── logo_iuh_new.png              # Logo Đại học Công nghiệp TP.HCM
+├── run.bat                       # Script 1-Click tự động biên dịch và khởi chạy
+├── AGENTS.md                     # Quy định hoạt động của hệ thống tác tử AI
+├── HUONG_DAN_KIEN_TRUC_VA_CODE.md # Cẩm nang kiến trúc hệ thống và giải thích mã nguồn
+└── README.md                     # Tài liệu tổng quan dự án
 ```
 
 ---
@@ -595,8 +605,7 @@ Sơ đồ CSDL (Database Diagram) ======>    Tệp 'database/QuanLyBanGiay.sql' 
 #### B. Kỹ thuật & Gói bàn giao (Deliverable Package):
 - [ ] Mã nguồn biên dịch đạt chuẩn Java 17 với cờ --release 17 -encoding UTF-8, kiểm tra in/Main.class có Bytecode Major Version = **61**.
 - [ ] Kiểm tra cơ sở dữ liệu Microsoft SQL Server khởi chạy 6 bảng chuẩn, chạy script mẫu có sẵn dữ liệu test thực tế.
-- [ ] File cấu hình db.properties.example và tệp chạy tự động 
-un.bat hoạt động trơn tru với 1 cú click chuột.
+- [ ] Tệp chạy tự động run.bat hoạt động trơn tru với 1 cú click chuột, tự động nhận diện JDK 17 và nạp thư viện lib/sqljdbc42.jar.
 - [ ] Đóng gói thư mục bàn giao StepUp_QuanLyBanGiay_Deliverable sạch 100%, không chứa file rác, file .py, hoặc thư mục tạm.
 
 #### C. Chiến thuật thuyết trình & Demo nhanh (5 - 10 Phút/Nhóm):
