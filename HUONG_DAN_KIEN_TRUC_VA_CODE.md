@@ -482,3 +482,129 @@ Toàn bộ 5 kịch bản kiểm thử tự động của `KiemThu.java` chạy 
 
 ---
 *Tài liệu được biên soạn phục vụ công tác bàn giao, tiếp nhận và chấm điểm đồ án chuyên môn bậc Đại học.*
+
+
+---
+
+## 8. CHIẾN LƯỢC TRÌNH BÀY BÁO CÁO (ĐỒNG BỘ 4 PHẦN CHUẨN RUBRIC)
+
+> **Mục tiêu:** Cung cấp khung hướng dẫn toàn diện nhằm đồng bộ hóa 100% giữa tài liệu báo cáo (.docx / .md), kiến trúc thiết kế hệ thống và mã nguồn thực thi thực tế của dự án **QuanLyBanGiay_HSK**, đáp ứng chính xác cấu trúc 4 phần theo đề cương rubric và bảo đảm đạt kết quả cao nhất trong ngày bảo vệ Showday (18/11).
+
+### 8.1. Cấu Trúc Báo Cáo Chuẩn 4 Phần (Theo Rubric ScriptForMD)
+
+Tài liệu báo cáo chính thức bắt buộc phải tuân thủ nghiêm ngặt thứ tự 4 đề mục lớn sau:
+
+1. **TRANG BÌA & PHẦN MỞ ĐẦU:**
+   - **Trang bìa:** Nhận diện thương hiệu chuẩn của Trường Đại học Công nghiệp TP. Hồ Chí Minh (IUH) với Logo mới nhất, tên Khoa Công nghệ Thông tin, tên môn học *Lập trình hướng sự kiện với công nghệ Java (HSK)*, tên đề tài *Xây dựng hệ thống quản lý bán giày thời trang StepUp*.
+   - **Thông tin nhân sự:** Họ tên Giảng viên hướng dẫn, Bảng phân công nhiệm vụ chi tiết kèm MSSV, vai trò và tỷ lệ đóng góp của từng thành viên.
+   - **Mục lục & Danh mục phụ trợ:** Mục lục phân cấp tự động, Danh mục hình ảnh minh họa, Danh mục bảng biểu dữ liệu.
+
+2. **PHẦN 1: THU THẬP VÀ PHÂN TÍCH YÊU CẦU (GIỚI THIỆU):**
+   - **Đặt vấn đề & Khảo sát hiện trạng:** Nêu bật các pain point trong quản lý bán lẻ giày dép truyền thống (sai lệch tồn kho theo biến thể Size/Màu, nhầm lẫn giá bán khi áp dụng đồng thời khuyến mãi và thuế VAT, chậm trễ đối soát doanh thu).
+   - **Mục tiêu & Đối tượng thụ hưởng:** Phân định rõ 2 tác nhân (Actors): *Nhân viên bán hàng / Thu ngân* (thao tác POS nhanh, tra cứu tồn kho tức thời, tích điểm) và *Người quản lý* (quản lý danh mục 2 tầng, quản trị nhân sự, giám sát doanh số).
+   - **Khả năng của hệ thống:** Hoạt động ổn định trên môi trường Desktop Java Swing, phản hồi dưới 0.2s, hỗ trợ phím tắt toàn cục F1-F5, in phiếu hóa đơn nhiệt K80 và xuất báo cáo.
+   - **Phân hệ nghiệp vụ chính:** Bán hàng POS trực tiếp, Quản lý sản phẩm & biến thể SKU, Quản lý khách hàng thân thiết, Quản lý nhân viên & phân quyền, Thống kê tài chính.
+   - **Quy tắc tính toán đặc thù:** Công thức tính thành tiền, tổng tiền hàng (Subtotal), thuế GTGT (VAT 10%), chiết khấu hạng thẻ khách hàng, điểm tích lũy, tiền thừa trả khách; quy tắc sinh mã tự động (ID Pattern: HDyyMMddxxxx, SPxxxx, NVxxxx, KHxxxx).
+
+3. **PHẦN 2: THIẾT KẾ SƠ ĐỒ LỚP (CLASS DIAGRAM) + MÔ TẢ RÀNG BUỘC:**
+   - **Sơ đồ lớp tổng thể:** Hình ảnh Class Diagram thiết kế chuẩn 7 thực thể thực tế của dự án (Nguoi, NhanVien, KhachHang, SanPham, ChiTietGiay, HoaDon, ChiTietHoaDon), thể hiện rõ quan hệ kế thừa (Inheritance), quan hệ kết tập (Composition/Aggregation) và số lượng kết hợp (Multiplicity).
+   - **Bảng đặc tả chi tiết từng lớp (Chuẩn 4 Cột):** Bắt buộc trình bày bảng 4 cột: *Tên thuộc tính*, *Kiểu dữ liệu (Datatype)*, *Ràng buộc logic / Mô tả phương thức*, *Ghi chú (Enum/Quy ước)*.
+   - **Hộp Lưu Ý logic tính toán & Transaction:** Làm rõ phương thức tính toán tổng hóa đơn (HoaDon.tinhTongTien()), cơ chế kiểm tra tính khả dụng của tồn kho trước khi thanh toán (ChiTietGiay.getSoLuongTon() >= soLuongMua), và cơ chế trừ tồn kho an toàn trong khối giao dịch CSDL (Transaction Rollback nếu xảy ra ngoại lệ).
+
+4. **PHẦN 3: SƠ ĐỒ CƠ SỞ DỮ LIỆU (DATABASE DIAGRAM TRÊN SQL SERVER) + MÔ TẢ RÀNG BUỘC:**
+   - **Lược đồ quan hệ thực thể (Database Diagram):** Ảnh chụp sơ đồ quan hệ phát sinh trực tiếp từ SQL Server Management Studio (SSMS) trên CSDL chuẩn 6 bảng (NhanVien, KhachHang, SanPham, ChiTietGiay, HoaDon, ChiTietHoaDon). Tuyệt đối loại bỏ các bảng thừa không có trong mã nguồn (LoaiGiay, ThuongHieu, TaiKhoan).
+   - **Bảng từ điển dữ liệu (Data Dictionary 4 Cột):** Đặc tả từng bảng gồm: *Tên cột*, *Kiểu dữ liệu trong SQL Server*, *Kích thước (Length/Precision)*, *Ràng buộc toàn vẹn (PK, FK, NOT NULL, CHECK, UNIQUE, DEFAULT)*.
+   - **Hệ thống ràng buộc toàn vẹn:** Thống kê chi tiết 33 ràng buộc CHECK (giá bán >= giá nhập > 0, số lượng tồn >= 0, size 35-46, thuế VAT >= 0, điểm >= 0), 5 ràng buộc khóa ngoại FOREIGN KEY, và 4 chỉ mục duy nhất UNIQUE (số điện thoại nhân viên, số điện thoại khách hàng, cặp SKU biến thể sản phẩm).
+
+5. **PHẦN 4: HIỆN THỰC (CHỤP VÀ MÔ TẢ CÁC MÀN HÌNH CHÍNH):**
+   - Chèn ảnh chụp giao diện chạy thực tế độ phân giải cao kèm theo bảng đặc tả 3 yếu tố cốt lõi: *Mục đích màn hình*, *Các thành phần giao diện & Bố cục*, *Quy tắc xử lý sự kiện & Nghiệp vụ*.
+   - Danh mục các màn hình bắt buộc:
+     + Màn hình Đăng nhập & Xác thực phân quyền.
+     + Màn hình Bán Hàng & Lập Hóa Đơn Trực Tiếp (Core POS, giỏ hàng, tính tiền thừa, phím tắt).
+     + Màn hình Xuất/In Hóa Đơn (Xem trước phiếu in nhiệt K80 và xuất PDF).
+     + Màn hình Quản Lý Sản Phẩm & Biến Thể Giày (Mẫu giày cha 2 tầng, cập nhật bảng biến thể SKU, tìm kiếm nâng cao).
+     + Màn hình Quản Lý Khách Hàng & Tra cứu lịch sử tích điểm.
+     + Màn hình Quản Lý Nhân Viên (Xóa mềm Soft Delete, bảo vệ tài khoản).
+     + Màn hình Thống Kê Doanh Thu & Báo Cáo (Biểu đồ doanh số, thẻ KPI, Top 10 sản phẩm bán chạy).
+
+---
+
+### 8.2. Danh Mục Sơ Đồ, Bảng Biểu & Hình Ảnh Bắt Buộc Trong Báo Cáo
+
+| Phần | Tên Thành Phần Bắt Buộc | Định Dạng Trình Bày | Ý Nghĩa Chấm Điểm |
+| :---: | :--- | :--- | :--- |
+| **Bìa** | Logo IUH mới + Bảng phân công nhóm | Ảnh PNG + Table 4 cột | Nhận diện trường & Minh bạch đóng góp cá nhân |
+| **Phần 1** | Bảng quy tắc sinh mã & Công thức tiền | Bảng Markdown/Word + Công thức KaTeX | Chứng minh nghiệp vụ chặt chẽ, có tính toán |
+| **Phần 1** | Sơ đồ Use Case phân hệ tổng thể | Diagram UML | Tổng quan luồng chức năng theo vai trò người dùng |
+| **Phần 2** | Hình ảnh Sơ đồ lớp tổng thể (Class Diagram) | Ảnh PNG 300 DPI + Mermaid | Khung xương hướng đối tượng (OOP) của đồ án |
+| **Phần 2** | 06 Bảng đặc tả chi tiết lớp (4 cột) | Table: Thuộc tính \| Kiểu \| Ràng buộc \| Ghi chú | Tiêu chí kỹ thuật bắt buộc theo yêu cầu của Giảng viên |
+| **Phần 2** | Hộp Callout 'Lưu Ý' logic tính toán & Transaction | Khối Quote/Callout nổi bật | Điểm nhấn kỹ thuật về tính toán và an toàn dữ liệu |
+| **Phần 3** | Database Diagram SSMS (Diagram phát sinh thật) | Ảnh chụp từ SSMS | Chứng minh CSDL vật lý đã được tạo và chạy trên SQL Server |
+| **Phần 3** | 06 Bảng từ điển dữ liệu (Data Dictionary 4 cột) | Table: Thuộc tính \| Kiểu SQL \| Kích thước \| Ràng buộc | Chuẩn hóa CSDL quan hệ và ràng buộc dữ liệu |
+| **Phần 4** | Ảnh chụp màn hình Đăng nhập | Ảnh chụp giao diện thực tế | Xác thực và phân quyền truy cập |
+| **Phần 4** | Ảnh chụp màn hình Bán Hàng POS (Core) | Ảnh chụp giao diện thực tế | Trọng tâm đánh giá kỹ năng lập trình sự kiện |
+| **Phần 4** | Ảnh chụp phiếu in hóa đơn K80 nhiệt | Ảnh xem trước hóa đơn | Hoàn thiện luồng thanh toán thực tế của cửa hàng |
+| **Phần 4** | Ảnh chụp màn hình Quản lý Sản phẩm 2 tầng | Ảnh chụp giao diện thực tế | Kỹ năng xử lý dữ liệu phức hợp (Master-Detail) |
+| **Phần 4** | Ảnh chụp màn hình Quản lý Khách hàng & Nhân viên | Ảnh chụp giao diện thực tế | Hoàn thiện các phân hệ quản trị nghiệp vụ |
+| **Phần 4** | Ảnh chụp màn hình Thống kê doanh thu & Biểu đồ | Ảnh chụp giao diện thực tế | Kỹ năng trực quan hóa dữ liệu kinh doanh |
+
+---
+
+### 8.3. Bản Đồ Ánh Xạ Kiến Trúc Sang Mã Nguồn (Architecture-to-Code Mapping)
+
+Khi bảo vệ đồ án trước Hội đồng / Giảng viên, sinh viên phải chứng minh được tính đồng bộ tuyệt đối giữa mô hình thiết kế và mã nguồn Java thông qua bản đồ liên kết sau:
+
+`
+[BÁO CÁO THIẾT KẾ]                        [MÃ NGUỒN THỰC THI (src/)]
+Sơ đồ lớp (Class Diagram)     =======>    Package 'entity':
+- Nguoi (Lớp trừu tượng cha)              - Nguoi.java (Lớp cơ sở)
+- NhanVien, KhachHang                     - NhanVien.java, KhachHang.java (Kế thừa Nguoi)
+- SanPham, ChiTietGiay (SKU)              - SanPham.java, ChiTietGiay.java (Master-Detail)
+- HoaDon, ChiTietHoaDon                   - HoaDon.java, ChiTietHoaDon.java (Order-Items)
+
+Sơ đồ CSDL (Database Diagram) ======>    Tệp 'database/QuanLyBanGiay.sql' & Package 'dao':
+- 6 Bảng CSDL quan hệ                     - Script DDL khởi tạo schema, PK, FK, CHECK
+- Thao tác CRUD & Truy vấn                - SanPham_DAO.java, KhachHang_DAO.java, ...
+- Giao dịch thanh toán ACID               - HoaDon_DAO.java (setAutoCommit(false), Rollback)
+
+Đặc tả màn hình (Phần 4)      =======>    Package 'gui' & Xử lý sự kiện (Event Handling):
+- Màn hình Bán Hàng POS                   - BanHang_GUI.java (ActionListener, ItemListener)
+- Màn hình Quản lý Mẫu Giày               - QuanLySanPham_GUI.java (JTable, ListSelectionListener)
+- Phím tắt toàn cục F1-F5                 - KeyBindings qua JRootPane, InputMap & ActionMap
+- Khắc phục giao diện Windows             - UIHelper.java (Tối ưu nút phẳng, tương phản WCAG)
+- Kết nối CSDL bảo mật                   - connectDB/DatabaseConnection.java (Singleton Pattern)
+`
+
+#### Quy tắc trả lời chất vấn kỹ thuật về kiến trúc:
+1. **Khi được hỏi về mô hình 3 tầng:**
+   - Trả lời: Hệ thống tuân thủ chặt chẽ mô hình 3 tầng: Tầng Giao diện (gui) chỉ tiếp nhận tương tác người dùng và gọi Tầng Nghiệp vụ/Truy xuất dữ liệu (dao), dữ liệu được đóng gói thành các đối tượng thuộc Tầng Thực thể (entity). Tầng GUI tuyệt đối không viết câu lệnh SQL trực tiếp.
+2. **Khi được hỏi về an toàn dữ liệu và tính toán:**
+   - Trả lời: Nghiệp vụ thanh toán trong HoaDon_DAO.java sử dụng **Database Transaction** với connection.setAutoCommit(false). Khi lưu hóa đơn thành công, hệ thống đồng thời duyệt trừ số lượng tồn kho của từng biến thể trong ChiTietGiay. Nếu có bất kỳ lỗi nào xảy ra (ví dụ tồn kho không đủ), lệnh connection.rollback() được kích hoạt ngay lập tức để bảo vệ toàn vẹn dữ liệu.
+3. **Khi được hỏi về tính năng độc đáo và khác biệt:**
+   - Trả lời: Hệ thống quản lý sản phẩm giày dép theo **Kiến trúc biến thể 2 tầng (Master-Detail)**: Tầng mẫu giày (SanPham) đại diện cho kiểu dáng, thương hiệu; tầng biến thể (ChiTietGiay) quản lý từng đôi giày cụ thể theo Size và Màu sắc. Điều này giúp cửa hàng kiểm soát chính xác tồn kho theo từng kích cỡ thực tế.
+
+---
+
+### 8.4. Checklist Chuẩn Bị Toàn Diện Trước Khi Nộp & Showday (18/11)
+
+#### A. Hồ sơ giấy tờ & Thủ tục hành chính:
+- [ ] In sẵn **02 Phiếu đánh giá làm việc nhóm** có đầy đủ chữ ký sống của tất cả thành viên trong nhóm.
+- [ ] In sẵn **01 Phiếu chấm điểm của Giảng viên** đã điền đầy đủ tên đề tài, danh sách thành viên và lớp học phần.
+- [ ] Bản in Báo cáo đồ án (hoặc file nộp PDF/Word theo yêu cầu của Giảng viên) được đóng bìa chỉn chu, có logo IUH sắc nét.
+
+#### B. Kỹ thuật & Gói bàn giao (Deliverable Package):
+- [ ] Mã nguồn biên dịch đạt chuẩn Java 17 với cờ --release 17 -encoding UTF-8, kiểm tra in/Main.class có Bytecode Major Version = **61**.
+- [ ] Kiểm tra cơ sở dữ liệu Microsoft SQL Server khởi chạy 6 bảng chuẩn, chạy script mẫu có sẵn dữ liệu test thực tế.
+- [ ] File cấu hình db.properties.example và tệp chạy tự động 
+un.bat hoạt động trơn tru với 1 cú click chuột.
+- [ ] Đóng gói thư mục bàn giao StepUp_QuanLyBanGiay_Deliverable sạch 100%, không chứa file rác, file .py, hoặc thư mục tạm.
+
+#### C. Chiến thuật thuyết trình & Demo nhanh (5 - 10 Phút/Nhóm):
+- [ ] **00:00 - 01:30 (Mở đầu):** Trưởng nhóm giới thiệu ngắn gọn đề tài, nêu bật mô hình kiến trúc 3 tầng chuẩn mực và khẳng định mã nguồn đồng bộ 100% với tài liệu báo cáo.
+- [ ] **01:30 - 05:00 (Demo trọng tâm):** Đi thẳng vào tính năng khó nhất - **Màn hình Bán Hàng POS (BanHang_GUI)**:
+  - Thao tác chọn mẫu giày -> chọn biến thể Size/Màu thực tế trong kho.
+  - Test case chặn lỗi: Nhập số lượng vượt tồn kho -> hệ thống báo lỗi không cho thêm vào giỏ.
+  - Áp mã giảm giá, tính thuế VAT, tính tiền thối tự động, in phiếu hóa đơn K80 xem trước.
+  - Chứng minh sau thanh toán: Số lượng tồn kho trong bảng sản phẩm đã được tự động trừ chính xác trong SQL Server.
+- [ ] **05:00 - 07:00 (Màn hình Thống kê & Quản trị):** Trình diễn nhanh biểu đồ doanh thu theo thời gian, lọc dữ liệu trực quan.
+- [ ] **07:00 - 10:00 (Chất vấn):** Phân công thành viên phụ trách từng module đứng lên trả lời trực tiếp câu hỏi của Giảng viên, tự tin chỉ đúng vị trí dòng code giải quyết bài toán.
