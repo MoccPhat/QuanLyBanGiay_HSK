@@ -100,3 +100,11 @@ Ghi chú đã kiểm tra: `humanizer`, `generative_ui`, `minimax-xlsx` có tên 
      (Kèm theo các thuộc tính bảo mật phù hợp như `encrypt=true;trustServerCertificate=true;`).
 5. **Không tự ý thay đổi style trình bày khi chưa có yêu cầu từ người dùng:**
    - Tuyệt đối không tự ý thay đổi style trình bày, bảng màu, khoảng cách hoặc cấu trúc văn bản khi chưa có yêu cầu cụ thể từ người dùng.
+
+## MEMORY PROTOCOL — BỘ NHỚ OBSIDIAN (BẮT BUỘC TỪ 2026-11-09)
+
+- Vault: `C:\Users\ASUS\OneDrive\Tài liệu\Obsidian Vault\Jarvis_Memory\`
+- Truy cập ngắn trong project: `E:\Eclipse Java\project\_memory\Jarvis_Memory\`
+- **Trước mỗi task:** đọc `_memory\Jarvis_Memory\00_JARVIS_INDEX.md` và `wiki\User_Preferences.md`.
+- **Sau mỗi task:** append nhật ký vào `raw\<YYYY-MM-DD>_Session_Log.md`, thêm link vào `00_JARVIS_INDEX.md` (cập nhật `updated:`), chỉ thêm — không sửa note của agent khác.
+- Chi tiết quy ước: `_memory\Jarvis_Memory\MEMORY_PROTOCOL.md`.
