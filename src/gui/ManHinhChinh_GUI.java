@@ -9,14 +9,15 @@ import java.awt.event.ActionListener;
 
 /**
  * Cửa sổ làm việc chính của hệ thống StepUp Footwear POS.
- * Điều phối các phân hệ chức năng thông qua JTabbedPane:
+ * Điều phối 5 phân hệ chức năng thông qua JTabbedPane:
  * - Tab 0: Bán hàng tại quầy (POS) [F1]
  * - Tab 1: Quản lý danh mục mẫu giày [F2]
  * - Tab 2: Quản lý khách hàng & tích điểm [F3]
  * - Tab 3: Quản lý nhân sự (chỉ dành cho Quản lý) [F4]
+ * - Tab 4: Thống kê doanh thu & báo cáo (chỉ dành cho Quản lý) [F5]
  * 
  * Tính năng nâng cao:
- * - Hệ thống phím tắt toàn cục hoạt động 100% (F1-F4, F10, ESC, DEL).
+ * - Hệ thống phím tắt toàn cục hoạt động 100% (F1-F5, F10, ESC, DEL).
  * - ChangeListener tự động làm mới danh sách sản phẩm khi chuyển về tab Bán hàng (C7).
  */
 public class ManHinhChinh_GUI extends JFrame implements ActionListener {
