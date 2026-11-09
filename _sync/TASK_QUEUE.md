@@ -1,6 +1,6 @@
 # 📌 BẢNG ĐIỀU PHỐI TIẾN ĐỘ DỰ ÁN (TASK_QUEUE.MD)
 
-> **Cập nhật lúc:** 2026-11-09 22:46:00  
+> **Cập nhật lúc:** 2026-11-09 23:00:00  
 > **Người thực hiện:** Tab 3 — Báo cáo (.docx/.md) & Đóng gói bàn giao  
 > **Dự án:** StepUp — Quản lý Cửa Hàng Bán Giày (`E:\Eclipse Java\project`)
 
@@ -10,6 +10,7 @@
 
 | Việc | Trạng thái | Bằng chứng | Người phụ trách (tab) | Ghi chú |
 |---|---|---|---|---|
+| **Đóng gói bản cuối (PACK-1110)** | `DONE` (Hoàn hảo 100%) | `bin\Main.class` major 61 (Java 17); Thư mục `StepUp_QuanLyBanGiay_Deliverable` (97 files, 5.02 MB); `StepUp_QuanLyBanGiay_FINAL_2026-11-10.zip` (4.48 MB, 97 files); 0 file `.py`, 0 `db.properties`, 0 `hoadon`, 0 `_sync` | Tab 3 (Đóng gói) | Sạch 100% file rác; Gói nén chuẩn xác theo yêu cầu bản cuối; Bytecode Java 17. |
 | **Cập nhật báo cáo Round 3 (DOC-ROUND3)** | `DONE` (Hoàn hảo 100%) | 5 ảnh thay mới: 2 sequence (Hình 7, 19), 3 screenshot (Hình 5, 9, 14); ConnectDB chuẩn mẫu GV; Cắt bỏ in máy in, đổi MK, dialog tìm kiếm, bộ lọc thời gian, Top sản phẩm; 4 ảnh preview: `r2_login.png`, `r2_thanhtoan.png`, `r2_sanpham.png`, `r2_thongke.png`; Drawings 20/20, Tables 22/22 | Tab 3 (Báo cáo) | Chuẩn hóa khớp 100% hiện trạng code mới; Danh mục hình & Bảng 18 đồng bộ; 0 lỗi, 0 watermark. |
 | **Cập nhật 2 sơ đồ tuần tự bóp nhỏ (VP-SEQ-SYNC-TRIM)** | `DONE` (Khớp 100% Code) | `manual_seq_thanhtoan.png` (995×771 px, message 12 đổi thành 'Hộp thoại hóa đơn K80 (Xuất .txt)'); `manual_seq_thongke.png` (1250×771 px, bóp còn 9 messages, bỏ hẳn Top sản phẩm); 0 watermark, không dính toolbar, 1 activation/đối tượng | Tab 4 / Subagent VP | Khớp hoàn toàn với code đã bóp nhỏ (bỏ in máy in, bỏ top sản phẩm ở Thống kê); Đã lưu `ThanhToan2.vpp`. |
 | **Thay 8 sơ đồ chụp tay không watermark (DOC-NOWATERMARK)** | `DONE` (Hoàn hảo 100%) | 8 ảnh manual: Hình 1 (55 KB), Hình 3 (82 KB), Hình 7 (35 KB), Hình 15 (39 KB), Hình 16 (43 KB), Hình 17 (42 KB), Hình 18 (40 KB), Hình 19 (43 KB); Drawings = 20/20; 0 watermark; 3 previews: `noWM_hinh1.png`, `noWM_hinh7.png`, `noWM_hinh19.png` | Tab 3 (Báo cáo) | Đã thanh lọc sạch 8 ảnh VP watermark khỏi `word/media/`; Giữ nguyên 100% caption & thứ tự hình; Khổ rộng 16cm căn giữa. |
